@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --portal-bg: #0b0b0c;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+  /* ——— Shared: branded placeholder frame for missing photography ——— */
+  .photo-frame {
+    @apply relative flex items-center justify-center overflow-hidden;
+  }
+  .photo-frame::after {
+    content: '';
+    @apply pointer-events-none absolute inset-0;
+  }
+
+  /* ——— LUXE primitives ——— */
+  .luxe-label {
+    @apply font-sans text-[0.7rem] uppercase tracking-luxe text-luxe-stone;
+  }
+  .luxe-rule {
+    @apply h-px w-full bg-luxe-charcoal/15;
+  }
+  .luxe-btn {
+    @apply inline-flex items-center justify-center gap-2 border border-luxe-noir bg-luxe-noir px-8 py-4
+           font-sans text-[0.72rem] uppercase tracking-wider2 text-luxe-cream
+           transition-all duration-500 ease-luxe hover:bg-transparent hover:text-luxe-noir;
+  }
+  .luxe-btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 border border-luxe-noir/40 px-8 py-4
+           font-sans text-[0.72rem] uppercase tracking-wider2 text-luxe-noir
+           transition-all duration-500 ease-luxe hover:border-luxe-noir hover:bg-luxe-noir hover:text-luxe-cream;
+  }
+
+  /* ——— POPS primitives ——— */
+  .pops-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black
+           bg-pops-lime px-7 py-3.5 font-display text-base font-bold uppercase text-pops-black
+           shadow-pops transition-transform duration-150 hover:-translate-y-0.5 hover:translate-x-0.5
+           hover:shadow-pops-lg active:translate-x-1 active:translate-y-1 active:shadow-none;
+  }
+  .pops-chip {
+    @apply inline-flex items-center gap-1 rounded-full border-2 border-pops-black px-3 py-1
+           font-display text-xs font-bold uppercase;
+  }
+  .pops-card {
+    @apply rounded-pops border-2 border-pops-black bg-pops-paper shadow-pops;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .grain {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .text-stroke-black {
+    -webkit-text-stroke: 2px #0e0e12;
+  }
+}
