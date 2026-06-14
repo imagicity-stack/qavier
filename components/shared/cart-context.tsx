@@ -133,7 +133,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     () => lines.reduce((sum, l) => sum + Number(l.price.amount) * l.quantity, 0),
     [lines],
   );
-  const currencyCode = lines[0]?.price.currencyCode ?? 'USD';
+  const currencyCode = lines[0]?.price.currencyCode ?? 'INR';
 
   const value: CartContextValue = {
     lines,

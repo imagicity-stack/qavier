@@ -13,7 +13,7 @@ export function formatPrice(money?: Money | null, opts?: { compact?: boolean }) 
   const amount = Number(money.amount);
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: money.currencyCode || 'USD',
+    currency: money.currencyCode || 'INR',
     minimumFractionDigits: opts?.compact && Number.isInteger(amount) ? 0 : 2,
     maximumFractionDigits: 2,
   }).format(amount);

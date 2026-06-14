@@ -97,7 +97,7 @@ export function PopsPurchase({ product }: { product: Product }) {
 
       <div className="grid grid-cols-3 gap-2 text-center">
         {[
-          { t: 'free ship', s: 'over $100' },
+          { t: 'free ship', s: 'over ₹100' },
           { t: 'easy returns', s: '30 days' },
           { t: 'pay later', s: 'in 4' },
         ].map((b) => (
