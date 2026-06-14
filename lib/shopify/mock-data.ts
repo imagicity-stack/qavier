@@ -8,7 +8,7 @@
  */
 import type { Collection, Product, ProductVariant, Universe } from './types';
 
-const CURRENCY = 'USD';
+const CURRENCY = 'INR';
 
 function money(amount: number) {
   return { amount: amount.toFixed(2), currencyCode: CURRENCY };

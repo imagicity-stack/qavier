@@ -79,7 +79,7 @@ export default async function PopsHome() {
               </Link>
             </div>
             <div className="mt-8 flex flex-wrap items-center gap-2">
-              <span className="pops-chip bg-pops-cyan text-pops-black">free ship $100+</span>
+              <span className="pops-chip bg-pops-cyan text-pops-black">free ship ₹100+</span>
               <span className="pops-chip bg-pops-lime text-pops-black">pay in 4</span>
               <span className="pops-chip bg-white text-pops-black">30-day returns</span>
             </div>

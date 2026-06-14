@@ -39,7 +39,7 @@ const FAQ = [
   },
   {
     q: 'how fast is shipping?',
-    a: 'we ship worldwide. orders go out in 1–2 business days. free shipping over $100, flat rate under that. you’ll get tracking the second it leaves us.',
+    a: 'we ship worldwide. orders go out in 1–2 business days. free shipping over ₹100, flat rate under that. you’ll get tracking the second it leaves us.',
   },
   {
     q: 'what about returns?',

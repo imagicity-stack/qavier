@@ -33,7 +33,7 @@ export function PopsFooter() {
       {/* Marquee strip */}
       <div className="border-y-2 border-pops-lime bg-pops-violet py-3 text-pops-black">
         <Marquee>
-          {['FREE SHIPPING OVER $100', '✦', 'NEW DROPS EVERY FRIDAY', '✦', 'STUDENT DISCOUNT', '✦', 'JOIN THE CLUB', '✦'].map(
+          {['FREE SHIPPING OVER ₹100', '✦', 'NEW DROPS EVERY FRIDAY', '✦', 'STUDENT DISCOUNT', '✦', 'JOIN THE CLUB', '✦'].map(
             (t, i) => (
               <span
                 key={i}
