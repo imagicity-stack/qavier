@@ -2,26 +2,31 @@ import Link from 'next/link';
 
 const COLUMNS = [
   {
-    title: 'The Maison',
+    title: 'Shop',
     links: [
-      { label: 'The Collection', href: '/luxe/collection' },
-      { label: 'The House', href: '/luxe/world' },
-      { label: 'Atelier', href: '/luxe#atelier' },
+      { label: 'Shop All', href: '/luxe/shop' },
+      { label: 'Collections', href: '/luxe/collection' },
+      { label: 'Tailoring', href: '/luxe/shop?category=tailoring' },
+      { label: 'Outerwear', href: '/luxe/shop?category=outerwear' },
+      { label: 'Dresses', href: '/luxe/shop?category=dresses' },
+    ],
+  },
+  {
+    title: 'Maison',
+    links: [
+      { label: 'About', href: '/luxe/about' },
+      { label: 'Our Story', href: '/luxe/about' },
+      { label: 'Journal', href: '/luxe/journal' },
+      { label: 'Sustainability', href: '/luxe/about' },
     ],
   },
   {
     title: 'Client Care',
     links: [
-      { label: 'Shipping & Returns', href: '/luxe/world#care' },
-      { label: 'Size Guide', href: '/luxe/world#care' },
-      { label: 'Contact a Stylist', href: '/luxe/world#care' },
-    ],
-  },
-  {
-    title: 'Universe',
-    links: [
-      { label: 'Enter Qavier Pops', href: '/pops' },
-      { label: 'The Portal', href: '/' },
+      { label: 'Shipping & Returns', href: '/luxe/about#care' },
+      { label: 'Size Guide', href: '/luxe/about#care' },
+      { label: 'FAQs', href: '/luxe/about#care' },
+      { label: 'Contact a Stylist', href: '/luxe/about#care' },
     ],
   },
 ];
@@ -87,10 +92,11 @@ export function LuxeFooter() {
 
         <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-luxe-cream/10 pt-8 text-luxe-cream/40 sm:flex-row sm:items-center">
           <p className="font-sans text-xs">© {new Date().getFullYear()} Qavier. All rights reserved.</p>
-          <div className="flex gap-6 font-sans text-xs">
-            <Link href="/luxe/world#care" className="hover:text-luxe-cream">Privacy</Link>
-            <Link href="/luxe/world#care" className="hover:text-luxe-cream">Terms</Link>
-            <span>Crafted for those who notice.</span>
+          <div className="flex flex-wrap items-center gap-6 font-sans text-xs">
+            <Link href="/luxe/about#care" className="hover:text-luxe-cream">Privacy</Link>
+            <Link href="/luxe/about#care" className="hover:text-luxe-cream">Terms</Link>
+            <Link href="/pops" className="hover:text-luxe-champagne">Qavier Pops ⟶</Link>
+            <Link href="/" className="hover:text-luxe-cream">The Portal</Link>
           </div>
         </div>
       </div>

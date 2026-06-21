@@ -100,9 +100,10 @@ app/
   page.tsx              → the portal (choose your universe)
   layout.tsx            → root layout, fonts, metadata
   globals.css           → Tailwind + shared component primitives
-  luxe/                 → Qavier Luxe universe (own layout/nav/footer/cart skin)
-    page.tsx · collection/ · products/[handle]/ · world/
-  pops/                 → Qavier Pops universe (own layout/nav/footer/cart skin)
+  luxe/                 → Qavier Luxe universe (reference-style, page-based cart)
+    page.tsx · shop/ · collection/ · products/[handle]/ · about/
+    journal/ · cart/ · checkout/ · order-confirmed/
+  pops/                 → Qavier Pops universe (neobrutalist, slide-over cart)
     page.tsx · shop/ · products/[handle]/ · drops/
 components/
   shared/   → ShopImage, cart context + drawer, Reveal, Marquee

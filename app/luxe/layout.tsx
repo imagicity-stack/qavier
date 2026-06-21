@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { CartProvider } from '@/components/shared/cart-context';
-import { CartDrawer } from '@/components/shared/cart-drawer';
 import { LuxeNav } from '@/components/luxe/luxe-nav';
 import { LuxeFooter } from '@/components/luxe/luxe-footer';
 
@@ -17,7 +16,6 @@ export default function LuxeLayout({ children }: { children: React.ReactNode }) 
         <LuxeNav />
         <main>{children}</main>
         <LuxeFooter />
-        <CartDrawer universe="luxe" />
       </div>
     </CartProvider>
   );

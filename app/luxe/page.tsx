@@ -47,7 +47,7 @@ export default async function LuxeHome() {
             <p className="mt-5 max-w-sm font-sans text-base text-luxe-charcoal/80">
               Effortless style for the modern woman.
             </p>
-            <Link href="/luxe/collection" className="luxe-btn mt-9">
+            <Link href="/luxe/shop" className="luxe-btn mt-9">
               Shop Now
             </Link>
           </Reveal>
@@ -73,7 +73,7 @@ export default async function LuxeHome() {
         <Reveal className="mb-10 flex items-end justify-between">
           <h2 className="font-serif text-3xl font-light text-luxe-noir sm:text-4xl">New In</h2>
           <Link
-            href="/luxe/collection"
+            href="/luxe/shop"
             className="luxe-label text-luxe-charcoal transition-colors hover:text-luxe-gold"
           >
             View All →
@@ -102,7 +102,7 @@ export default async function LuxeHome() {
           <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
             {COLLECTIONS.map((c, i) => (
               <Reveal key={c.label} delay={(i % 4) * 0.06}>
-                <Link href="/luxe/collection" className="group block">
+                <Link href={`/luxe/shop?category=${c.label.toLowerCase()}`} className="group block">
                   <PlaceholderFrame
                     universe="luxe"
                     className="aspect-[3/4] w-full overflow-hidden transition-transform duration-700 ease-luxe group-hover:scale-[1.02]"
@@ -138,7 +138,7 @@ export default async function LuxeHome() {
               <h2 className="mt-5 font-serif text-4xl font-light leading-tight text-luxe-noir sm:text-5xl">
                 Designed for every moment, crafted to last.
               </h2>
-              <Link href="/luxe/world" className="luxe-btn-ghost mt-8">
+              <Link href="/luxe/about" className="luxe-btn-ghost mt-8">
                 Our Story
               </Link>
             </div>
@@ -171,7 +171,7 @@ export default async function LuxeHome() {
               Dress for the life you intend to lead.
             </h2>
             <Link
-              href="/luxe/collection"
+              href="/luxe/shop"
               className="mt-9 inline-flex items-center justify-center gap-2 border border-luxe-cream bg-luxe-cream px-9 py-4 font-sans text-[0.72rem] uppercase tracking-wider2 text-luxe-noir transition-all duration-500 ease-luxe hover:bg-transparent hover:text-luxe-cream"
             >
               Shop the Collection
