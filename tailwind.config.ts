@@ -56,7 +56,8 @@ const config: Config = {
       },
       fontFamily: {
         // Bound to next/font CSS variables (see app/fonts.ts)
-        serif: ['var(--font-serif)', 'Newsreader', 'Georgia', 'serif'],
+        // NB: the Luxe "display" token — now a modern sans (Manrope), not a serif.
+        serif: ['var(--font-serif)', 'Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         display: ['var(--font-display)', 'Space Grotesk', 'sans-serif'],
       },

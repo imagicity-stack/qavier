@@ -21,6 +21,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* The Luxe display token (.font-serif) is now a modern sans (Manrope) with no
+   italic face — stop the browser faking an oblique so `italic` headings render
+   cleanly upright. Scoped to .font-serif, which only Luxe uses. */
+.font-serif {
+  font-synthesis: none;
+}
+
 /* Respect users who prefer reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   *,

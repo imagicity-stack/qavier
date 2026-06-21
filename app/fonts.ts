@@ -1,16 +1,17 @@
-import { Newsreader, Jost, Space_Grotesk } from 'next/font/google';
+import { Manrope, Jost, Space_Grotesk } from 'next/font/google';
 
 /**
- * Three typefaces, two moods:
- *  • Newsreader    → Luxe display serif (clean, modern editorial — low contrast,
- *                    less ornate than a high-fashion didone).
+ * Typefaces:
+ *  • Manrope       → Luxe display (modern minimal sans — clean & contemporary,
+ *                    deliberately NOT a serif). Bound to the --font-serif token
+ *                    that the Luxe `font-serif` headings use, so swapping it here
+ *                    restyles every Luxe heading without touching Pops.
  *  • Jost          → shared humanist sans for body / UI.
  *  • Space Grotesk → Pops display (geometric, chunky, a little weird).
  */
-export const serif = Newsreader({
+export const serif = Manrope({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  style: ['normal', 'italic'],
+  weight: ['300', '400', '500', '600', '700', '800'],
   variable: '--font-serif',
   display: 'swap',
 });
