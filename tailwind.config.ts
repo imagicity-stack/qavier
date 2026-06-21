@@ -56,7 +56,7 @@ const config: Config = {
       },
       fontFamily: {
         // Bound to next/font CSS variables (see app/fonts.ts)
-        serif: ['var(--font-serif)', 'Cormorant Garamond', 'serif'],
+        serif: ['var(--font-serif)', 'Newsreader', 'Georgia', 'serif'],
         sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         display: ['var(--font-display)', 'Space Grotesk', 'sans-serif'],
       },
