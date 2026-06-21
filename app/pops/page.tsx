@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import { getProducts } from '@/lib/shopify';
-import { PopsProductCard } from '@/components/pops/pops-product-card';
 import { PlaceholderFrame } from '@/components/shared/shop-image';
 import { Reveal } from '@/components/shared/reveal';
 import { Marquee } from '@/components/shared/marquee';
@@ -39,10 +37,7 @@ const BENTO = [
   },
 ];
 
-export default async function PopsHome() {
-  const products = await getProducts({ universe: 'pops' });
-  const bestsellers = products.slice(0, 8);
-
+export default function PopsHome() {
   return (
     <div className="overflow-hidden">
       {/* ——————————————————————————— HERO ——————————————————————————— */}
@@ -115,38 +110,6 @@ export default async function PopsHome() {
           ))}
         </Marquee>
       </div>
-
-      {/* ——————————————————————————— BESTSELLERS ——————————————————————————— */}
-      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
-        <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-4 sm:mb-12">
-          <div>
-            <span className="pops-chip bg-pops-violet text-white">★ flying off the shelves</span>
-            <h2 className="mt-3 font-display text-5xl font-bold uppercase leading-none text-pops-black sm:text-6xl">
-              cop the
-              <br />
-              bestsellers
-            </h2>
-          </div>
-          <Link
-            href="/pops/shop"
-            className="hidden rounded-full border-2 border-pops-black bg-pops-paper px-6 py-3 font-display text-sm font-bold uppercase text-pops-black shadow-pops transition-transform hover:-translate-y-0.5 sm:inline-flex"
-          >
-            shop all ⟶
-          </Link>
-        </Reveal>
-
-        <Reveal className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
-          {bestsellers.map((p, i) => (
-            <PopsProductCard key={p.id} product={p} index={i} priority={i < 4} />
-          ))}
-        </Reveal>
-
-        <div className="mt-8 sm:hidden">
-          <Link href="/pops/shop" className="pops-btn w-full">
-            shop all ⟶
-          </Link>
-        </div>
-      </section>
 
       {/* ——————————————————————————— BENTO CATEGORIES ——————————————————————————— */}
       <section className="bg-pops-cream py-16 sm:py-24">

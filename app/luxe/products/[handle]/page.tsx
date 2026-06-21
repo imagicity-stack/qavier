@@ -22,24 +22,26 @@ export async function generateMetadata({
   };
 }
 
-const DETAILS = (product: {
-  material?: string;
-}): { summary: string; body: string }[] => [
-  {
-    summary: 'Materials & Make',
-    body: product.material
-      ? `${product.material}. Cut and hand-finished in the Qavier atelier, Milan. Each piece passes through a single cutter and a single finisher before it earns the house seal.`
-      : 'Cut and hand-finished in the Qavier atelier, Milan. Each piece passes through a single cutter and a single finisher before it earns the house seal.',
-  },
-  {
-    summary: 'Care',
-    body: 'Specialist dry-clean only. Rest between wears on a broad wooden hanger, away from direct light. Treated well, this is a piece for the next decade — not the next season.',
-  },
-  {
-    summary: 'Shipping & Returns',
-    body: 'Complimentary insured delivery worldwide, presented in Qavier archival packaging. Returns accepted within 30 days, unworn and with the authenticity seal intact.',
-  },
-];
+/** Hairline accordion used for the product detail rows. */
+function Accordion({
+  summary,
+  children,
+}: {
+  summary: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <details className="group border-b border-luxe-charcoal/10">
+      <summary className="flex cursor-pointer list-none items-center justify-between py-5 [&::-webkit-details-marker]:hidden">
+        <span className="luxe-label text-luxe-charcoal">{summary}</span>
+        <ChevronIcon className="h-4 w-4 shrink-0 text-luxe-stone transition-transform duration-500 ease-luxe group-open:rotate-180" />
+      </summary>
+      <div className="pb-6 font-sans text-sm leading-relaxed text-luxe-stone">
+        {children}
+      </div>
+    </details>
+  );
+}
 
 export default async function Page({ params }: { params: { handle: string } }) {
   const product = await getProduct(params.handle);
@@ -67,7 +69,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
             <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2">
               <Link
                 href="/luxe"
-                className="luxe-label text-luxe-stone transition-colors hover:text-luxe-gold"
+                className="luxe-label text-luxe-stone transition-colors duration-500 ease-luxe hover:text-luxe-gold"
               >
                 Home
               </Link>
@@ -75,10 +77,10 @@ export default async function Page({ params }: { params: { handle: string } }) {
                 /
               </span>
               <Link
-                href="/luxe/collection"
-                className="luxe-label text-luxe-stone transition-colors hover:text-luxe-gold"
+                href="/luxe/shop"
+                className="luxe-label text-luxe-stone transition-colors duration-500 ease-luxe hover:text-luxe-gold"
               >
-                Collection
+                Shop
               </Link>
               <span aria-hidden className="text-luxe-stone/50">
                 /
@@ -108,33 +110,28 @@ export default async function Page({ params }: { params: { handle: string } }) {
 
             {/* Description */}
             <div className="mt-12 border-t border-luxe-charcoal/10 pt-8">
-              <p className="luxe-label text-luxe-charcoal">The Piece</p>
-              <p className="mt-4 font-sans text-base leading-relaxed text-luxe-charcoal/80">
+              <p className="font-sans text-base leading-relaxed text-luxe-charcoal/80">
                 {product.description}
               </p>
             </div>
 
             {/* Details accordions */}
             <div className="mt-10 border-t border-luxe-charcoal/10">
-              {DETAILS(product).map((row) => (
-                <details
-                  key={row.summary}
-                  className="group border-b border-luxe-charcoal/10"
-                >
-                  <summary className="flex cursor-pointer list-none items-center justify-between py-5 [&::-webkit-details-marker]:hidden">
-                    <span className="luxe-label text-luxe-charcoal">{row.summary}</span>
-                    <span
-                      aria-hidden
-                      className="font-serif text-2xl font-light leading-none text-luxe-stone transition-transform duration-300 ease-luxe group-open:rotate-45"
-                    >
-                      +
-                    </span>
-                  </summary>
-                  <p className="pb-6 font-sans text-sm leading-relaxed text-luxe-stone">
-                    {row.body}
-                  </p>
-                </details>
-              ))}
+              <Accordion summary="Details">
+                {product.description}{' '}
+                Designed for an easy, considered fit — true to size, with room to layer.
+              </Accordion>
+              <Accordion summary="Fabric & Care">
+                {product.material ? `${product.material}. ` : ''}
+                Specialist dry-clean only. Rest between wears on a broad wooden hanger,
+                away from direct light. Cared for well, this is a piece for the next
+                decade — not the next season.
+              </Accordion>
+              <Accordion summary="Shipping & Returns">
+                Complimentary insured delivery, presented in Qavier archival packaging.
+                Returns accepted within 30 days, unworn and with the authenticity seal
+                intact.
+              </Accordion>
             </div>
           </div>
         </div>
@@ -152,8 +149,8 @@ export default async function Page({ params }: { params: { handle: string } }) {
                 </h2>
               </div>
               <Link
-                href="/luxe/collection"
-                className="luxe-label whitespace-nowrap text-luxe-charcoal transition-colors hover:text-luxe-gold"
+                href="/luxe/shop"
+                className="luxe-label whitespace-nowrap text-luxe-charcoal transition-colors duration-500 ease-luxe hover:text-luxe-gold"
               >
                 View All →
               </Link>
@@ -161,7 +158,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
             <div className="luxe-rule mt-8" />
           </Reveal>
 
-          <div className="mt-12 grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-12 grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
             {related.map((p, i) => (
               <Reveal key={p.id} delay={(i % 4) * 0.06}>
                 <LuxeProductCard product={p} />
@@ -171,5 +168,19 @@ export default async function Page({ params }: { params: { handle: string } }) {
         </section>
       )}
     </>
+  );
+}
+
+function ChevronIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <path
+        d="m6 9 6 6 6-6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

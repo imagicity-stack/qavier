@@ -3,164 +3,84 @@ import { getProducts } from '@/lib/shopify';
 import { PlaceholderFrame } from '@/components/shared/shop-image';
 import { Reveal } from '@/components/shared/reveal';
 import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
-import { formatPrice } from '@/lib/utils';
 
-const HOUSE_CODES = [
-  {
-    label: 'Italian Mills',
-    body: 'Double-faced wool, mulberry silk and tropical worsteds, woven by the same family mills that supply the great houses.',
-  },
-  {
-    label: 'Hand-Finishing',
-    body: 'Pick-stitched lapels, French seams and hand-rolled hems. The details you feel before you see.',
-  },
-  {
-    label: 'Made to Last',
-    body: 'Cut for the long line and built to be re-worn for a decade, not a season. Investment, not impulse.',
-  },
-  {
-    label: 'Considered Sourcing',
-    body: 'Grade-A cashmere, traceable nappa and certified mills. Luxury with a conscience, never a compromise.',
-  },
+const FEATURES = ['Premium Fabrics', 'Thoughtful Design', 'Lasting Quality'];
+
+const COLLECTIONS = [
+  { label: 'Tailoring', count: '18 Pieces' },
+  { label: 'Eveningwear', count: '12 Pieces' },
+  { label: 'Knitwear', count: '24 Pieces' },
+  { label: 'Outerwear', count: '16 Pieces' },
+];
+
+const VALUES = [
+  { title: 'Premium Quality', body: 'The finest fabrics and craftsmanship.' },
+  { title: 'Timeless Design', body: 'Styles that transcend the season.' },
+  { title: 'Made for You', body: 'Considered, from first cut to final stitch.' },
 ];
 
 export default async function LuxeHome() {
   const products = await getProducts({ universe: 'luxe' });
-  const hero = products.find((p) => p.badge === 'Icon') ?? products[0];
-  const rest = products;
+  const newIn = products.slice(0, 4);
 
   return (
     <>
       {/* ——————————————————————————————————————————————————————
-          HERO — split: editorial copy + full-height imagery
+          HERO — image-led, minimal copy
          —————————————————————————————————————————————————————— */}
-      <section className="relative grid min-h-[92vh] grid-cols-1 lg:grid-cols-2">
-        {/* Copy */}
-        <div className="relative z-10 flex items-center px-6 pb-20 pt-32 sm:px-10 lg:px-16 lg:py-0">
-          <div className="max-w-xl">
-            <Reveal>
-              <p className="luxe-label text-luxe-gold">Spring — The Atelier Collection</p>
-            </Reveal>
-            <Reveal delay={0.08}>
-              <h1 className="mt-6 font-serif text-5xl font-light leading-[1.05] text-luxe-noir text-balance sm:text-6xl lg:text-7xl">
-                Quiet luxury, <span className="italic text-luxe-gold">considered</span> in every
-                seam.
-              </h1>
-            </Reveal>
-            <Reveal delay={0.16}>
-              <p className="mt-7 max-w-md font-sans text-base leading-relaxed text-luxe-charcoal/80">
-                Investment pieces in virgin wool, mulberry silk and grade-A cashmere — drawn by
-                hand in Milan, cut to a single clean line, and made to outlive the season.
-              </p>
-            </Reveal>
-            <Reveal delay={0.24}>
-              <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-                <Link href="/luxe/collection" className="luxe-btn">
-                  Explore the Collection
-                </Link>
-                <Link href="/luxe/world" className="luxe-btn-ghost">
-                  The House of Qavier
-                </Link>
-              </div>
-            </Reveal>
-          </div>
-        </div>
+      <section className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden">
+        <PlaceholderFrame
+          universe="luxe"
+          className="absolute inset-0 h-full w-full"
+          label="Hero Campaign — Imagery Forthcoming"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-luxe-noir/35 via-transparent to-luxe-noir/5" />
 
-        {/* Imagery — full-height on desktop, banner on mobile */}
-        <div className="relative order-first min-h-[46vh] lg:order-last lg:min-h-0">
-          <PlaceholderFrame
-            universe="luxe"
-            className="absolute inset-0 h-full w-full"
-            label="Spring Campaign — Imagery Forthcoming"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-luxe-cream/40 via-transparent to-transparent lg:bg-gradient-to-r lg:from-luxe-cream/60 lg:via-transparent" />
-        </div>
-      </section>
-
-      {/* ——————————————————————————————————————————————————————
-          TAGLINE STRIP
-         —————————————————————————————————————————————————————— */}
-      <section className="border-y border-luxe-charcoal/10 bg-luxe-ivory/60">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-3 px-6 py-7 text-center sm:px-10">
-          {['Milanese Atelier', 'Hand-Finished', 'Italian Mills', 'Considered for Life'].map(
-            (item) => (
-              <span key={item} className="luxe-label text-luxe-stone">
-                {item}
-              </span>
-            ),
-          )}
-        </div>
-      </section>
-
-      {/* ——————————————————————————————————————————————————————
-          FEATURED / ICON
-         —————————————————————————————————————————————————————— */}
-      {hero && (
-        <section className="mx-auto max-w-7xl px-6 py-24 sm:px-10 lg:py-32">
-          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-            <Reveal className="order-last lg:order-first">
-              <p className="luxe-label text-luxe-gold">The Icon</p>
-              <h2 className="mt-5 font-serif text-4xl font-light leading-tight text-luxe-noir sm:text-5xl">
-                {hero.title}
-              </h2>
-              {hero.tagline && (
-                <p className="mt-4 font-serif text-xl italic text-luxe-charcoal/70">
-                  {hero.tagline}
-                </p>
-              )}
-              <p className="mt-6 max-w-md font-sans text-base leading-relaxed text-luxe-charcoal/80">
-                {hero.description}
-              </p>
-              <div className="mt-8 flex items-center gap-8">
-                <p className="font-serif text-2xl text-luxe-noir">
-                  {formatPrice(hero.priceRange.minVariantPrice, { compact: true })}
-                </p>
-                <Link href={`/luxe/products/${hero.handle}`} className="luxe-btn">
-                  Discover the Piece
-                </Link>
-              </div>
-            </Reveal>
-            <Reveal delay={0.1} y={40}>
-              <Link
-                href={`/luxe/products/${hero.handle}`}
-                className="group block"
-                aria-label={`View ${hero.title}`}
-              >
-                <PlaceholderFrame
-                  universe="luxe"
-                  className="aspect-[4/5] w-full shadow-luxe transition-transform duration-700 ease-luxe group-hover:scale-[1.01]"
-                  label={hero.title}
-                />
-              </Link>
-            </Reveal>
-          </div>
-        </section>
-      )}
-
-      {/* ——————————————————————————————————————————————————————
-          THE COLLECTION RAIL
-         —————————————————————————————————————————————————————— */}
-      <section className="mx-auto max-w-7xl px-6 pb-24 sm:px-10 lg:pb-32">
-        <Reveal>
-          <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
-            <div>
-              <p className="luxe-label text-luxe-gold">Ready to Wear</p>
-              <h2 className="mt-4 font-serif text-4xl font-light text-luxe-noir sm:text-5xl">
-                The Collection
-              </h2>
-            </div>
-            <Link
-              href="/luxe/collection"
-              className="luxe-label whitespace-nowrap text-luxe-charcoal transition-colors hover:text-luxe-gold"
-            >
-              View All →
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16 sm:px-10 lg:pb-24">
+          <Reveal>
+            <p className="luxe-label text-luxe-noir/70">Qavier Luxe</p>
+            <h1 className="mt-5 max-w-2xl font-serif text-5xl font-light leading-[1.02] text-luxe-noir text-balance sm:text-6xl lg:text-7xl">
+              Timeless fashion.
+              <br />
+              Modern elegance.
+            </h1>
+            <p className="mt-5 max-w-sm font-sans text-base text-luxe-charcoal/80">
+              Effortless style for the modern woman.
+            </p>
+            <Link href="/luxe/shop" className="luxe-btn mt-9">
+              Shop Now
             </Link>
-          </div>
-          <div className="luxe-rule mt-8" />
-        </Reveal>
+          </Reveal>
+        </div>
 
-        <div className="mt-12 grid grid-cols-2 gap-x-5 gap-y-12 md:grid-cols-3 lg:grid-cols-4">
-          {rest.map((product, i) => (
+        {/* Feature strip */}
+        <div className="relative z-10 border-t border-luxe-noir/10 bg-luxe-cream/70 backdrop-blur-sm">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-2 px-6 py-4 sm:px-10">
+            {FEATURES.map((f, i) => (
+              <span key={f} className="flex items-center gap-10">
+                {i > 0 && <span className="hidden h-1 w-1 rounded-full bg-luxe-stone sm:block" />}
+                <span className="luxe-label text-luxe-stone">{f}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ——————————————————————————————————————————————————————
+          NEW IN — a clean four-up rail
+         —————————————————————————————————————————————————————— */}
+      <section className="mx-auto max-w-7xl px-6 py-20 sm:px-10 lg:py-28">
+        <Reveal className="mb-10 flex items-end justify-between">
+          <h2 className="font-serif text-3xl font-light text-luxe-noir sm:text-4xl">New In</h2>
+          <Link
+            href="/luxe/shop"
+            className="luxe-label text-luxe-charcoal transition-colors hover:text-luxe-gold"
+          >
+            View All →
+          </Link>
+        </Reveal>
+        <div className="grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
+          {newIn.map((product, i) => (
             <Reveal key={product.id} delay={(i % 4) * 0.06}>
               <LuxeProductCard product={product} priority={i < 4} />
             </Reveal>
@@ -169,146 +89,93 @@ export default async function LuxeHome() {
       </section>
 
       {/* ——————————————————————————————————————————————————————
-          ATELIER
+          COLLECTIONS — image cards, almost no words
          —————————————————————————————————————————————————————— */}
-      <section id="atelier" className="scroll-mt-24 bg-luxe-noir text-luxe-cream">
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-24 sm:px-10 lg:grid-cols-2 lg:gap-20 lg:py-32">
-          <Reveal y={40}>
-            <PlaceholderFrame
-              universe="luxe"
-              className="aspect-[4/5] w-full"
-              label="Inside the Atelier"
-            />
-          </Reveal>
-          <Reveal delay={0.1}>
-            <p className="luxe-label text-luxe-champagne">Inside the Atelier</p>
-            <h2 className="mt-5 font-serif text-4xl font-light leading-tight sm:text-5xl">
-              Where restraint becomes the loudest statement.
+      <section className="bg-luxe-ivory/50 py-20 sm:py-28">
+        <div className="mx-auto max-w-7xl px-6 sm:px-10">
+          <Reveal className="mb-10 text-center">
+            <p className="luxe-label text-luxe-stone">Shop by Category</p>
+            <h2 className="mt-3 font-serif text-4xl font-light text-luxe-noir sm:text-5xl">
+              Collections
             </h2>
-            <p className="mt-6 max-w-md font-sans text-base leading-relaxed text-luxe-cream/70">
-              Every Qavier piece begins as a single line on paper and ends in the hands of a
-              cutter who has spent a lifetime learning when to stop. We work the way the old
-              houses did — slowly, deliberately, and never more than the garment asks for.
-            </p>
-            <p className="mt-4 max-w-md font-sans text-base leading-relaxed text-luxe-cream/70">
-              No logos shouting from the chest. No season-chasing. Only cloth, proportion and the
-              patience to get both exactly right.
-            </p>
-            <Link href="/luxe/world" className="mt-8 inline-block luxe-label text-luxe-champagne hover:text-luxe-cream">
-              Read the House Story →
-            </Link>
+          </Reveal>
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+            {COLLECTIONS.map((c, i) => (
+              <Reveal key={c.label} delay={(i % 4) * 0.06}>
+                <Link href={`/luxe/shop?category=${c.label.toLowerCase()}`} className="group block">
+                  <PlaceholderFrame
+                    universe="luxe"
+                    className="aspect-[3/4] w-full overflow-hidden transition-transform duration-700 ease-luxe group-hover:scale-[1.02]"
+                    label={c.label}
+                  />
+                  <div className="mt-4 flex items-baseline justify-between">
+                    <h3 className="font-serif text-xl text-luxe-noir transition-colors group-hover:text-luxe-gold">
+                      {c.label}
+                    </h3>
+                    <span className="luxe-label text-luxe-stone">{c.count}</span>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ——————————————————————————————————————————————————————
+          EDITORIAL — one image, one line  (footer anchor: #atelier)
+         —————————————————————————————————————————————————————— */}
+      <section id="atelier" className="scroll-mt-24">
+        <div className="relative flex min-h-[70vh] items-center overflow-hidden">
+          <PlaceholderFrame
+            universe="luxe"
+            className="absolute inset-0 h-full w-full"
+            label="The Atelier"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-luxe-cream/80 via-luxe-cream/30 to-transparent" />
+          <Reveal className="relative z-10 mx-auto w-full max-w-7xl px-6 sm:px-10">
+            <div className="max-w-md">
+              <p className="luxe-label text-luxe-gold">The House of Qavier</p>
+              <h2 className="mt-5 font-serif text-4xl font-light leading-tight text-luxe-noir sm:text-5xl">
+                Designed for every moment, crafted to last.
+              </h2>
+              <Link href="/luxe/about" className="luxe-btn-ghost mt-8">
+                Our Story
+              </Link>
+            </div>
           </Reveal>
         </div>
       </section>
 
       {/* ——————————————————————————————————————————————————————
-          HOUSE CODES / MATERIALS
+          VALUES — three lines, no more
          —————————————————————————————————————————————————————— */}
-      <section className="mx-auto max-w-7xl px-6 py-24 sm:px-10 lg:py-32">
-        <Reveal>
-          <p className="luxe-label text-center text-luxe-gold">The House Codes</p>
-          <h2 className="mx-auto mt-5 max-w-2xl text-center font-serif text-4xl font-light leading-tight text-luxe-noir sm:text-5xl">
-            Four principles, woven through everything.
-          </h2>
-        </Reveal>
-        <div className="mt-16 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-          {HOUSE_CODES.map((code, i) => (
-            <Reveal key={code.label} delay={(i % 4) * 0.06}>
-              <div className="flex flex-col">
-                <span className="font-serif text-5xl font-light text-luxe-champagne/40">
-                  0{i + 1}
-                </span>
-                <p className="luxe-label mt-5 text-luxe-charcoal">{code.label}</p>
-                <p className="mt-3 font-sans text-sm leading-relaxed text-luxe-stone">
-                  {code.body}
-                </p>
-              </div>
+      <section className="mx-auto max-w-7xl px-6 py-20 sm:px-10 lg:py-28">
+        <div className="grid gap-12 border-y border-luxe-charcoal/10 py-14 sm:grid-cols-3 sm:gap-8">
+          {VALUES.map((v, i) => (
+            <Reveal key={v.title} delay={i * 0.08} className="text-center">
+              <p className="luxe-label text-luxe-gold">0{i + 1}</p>
+              <h3 className="mt-4 font-serif text-2xl text-luxe-noir">{v.title}</h3>
+              <p className="mt-2 font-sans text-sm text-luxe-stone">{v.body}</p>
             </Reveal>
           ))}
         </div>
       </section>
 
       {/* ——————————————————————————————————————————————————————
-          LOOKBOOK — asymmetric grid of photo placeholders
-         —————————————————————————————————————————————————————— */}
-      <section className="mx-auto max-w-7xl px-6 pb-24 sm:px-10 lg:pb-32">
-        <Reveal>
-          <div className="flex items-end justify-between">
-            <div>
-              <p className="luxe-label text-luxe-gold">Spring / Summer</p>
-              <h2 className="mt-4 font-serif text-4xl font-light text-luxe-noir sm:text-5xl">
-                The Lookbook
-              </h2>
-            </div>
-          </div>
-          <div className="luxe-rule mt-8" />
-        </Reveal>
-
-        <div className="mt-12 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-12 lg:gap-6">
-          <Reveal className="lg:col-span-7" y={40}>
-            <PlaceholderFrame
-              universe="luxe"
-              className="aspect-[4/3] w-full"
-              label="Lookbook 01"
-            />
-          </Reveal>
-          <Reveal className="lg:col-span-5" delay={0.08} y={40}>
-            <PlaceholderFrame
-              universe="luxe"
-              className="aspect-[3/4] w-full lg:h-full"
-              label="Lookbook 02"
-            />
-          </Reveal>
-          <Reveal className="col-span-2 lg:col-span-4" delay={0.04} y={40}>
-            <PlaceholderFrame
-              universe="luxe"
-              className="aspect-[3/4] w-full"
-              label="Lookbook 03"
-            />
-          </Reveal>
-          <Reveal className="lg:col-span-4" delay={0.12} y={40}>
-            <PlaceholderFrame
-              universe="luxe"
-              className="aspect-[3/4] w-full"
-              label="Lookbook 04"
-            />
-          </Reveal>
-          <Reveal className="lg:col-span-4" delay={0.16} y={40}>
-            <PlaceholderFrame
-              universe="luxe"
-              className="aspect-[3/4] w-full"
-              label="Lookbook 05"
-            />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ——————————————————————————————————————————————————————
-          CLOSING CTA BAND
+          CLOSING
          —————————————————————————————————————————————————————— */}
       <section className="relative overflow-hidden bg-luxe-noir">
-        <PlaceholderFrame
-          universe="luxe"
-          className="absolute inset-0 h-full w-full opacity-20"
-          label=""
-        />
-        <div className="relative mx-auto max-w-3xl px-6 py-28 text-center sm:px-10 lg:py-36">
+        <div className="relative mx-auto max-w-3xl px-6 py-24 text-center sm:px-10 lg:py-32">
           <Reveal>
-            <p className="luxe-label text-luxe-champagne">Begin Your Wardrobe</p>
-            <h2 className="mt-6 font-serif text-4xl font-light leading-tight text-luxe-cream sm:text-5xl lg:text-6xl">
+            <h2 className="font-serif text-4xl font-light leading-tight text-luxe-cream sm:text-5xl">
               Dress for the life you intend to lead.
             </h2>
-            <p className="mx-auto mt-6 max-w-lg font-sans text-base leading-relaxed text-luxe-cream/60">
-              Eight pieces. One quiet philosophy. Discover the wardrobe built to be kept.
-            </p>
-            <div className="mt-10">
-              <Link
-                href="/luxe/collection"
-                className="inline-flex items-center justify-center gap-2 border border-luxe-cream bg-luxe-cream px-8 py-4 font-sans text-[0.72rem] uppercase tracking-wider2 text-luxe-noir transition-all duration-500 ease-luxe hover:bg-transparent hover:text-luxe-cream"
-              >
-                Shop the Collection
-              </Link>
-            </div>
+            <Link
+              href="/luxe/shop"
+              className="mt-9 inline-flex items-center justify-center gap-2 border border-luxe-cream bg-luxe-cream px-9 py-4 font-sans text-[0.72rem] uppercase tracking-wider2 text-luxe-noir transition-all duration-500 ease-luxe hover:bg-transparent hover:text-luxe-cream"
+            >
+              Shop the Collection
+            </Link>
           </Reveal>
         </div>
       </section>

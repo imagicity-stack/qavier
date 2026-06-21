@@ -7,13 +7,14 @@ import { useCart } from '@/components/shared/cart-context';
 import { cn } from '@/lib/utils';
 
 const LINKS = [
-  { href: '/luxe/collection', label: 'The Collection' },
-  { href: '/luxe/world', label: 'The House' },
-  { href: '/luxe#atelier', label: 'Atelier' },
+  { href: '/luxe/shop', label: 'Shop' },
+  { href: '/luxe/collection', label: 'Collections' },
+  { href: '/luxe/about', label: 'About' },
+  { href: '/luxe/journal', label: 'Journal' },
 ];
 
 export function LuxeNav() {
-  const { totalQuantity, openCart } = useCart();
+  const { totalQuantity } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -24,84 +25,89 @@ export function LuxeNav() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
+
   return (
     <header
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-luxe',
         scrolled
-          ? 'border-b border-luxe-charcoal/10 bg-luxe-cream/85 backdrop-blur-md'
+          ? 'border-b border-luxe-charcoal/10 bg-luxe-cream/90 backdrop-blur-md'
           : 'bg-transparent',
       )}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8 lg:py-5">
-        {/* Left — desktop links */}
-        <div className="hidden flex-1 items-center gap-8 lg:flex">
-          {LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={cn(
-                'luxe-label transition-colors hover:text-luxe-gold',
-                scrolled ? 'text-luxe-charcoal' : 'text-luxe-charcoal',
-              )}
-            >
-              {l.label}
-            </Link>
-          ))}
+        {/* Left — wordmark + links */}
+        <div className="flex items-center gap-10">
+          <Link href="/luxe" className="flex items-baseline gap-2" aria-label="Qavier Luxe home">
+            <span className="font-serif text-2xl font-medium tracking-[0.32em] text-luxe-noir sm:text-3xl">
+              QAVIER
+            </span>
+            <span className="luxe-label hidden text-luxe-gold sm:inline">Luxe</span>
+          </Link>
+          <div className="hidden items-center gap-8 lg:flex">
+            {LINKS.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="luxe-label text-luxe-charcoal transition-colors hover:text-luxe-gold"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </div>
         </div>
 
-        {/* Mobile menu toggle */}
-        <button
-          onClick={() => setMenuOpen(true)}
-          className="flex items-center lg:hidden"
-          aria-label="Open menu"
-        >
-          <MenuIcon className="h-5 w-5 text-luxe-charcoal" />
-        </button>
-
-        {/* Center — wordmark */}
-        <Link
-          href="/luxe"
-          className="absolute left-1/2 -translate-x-1/2 text-center"
-          aria-label="Qavier Luxe home"
-        >
-          <span className="block font-serif text-2xl font-medium tracking-[0.35em] text-luxe-noir sm:text-3xl">
-            QAVIER
-          </span>
-          <span className="luxe-label mt-0.5 block text-luxe-gold">Luxe</span>
-        </Link>
-
-        {/* Right — actions */}
-        <div className="flex flex-1 items-center justify-end gap-5">
+        {/* Right — icons */}
+        <div className="flex items-center gap-5">
           <Link
-            href="/"
-            className="luxe-label hidden text-luxe-stone transition-colors hover:text-luxe-noir sm:inline-block"
+            href="/luxe/shop"
+            aria-label="Search the collection"
+            className="hidden text-luxe-charcoal transition-colors hover:text-luxe-gold sm:block"
           >
-            ⟶ Pops
+            <SearchIcon className="h-[1.15rem] w-[1.15rem]" />
           </Link>
-          <button
-            onClick={openCart}
-            className="group relative flex items-center gap-2"
-            aria-label="Open bag"
+          <Link
+            href="/luxe/about#care"
+            aria-label="Client services"
+            className="hidden text-luxe-charcoal transition-colors hover:text-luxe-gold sm:block"
           >
-            <span className="luxe-label hidden text-luxe-charcoal group-hover:text-luxe-gold sm:inline">
-              Bag
-            </span>
-            <BagIcon className="h-5 w-5 text-luxe-charcoal" />
+            <UserIcon className="h-[1.15rem] w-[1.15rem]" />
+          </Link>
+          <Link href="/luxe/cart" className="group relative" aria-label="Your bag">
+            <BagIcon className="h-[1.2rem] w-[1.2rem] text-luxe-charcoal transition-colors group-hover:text-luxe-gold" />
             {totalQuantity > 0 && (
               <span className="absolute -right-2 -top-2 grid h-4 w-4 place-items-center rounded-full bg-luxe-gold text-[0.6rem] text-luxe-noir">
                 {totalQuantity}
               </span>
             )}
+          </Link>
+          <Link
+            href="/"
+            className="luxe-label hidden text-luxe-stone transition-colors hover:text-luxe-noir md:inline-block"
+          >
+            ⟶ Pops
+          </Link>
+          <button
+            onClick={() => setMenuOpen(true)}
+            className="lg:hidden"
+            aria-label="Open menu"
+          >
+            <MenuIcon className="h-5 w-5 text-luxe-charcoal" />
           </button>
         </div>
       </nav>
 
-      {/* Mobile slide-down menu */}
+      {/* Mobile menu */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            className="fixed inset-0 z-[120] bg-luxe-cream lg:hidden"
+            className="fixed inset-0 z-[120] flex flex-col bg-luxe-cream lg:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -112,13 +118,13 @@ export function LuxeNav() {
                 <CloseIcon className="h-6 w-6 text-luxe-noir" />
               </button>
             </div>
-            <div className="flex flex-col gap-2 px-5 pt-10">
+            <div className="flex flex-col px-5 pt-8">
               {LINKS.map((l, i) => (
                 <motion.div
                   key={l.href}
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.08 * i + 0.1 }}
+                  transition={{ delay: 0.07 * i + 0.08 }}
                 >
                   <Link
                     href={l.href}
@@ -130,9 +136,16 @@ export function LuxeNav() {
                 </motion.div>
               ))}
               <Link
+                href="/luxe/cart"
+                onClick={() => setMenuOpen(false)}
+                className="mt-8 luxe-label text-luxe-charcoal"
+              >
+                Your Bag ({totalQuantity})
+              </Link>
+              <Link
                 href="/"
                 onClick={() => setMenuOpen(false)}
-                className="mt-8 luxe-label text-luxe-gold"
+                className="mt-4 luxe-label text-luxe-gold"
               >
                 ⟶ Cross over to Qavier Pops
               </Link>
@@ -161,13 +174,24 @@ function CloseIcon({ className }: { className?: string }) {
 function BagIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <path
-        d="M6 8h12l-1 12H7L6 8Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-      />
+      <path d="M6 8h12l-1 12H7L6 8Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
       <path d="M9 8V6.5a3 3 0 0 1 6 0V8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.4" />
+      <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+function UserIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
 }

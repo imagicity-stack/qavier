@@ -1,51 +1,130 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getProducts } from '@/lib/shopify';
+import { PlaceholderFrame } from '@/components/shared/shop-image';
 import { Reveal } from '@/components/shared/reveal';
 import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
 
 export const metadata: Metadata = {
-  title: 'The Collection',
+  title: 'Collections',
   description:
-    'The Atelier Collection — investment pieces in virgin wool, mulberry silk and grade-A cashmere, considered in every seam.',
+    'Explore the Qavier Luxe collections — tailoring, outerwear, dresses, knitwear, eveningwear and accessories. Designed for every moment, crafted to last.',
 };
+
+const CATEGORIES = [
+  'Tailoring',
+  'Outerwear',
+  'Dresses',
+  'Knitwear',
+  'Eveningwear',
+  'Accessories',
+] as const;
 
 export default async function CollectionPage() {
   const products = await getProducts({ universe: 'luxe' });
+  const newIn = products.slice(0, 4);
+
+  const countFor = (slug: string) =>
+    products.filter((p) => p.tags.map((t) => t.toLowerCase()).includes(slug)).length;
 
   return (
     <section className="mx-auto max-w-7xl px-6 pb-24 pt-28 sm:px-10 sm:pt-32 lg:pb-32">
-      {/* Editorial header */}
+      {/* ——————————————————————————————————————————————————————
+          Header
+         —————————————————————————————————————————————————————— */}
       <Reveal>
-        <header className="max-w-3xl">
-          <p className="luxe-label text-luxe-gold">The Atelier Collection</p>
-          <h1 className="mt-6 font-serif text-5xl font-light leading-[1.05] text-luxe-noir text-balance sm:text-6xl">
-            Pieces drawn for permanence.
+        <header className="mx-auto max-w-2xl text-center">
+          <p className="luxe-label text-luxe-stone">Qavier Luxe</p>
+          <h1 className="mt-5 font-serif text-5xl font-light leading-[1.05] text-luxe-noir sm:text-6xl">
+            Collections
           </h1>
-          <p className="mt-6 max-w-xl font-sans text-base leading-relaxed text-luxe-charcoal/80">
-            A small, deliberate wardrobe — each garment cut from the finest Italian cloth and
-            hand-finished in the atelier. Nothing seasonal, nothing disposable. Only the pieces
-            worth keeping.
+          <p className="mt-5 font-sans text-base leading-relaxed text-luxe-charcoal/80">
+            Designed for every moment, crafted to last.
           </p>
+          <div className="luxe-rule mx-auto mt-10 max-w-xs" />
         </header>
       </Reveal>
 
+      {/* ——————————————————————————————————————————————————————
+          Category tabs
+         —————————————————————————————————————————————————————— */}
+      <Reveal delay={0.06}>
+        <nav
+          aria-label="Browse by category"
+          className="scrollbar-none mt-10 flex justify-start gap-8 overflow-x-auto sm:justify-center"
+        >
+          <Link
+            href="/luxe/shop"
+            className="luxe-label shrink-0 whitespace-nowrap border-b border-transparent pb-2 text-luxe-noir transition-colors duration-500 ease-luxe hover:border-luxe-gold hover:text-luxe-gold"
+          >
+            All
+          </Link>
+          {CATEGORIES.map((c) => (
+            <Link
+              key={c}
+              href={`/luxe/shop?category=${c.toLowerCase()}`}
+              className="luxe-label shrink-0 whitespace-nowrap border-b border-transparent pb-2 text-luxe-charcoal/70 transition-colors duration-500 ease-luxe hover:border-luxe-gold hover:text-luxe-gold"
+            >
+              {c}
+            </Link>
+          ))}
+        </nav>
+      </Reveal>
+
+      {/* ——————————————————————————————————————————————————————
+          Category cards
+         —————————————————————————————————————————————————————— */}
       <Reveal delay={0.08}>
-        <div className="mt-12 flex items-center justify-between border-t border-luxe-charcoal/15 pt-5">
-          <span className="luxe-label text-luxe-stone">
-            {products.length} {products.length === 1 ? 'Piece' : 'Pieces'}
-          </span>
-          <span className="luxe-label hidden text-luxe-stone sm:inline">Sorted — The Edit</span>
+        <div className="mt-12 grid grid-cols-2 gap-5 lg:grid-cols-3">
+          {CATEGORIES.map((c) => {
+            const slug = c.toLowerCase();
+            const count = countFor(slug);
+            return (
+              <Link
+                key={c}
+                href={`/luxe/shop?category=${slug}`}
+                className="group block"
+              >
+                <PlaceholderFrame
+                  universe="luxe"
+                  className="aspect-[3/4] w-full overflow-hidden transition-transform duration-700 ease-luxe group-hover:scale-[1.02]"
+                  label={c}
+                />
+                <div className="mt-4 flex items-baseline justify-between">
+                  <h2 className="font-serif text-xl text-luxe-noir transition-colors duration-500 ease-luxe group-hover:text-luxe-gold sm:text-2xl">
+                    {c}
+                  </h2>
+                  <span className="luxe-label text-luxe-stone">
+                    {count} {count === 1 ? 'Piece' : 'Pieces'}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </Reveal>
 
-      {/* Product grid */}
-      <div className="mt-12 grid grid-cols-2 gap-x-5 gap-y-12 sm:gap-y-16 md:grid-cols-3 lg:grid-cols-4">
-        {products.map((product, i) => (
-          <Reveal key={product.id} delay={(i % 4) * 0.06}>
-            <LuxeProductCard product={product} priority={i < 4} />
-          </Reveal>
-        ))}
-      </div>
+      {/* ——————————————————————————————————————————————————————
+          New In
+         —————————————————————————————————————————————————————— */}
+      <Reveal delay={0.05}>
+        <div className="mt-24">
+          <div className="mb-10 flex items-end justify-between border-b border-luxe-charcoal/10 pb-5">
+            <h2 className="font-serif text-3xl font-light text-luxe-noir sm:text-4xl">New In</h2>
+            <Link
+              href="/luxe/shop"
+              className="luxe-label text-luxe-charcoal transition-colors duration-500 ease-luxe hover:text-luxe-gold"
+            >
+              View All →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
+            {newIn.map((product, i) => (
+              <LuxeProductCard key={product.id} product={product} priority={i < 4} />
+            ))}
+          </div>
+        </div>
+      </Reveal>
     </section>
   );
 }
