@@ -7,9 +7,9 @@ import { useCart } from '@/components/shared/cart-context';
 import { cn } from '@/lib/utils';
 
 const LINKS = [
-  { href: '/luxe/collection', label: 'The Collection' },
-  { href: '/luxe/world', label: 'The House' },
-  { href: '/luxe#atelier', label: 'Atelier' },
+  { href: '/luxe/collection', label: 'Shop' },
+  { href: '/luxe/collection', label: 'Collections' },
+  { href: '/luxe/world', label: 'About' },
 ];
 
 export function LuxeNav() {
