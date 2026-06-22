@@ -26,24 +26,33 @@ export function Portal() {
         </span>
       </motion.div>
 
-      {/* Center wordmark + hint */}
-      <div className="pointer-events-none absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 mix-blend-difference">
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.9, letterSpacing: '0.1em' }}
-          animate={{ opacity: 1, scale: 1, letterSpacing: '0.3em' }}
+      {/* Center wordmark + hint — set in a frosted-glass seam card */}
+      <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94, y: 8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-          className="select-none text-center font-serif text-5xl font-medium text-white sm:text-7xl lg:text-8xl"
+          className="relative flex flex-col items-center gap-2 overflow-hidden rounded-3xl border border-white/20 bg-white/10 px-8 py-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] backdrop-blur-2xl sm:gap-3 sm:px-12 sm:py-8"
         >
-          QAVIER
-        </motion.h1>
-        <motion.span
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.7 }}
-          className="font-sans text-[0.6rem] uppercase tracking-luxe text-white/70 sm:text-xs"
-        >
-          Choose your universe
-        </motion.span>
+          {/* soft top highlight to sell the glass */}
+          <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+          <motion.h1
+            initial={{ letterSpacing: '0.1em' }}
+            animate={{ letterSpacing: '0.25em' }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            className="select-none text-center font-serif text-4xl font-medium text-white sm:text-5xl lg:text-6xl"
+          >
+            QAVIER
+          </motion.h1>
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.7 }}
+            className="font-sans text-[0.6rem] uppercase tracking-luxe text-white/75 sm:text-xs"
+          >
+            Choose your universe
+          </motion.span>
+        </motion.div>
       </div>
 
       {/* Panels */}
@@ -60,19 +69,14 @@ export function Portal() {
           }}
           className="group relative flex flex-1 basis-1/2 items-center justify-center overflow-hidden transition-[flex-grow] duration-700 ease-luxe"
         >
-          {/* Luxe backdrop (placeholder for hero photography) */}
-          <div className="absolute inset-0 bg-gradient-to-br from-luxe-ink via-luxe-noir to-black" />
+          {/* Luxe backdrop: hero photography + tonal scrim for legibility */}
+          <div className="absolute inset-0 bg-luxe-noir" />
           <div
-            className="absolute inset-0 opacity-40 transition-opacity duration-700 group-hover:opacity-60"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle at 70% 30%, rgba(201,169,106,0.22), transparent 55%)',
-            }}
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-[1200ms] ease-luxe group-hover:scale-105"
+            style={{ backgroundImage: "url('/images/luxe.png')" }}
           />
-          {/* photo-drop hint */}
-          <span className="absolute left-5 top-20 font-sans text-[0.6rem] uppercase tracking-luxe text-luxe-champagne/40 sm:left-10">
-            ◦ hero imagery forthcoming
-          </span>
+          <div className="absolute inset-0 bg-luxe-noir/45" />
+          <div className="absolute inset-0 bg-gradient-to-t from-luxe-noir via-transparent to-luxe-noir/30" />
 
           <Link
             href="/luxe"
@@ -107,14 +111,14 @@ export function Portal() {
           }}
           className="group relative flex flex-1 basis-1/2 items-center justify-center overflow-hidden transition-[flex-grow] duration-700 ease-luxe"
         >
-          {/* Pops backdrop */}
-          <div className="absolute inset-0 bg-gradient-to-br from-pops-magenta via-pops-purple to-pops-blue" />
-          <div className="grain absolute inset-0 opacity-25" />
-          <div className="absolute -left-10 top-10 h-40 w-40 rounded-full bg-pops-lime blur-2xl animate-floaty" />
-          <div className="absolute bottom-12 right-6 h-44 w-44 rounded-full bg-pops-cyan/80 blur-2xl" />
-          <span className="absolute right-5 top-20 font-display text-[0.6rem] font-bold uppercase tracking-wide text-white/60 sm:right-10">
-            hero pics dropping soon ◦
-          </span>
+          {/* Pops backdrop: hero photography, punchy + light scrim */}
+          <div className="absolute inset-0 bg-pops-purple" />
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+            style={{ backgroundImage: "url('/images/pops.png')" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-pops-black/60 via-transparent to-pops-black/15" />
+          <div className="grain absolute inset-0 opacity-20 mix-blend-overlay" />
 
           <Link
             href="/pops"
@@ -136,13 +140,6 @@ export function Portal() {
             </span>
           </Link>
         </motion.div>
-      </div>
-
-      {/* Center seam badge */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 z-40 hidden -translate-x-1/2 -translate-y-1/2 md:block">
-        <div className="grid h-14 w-14 place-items-center rounded-full border border-white/30 bg-luxe-noir/60 font-serif text-xl text-white backdrop-blur">
-          Q
-        </div>
       </div>
     </div>
   );
