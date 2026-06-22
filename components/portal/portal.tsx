@@ -26,24 +26,33 @@ export function Portal() {
         </span>
       </motion.div>
 
-      {/* Center wordmark + hint */}
-      <div className="pointer-events-none absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 mix-blend-difference">
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.9, letterSpacing: '0.1em' }}
-          animate={{ opacity: 1, scale: 1, letterSpacing: '0.3em' }}
+      {/* Center wordmark + hint — set in a frosted-glass seam card */}
+      <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94, y: 8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-          className="select-none text-center font-serif text-5xl font-medium text-white sm:text-7xl lg:text-8xl"
+          className="relative flex flex-col items-center gap-3 overflow-hidden rounded-[2rem] border border-white/20 bg-white/10 px-12 py-9 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] backdrop-blur-2xl sm:gap-4 sm:px-20 sm:py-12"
         >
-          QAVIER
-        </motion.h1>
-        <motion.span
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.7 }}
-          className="font-sans text-[0.6rem] uppercase tracking-luxe text-white/70 sm:text-xs"
-        >
-          Choose your universe
-        </motion.span>
+          {/* soft top highlight to sell the glass */}
+          <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+          <motion.h1
+            initial={{ letterSpacing: '0.12em' }}
+            animate={{ letterSpacing: '0.3em' }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            className="select-none text-center font-serif text-5xl font-medium text-white sm:text-7xl lg:text-8xl"
+          >
+            QAVIER
+          </motion.h1>
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.7 }}
+            className="font-sans text-[0.6rem] uppercase tracking-luxe text-white/75 sm:text-xs"
+          >
+            Choose your universe
+          </motion.span>
+        </motion.div>
       </div>
 
       {/* Panels */}
@@ -136,13 +145,6 @@ export function Portal() {
             </span>
           </Link>
         </motion.div>
-      </div>
-
-      {/* Center seam badge */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 z-40 hidden -translate-x-1/2 -translate-y-1/2 md:block">
-        <div className="grid h-14 w-14 place-items-center rounded-full border border-white/30 bg-luxe-noir/60 font-serif text-xl text-white backdrop-blur">
-          Q
-        </div>
       </div>
     </div>
   );
