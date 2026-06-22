@@ -32,15 +32,15 @@ export function Portal() {
           initial={{ opacity: 0, scale: 0.94, y: 8 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-          className="relative flex flex-col items-center gap-3 overflow-hidden rounded-[2rem] border border-white/20 bg-white/10 px-12 py-9 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] backdrop-blur-2xl sm:gap-4 sm:px-20 sm:py-12"
+          className="relative flex flex-col items-center gap-2 overflow-hidden rounded-3xl border border-white/20 bg-white/10 px-8 py-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] backdrop-blur-2xl sm:gap-3 sm:px-12 sm:py-8"
         >
           {/* soft top highlight to sell the glass */}
-          <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
           <motion.h1
-            initial={{ letterSpacing: '0.12em' }}
-            animate={{ letterSpacing: '0.3em' }}
+            initial={{ letterSpacing: '0.1em' }}
+            animate={{ letterSpacing: '0.25em' }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-            className="select-none text-center font-serif text-5xl font-medium text-white sm:text-7xl lg:text-8xl"
+            className="select-none text-center font-serif text-4xl font-medium text-white sm:text-5xl lg:text-6xl"
           >
             QAVIER
           </motion.h1>
