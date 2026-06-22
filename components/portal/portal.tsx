@@ -69,19 +69,14 @@ export function Portal() {
           }}
           className="group relative flex flex-1 basis-1/2 items-center justify-center overflow-hidden transition-[flex-grow] duration-700 ease-luxe"
         >
-          {/* Luxe backdrop (placeholder for hero photography) */}
-          <div className="absolute inset-0 bg-gradient-to-br from-luxe-ink via-luxe-noir to-black" />
+          {/* Luxe backdrop: hero photography + tonal scrim for legibility */}
+          <div className="absolute inset-0 bg-luxe-noir" />
           <div
-            className="absolute inset-0 opacity-40 transition-opacity duration-700 group-hover:opacity-60"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle at 70% 30%, rgba(201,169,106,0.22), transparent 55%)',
-            }}
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-[1200ms] ease-luxe group-hover:scale-105"
+            style={{ backgroundImage: "url('/images/luxe.png')" }}
           />
-          {/* photo-drop hint */}
-          <span className="absolute left-5 top-20 font-sans text-[0.6rem] uppercase tracking-luxe text-luxe-champagne/40 sm:left-10">
-            ◦ hero imagery forthcoming
-          </span>
+          <div className="absolute inset-0 bg-luxe-noir/45" />
+          <div className="absolute inset-0 bg-gradient-to-t from-luxe-noir via-transparent to-luxe-noir/30" />
 
           <Link
             href="/luxe"
@@ -116,14 +111,14 @@ export function Portal() {
           }}
           className="group relative flex flex-1 basis-1/2 items-center justify-center overflow-hidden transition-[flex-grow] duration-700 ease-luxe"
         >
-          {/* Pops backdrop */}
-          <div className="absolute inset-0 bg-gradient-to-br from-pops-magenta via-pops-purple to-pops-blue" />
-          <div className="grain absolute inset-0 opacity-25" />
-          <div className="absolute -left-10 top-10 h-40 w-40 rounded-full bg-pops-lime blur-2xl animate-floaty" />
-          <div className="absolute bottom-12 right-6 h-44 w-44 rounded-full bg-pops-cyan/80 blur-2xl" />
-          <span className="absolute right-5 top-20 font-display text-[0.6rem] font-bold uppercase tracking-wide text-white/60 sm:right-10">
-            hero pics dropping soon ◦
-          </span>
+          {/* Pops backdrop: hero photography, punchy + light scrim */}
+          <div className="absolute inset-0 bg-pops-purple" />
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+            style={{ backgroundImage: "url('/images/pops.png')" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-pops-black/60 via-transparent to-pops-black/15" />
+          <div className="grain absolute inset-0 opacity-20 mix-blend-overlay" />
 
           <Link
             href="/pops"
