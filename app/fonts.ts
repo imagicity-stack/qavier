@@ -1,14 +1,17 @@
-import { Cormorant_Garamond, Jost, Space_Grotesk } from 'next/font/google';
+import { Manrope, Jost, Space_Grotesk } from 'next/font/google';
 
 /**
- * Three typefaces, two moods:
- *  • Cormorant Garamond → Luxe display serif (editorial, high-contrast).
- *  • Jost              → shared humanist sans for body / UI.
- *  • Space Grotesk      → Pops display (geometric, chunky, a little weird).
+ * Typefaces:
+ *  • Manrope       → Luxe display (modern minimal sans — clean & contemporary,
+ *                    deliberately NOT a serif). Bound to the --font-serif token
+ *                    that the Luxe `font-serif` headings use, so swapping it here
+ *                    restyles every Luxe heading without touching Pops.
+ *  • Jost          → shared humanist sans for body / UI.
+ *  • Space Grotesk → Pops display (geometric, chunky, a little weird).
  */
-export const serif = Cormorant_Garamond({
+export const serif = Manrope({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['300', '400', '500', '600', '700', '800'],
   variable: '--font-serif',
   display: 'swap',
 });
