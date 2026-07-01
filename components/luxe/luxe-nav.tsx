@@ -45,7 +45,8 @@ export function LuxeNav() {
   };
 
   return (
-    <header
+    <>
+      <header
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-luxe',
         scrolled || searchOpen
@@ -138,8 +139,13 @@ export function LuxeNav() {
           </motion.div>
         )}
       </AnimatePresence>
+      </header>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — rendered OUTSIDE <header> on purpose. When scrolled the
+          header gets a backdrop-filter, which would make it the containing
+          block for this fixed overlay and trap it inside the header's box
+          (leaving the rest of the screen see-through). Kept a sibling so it
+          always covers the full viewport. */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -199,7 +205,7 @@ export function LuxeNav() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }
 
