@@ -27,7 +27,9 @@ export function CartDrawer({ universe }: { universe: Universe }) {
   } = useCart();
 
   const luxe = universe === 'luxe';
-  const shopHref = luxe ? '/luxe/collection' : '/pops/shop';
+  const shopHref = luxe ? '/collection' : '/pops/shop';
+  // Qavier (formerly "luxe") lives at the site root; Pops is nested under /pops.
+  const productBase = luxe ? '/products' : '/pops/products';
 
   return (
     <AnimatePresence>
@@ -127,7 +129,7 @@ export function CartDrawer({ universe }: { universe: Universe }) {
                       <div className="flex flex-1 flex-col">
                         <div className="flex items-start justify-between gap-2">
                           <Link
-                            href={`/${universe}/products/${line.productHandle}`}
+                            href={`${productBase}/${line.productHandle}`}
                             onClick={closeCart}
                             className={cn(
                               'leading-tight',

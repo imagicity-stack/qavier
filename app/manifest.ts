@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Qavier — Two Worlds, One Name',
+    name: 'Qavier — Timeless Fashion, Modern Elegance',
     short_name: 'Qavier',
-    description: 'Qavier Luxe & Qavier Pops. One fashion house, two universes.',
+    description: 'Qavier — considered, timeless fashion. Plus Qavier Pops, loud and limited.',
     start_url: '/',
     display: 'standalone',
     background_color: '#0b0b0c',

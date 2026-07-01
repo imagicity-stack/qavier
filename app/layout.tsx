@@ -7,15 +7,15 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'QAVIER — Two Worlds, One Name',
+    default: 'QAVIER — Timeless Fashion, Modern Elegance',
     template: '%s · QAVIER',
   },
   description:
-    'Qavier is a fashion house in two universes. Qavier Luxe — quiet luxury, considered in every seam. Qavier Pops — loud, limited, Gen-Z energy.',
-  keywords: ['Qavier', 'luxury fashion', 'streetwear', 'Qavier Luxe', 'Qavier Pops'],
+    'Qavier is a contemporary fashion house — considered, timeless pieces made to last. Discover the collection, or step into Qavier Pops for something loud and limited.',
+  keywords: ['Qavier', 'luxury fashion', 'womenswear', 'streetwear', 'Qavier Pops'],
   openGraph: {
-    title: 'QAVIER — Two Worlds, One Name',
-    description: 'Choose your universe. Qavier Luxe or Qavier Pops.',
+    title: 'QAVIER — Timeless Fashion, Modern Elegance',
+    description: 'Considered, timeless pieces made to last. Plus Qavier Pops — loud, limited, iconic.',
     url: siteUrl,
     siteName: 'Qavier',
     type: 'website',
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'QAVIER',
-    description: 'Two worlds, one name. Qavier Luxe & Qavier Pops.',
+    description: 'Timeless fashion, modern elegance — plus Qavier Pops.',
   },
   robots: { index: true, follow: true },
 };

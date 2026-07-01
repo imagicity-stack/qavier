@@ -6,11 +6,10 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     '',
-    '/luxe',
-    '/luxe/shop',
-    '/luxe/collection',
-    '/luxe/about',
-    '/luxe/journal',
+    '/shop',
+    '/collection',
+    '/about',
+    '/journal',
     '/pops',
     '/pops/shop',
     '/pops/drops',
@@ -23,7 +22,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const products = await getProducts();
   const productRoutes = products.map((p) => ({
-    url: `${siteUrl}/${p.universe}/products/${p.handle}`,
+    // Qavier products sit at the root; Pops products stay under /pops.
+    url: `${siteUrl}${p.universe === 'pops' ? '/pops' : ''}/products/${p.handle}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.6,

@@ -51,7 +51,7 @@ export default function JournalPage() {
          —————————————————————————————————————————————————————— */}
       <Reveal>
         <header className="mx-auto max-w-2xl text-center">
-          <p className="luxe-label text-luxe-gold">Qavier Luxe</p>
+          <p className="luxe-label text-luxe-gold">Qavier</p>
           <h1 className="mt-5 font-serif text-5xl font-light leading-[1.05] text-luxe-noir sm:text-6xl">
             Journal
           </h1>

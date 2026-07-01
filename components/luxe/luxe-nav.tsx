@@ -1,22 +1,26 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCart } from '@/components/shared/cart-context';
 import { cn } from '@/lib/utils';
 
 const LINKS = [
-  { href: '/luxe/shop', label: 'Shop' },
-  { href: '/luxe/collection', label: 'Collections' },
-  { href: '/luxe/about', label: 'About' },
-  { href: '/luxe/journal', label: 'Journal' },
+  { href: '/shop', label: 'Shop' },
+  { href: '/collection', label: 'Collections' },
+  { href: '/about', label: 'About' },
+  { href: '/journal', label: 'Journal' },
+  { href: '/pops', label: 'Pops' },
 ];
 
 export function LuxeNav() {
   const { totalQuantity } = useCart();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -32,23 +36,29 @@ export function LuxeNav() {
     };
   }, [menuOpen]);
 
+  const runSearch = (query: string) => {
+    const q = query.trim();
+    setMenuOpen(false);
+    setSearchOpen(false);
+    router.push(q ? `/shop?q=${encodeURIComponent(q)}` : '/shop');
+  };
+
   return (
     <header
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-luxe',
-        scrolled
+        scrolled || searchOpen
           ? 'border-b border-luxe-charcoal/10 bg-luxe-cream/90 backdrop-blur-md'
           : 'bg-transparent',
       )}
     >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8 lg:py-5">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:py-5">
         {/* Left — wordmark + links */}
         <div className="flex items-center gap-10">
-          <Link href="/luxe" className="flex items-baseline gap-2" aria-label="Qavier Luxe home">
+          <Link href="/" className="flex items-baseline gap-2" aria-label="Qavier home">
             <span className="font-serif text-2xl font-medium tracking-[0.32em] text-luxe-noir sm:text-3xl">
               QAVIER
             </span>
-            <span className="luxe-label hidden text-luxe-gold sm:inline">Luxe</span>
           </Link>
           <div className="hidden items-center gap-8 lg:flex">
             {LINKS.map((l) => (
@@ -63,23 +73,30 @@ export function LuxeNav() {
           </div>
         </div>
 
+        {/* Center — search bar (tablet / desktop) */}
+        <SearchBar
+          onSubmit={runSearch}
+          className="mx-2 hidden max-w-xs flex-1 items-center gap-2 md:flex"
+        />
+
         {/* Right — icons */}
-        <div className="flex items-center gap-5">
-          <Link
-            href="/luxe/shop"
-            aria-label="Search the collection"
-            className="hidden text-luxe-charcoal transition-colors hover:text-luxe-gold sm:block"
+        <div className="flex items-center gap-4 sm:gap-5">
+          <button
+            onClick={() => setSearchOpen((o) => !o)}
+            aria-label="Search"
+            aria-expanded={searchOpen}
+            className="text-luxe-charcoal transition-colors hover:text-luxe-gold md:hidden"
           >
             <SearchIcon className="h-[1.15rem] w-[1.15rem]" />
-          </Link>
+          </button>
           <Link
-            href="/luxe/about#care"
+            href="/about#care"
             aria-label="Client services"
             className="hidden text-luxe-charcoal transition-colors hover:text-luxe-gold sm:block"
           >
             <UserIcon className="h-[1.15rem] w-[1.15rem]" />
           </Link>
-          <Link href="/luxe/cart" className="group relative" aria-label="Your bag">
+          <Link href="/cart" className="group relative" aria-label="Your bag">
             <BagIcon className="h-[1.2rem] w-[1.2rem] text-luxe-charcoal transition-colors group-hover:text-luxe-gold" />
             {totalQuantity > 0 && (
               <span className="absolute -right-2 -top-2 grid h-4 w-4 place-items-center rounded-full bg-luxe-gold text-[0.6rem] text-luxe-noir">
@@ -88,8 +105,8 @@ export function LuxeNav() {
             )}
           </Link>
           <Link
-            href="/"
-            className="luxe-label hidden text-luxe-stone transition-colors hover:text-luxe-noir md:inline-block"
+            href="/pops"
+            className="luxe-label hidden text-luxe-stone transition-colors hover:text-luxe-noir md:inline-block lg:hidden"
           >
             ⟶ Pops
           </Link>
@@ -102,6 +119,26 @@ export function LuxeNav() {
           </button>
         </div>
       </nav>
+
+      {/* Mobile search bar — drops in under the nav */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden md:hidden"
+          >
+            <div className="px-5 pb-4 sm:px-8">
+              <SearchBar
+                onSubmit={runSearch}
+                autoFocus
+                className="flex w-full items-center gap-2"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mobile menu */}
       <AnimatePresence>
@@ -118,7 +155,13 @@ export function LuxeNav() {
                 <CloseIcon className="h-6 w-6 text-luxe-noir" />
               </button>
             </div>
-            <div className="flex flex-col px-5 pt-8">
+            <div className="px-5 pt-4">
+              <SearchBar
+                onSubmit={runSearch}
+                className="flex w-full items-center gap-2"
+              />
+            </div>
+            <div className="flex flex-col px-5 pt-6">
               {LINKS.map((l, i) => (
                 <motion.div
                   key={l.href}
@@ -136,24 +179,61 @@ export function LuxeNav() {
                 </motion.div>
               ))}
               <Link
-                href="/luxe/cart"
+                href="/cart"
                 onClick={() => setMenuOpen(false)}
                 className="mt-8 luxe-label text-luxe-charcoal"
               >
                 Your Bag ({totalQuantity})
-              </Link>
-              <Link
-                href="/"
-                onClick={() => setMenuOpen(false)}
-                className="mt-4 luxe-label text-luxe-gold"
-              >
-                ⟶ Cross over to Qavier Pops
               </Link>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </header>
+  );
+}
+
+function SearchBar({
+  onSubmit,
+  className,
+  autoFocus,
+}: {
+  onSubmit: (query: string) => void;
+  className?: string;
+  autoFocus?: boolean;
+}) {
+  const [value, setValue] = useState('');
+
+  return (
+    <form
+      role="search"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(value);
+      }}
+      className={cn(
+        'border-b border-luxe-charcoal/25 transition-colors focus-within:border-luxe-noir',
+        className,
+      )}
+    >
+      <button
+        type="submit"
+        aria-label="Search"
+        className="shrink-0 text-luxe-stone transition-colors hover:text-luxe-noir"
+      >
+        <SearchIcon className="h-4 w-4" />
+      </button>
+      <input
+        type="search"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus={autoFocus}
+        placeholder="Search Qavier"
+        aria-label="Search products"
+        className="w-full bg-transparent py-2 font-sans text-sm text-luxe-noir placeholder:text-luxe-stone/70 focus:outline-none"
+      />
+    </form>
   );
 }
 

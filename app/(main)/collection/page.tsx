@@ -8,7 +8,7 @@ import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
 export const metadata: Metadata = {
   title: 'Collections',
   description:
-    'Explore the Qavier Luxe collections — tailoring, outerwear, dresses, knitwear, eveningwear and accessories. Designed for every moment, crafted to last.',
+    'Explore the Qavier collections — tailoring, outerwear, dresses, knitwear, eveningwear and accessories. Designed for every moment, crafted to last.',
 };
 
 const CATEGORIES = [
@@ -34,7 +34,7 @@ export default async function CollectionPage() {
          —————————————————————————————————————————————————————— */}
       <Reveal>
         <header className="mx-auto max-w-2xl text-center">
-          <p className="luxe-label text-luxe-stone">Qavier Luxe</p>
+          <p className="luxe-label text-luxe-stone">Qavier</p>
           <h1 className="mt-5 font-serif text-5xl font-light leading-[1.05] text-luxe-noir sm:text-6xl">
             Collections
           </h1>
@@ -54,7 +54,7 @@ export default async function CollectionPage() {
           className="scrollbar-none mt-10 flex justify-start gap-8 overflow-x-auto sm:justify-center"
         >
           <Link
-            href="/luxe/shop"
+            href="/shop"
             className="luxe-label shrink-0 whitespace-nowrap border-b border-transparent pb-2 text-luxe-noir transition-colors duration-500 ease-luxe hover:border-luxe-gold hover:text-luxe-gold"
           >
             All
@@ -62,7 +62,7 @@ export default async function CollectionPage() {
           {CATEGORIES.map((c) => (
             <Link
               key={c}
-              href={`/luxe/shop?category=${c.toLowerCase()}`}
+              href={`/shop?category=${c.toLowerCase()}`}
               className="luxe-label shrink-0 whitespace-nowrap border-b border-transparent pb-2 text-luxe-charcoal/70 transition-colors duration-500 ease-luxe hover:border-luxe-gold hover:text-luxe-gold"
             >
               {c}
@@ -82,7 +82,7 @@ export default async function CollectionPage() {
             return (
               <Link
                 key={c}
-                href={`/luxe/shop?category=${slug}`}
+                href={`/shop?category=${slug}`}
                 className="group block"
               >
                 <PlaceholderFrame
@@ -112,7 +112,7 @@ export default async function CollectionPage() {
           <div className="mb-10 flex items-end justify-between border-b border-luxe-charcoal/10 pb-5">
             <h2 className="font-serif text-3xl font-light text-luxe-noir sm:text-4xl">New In</h2>
             <Link
-              href="/luxe/shop"
+              href="/shop"
               className="luxe-label text-luxe-charcoal transition-colors duration-500 ease-luxe hover:text-luxe-gold"
             >
               View All →

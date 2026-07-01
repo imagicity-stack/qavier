@@ -1,11 +1,11 @@
-# QAVIER — Two Worlds, One Name
+# QAVIER
 
-A dual-universe fashion house, built as one Next.js app:
+A contemporary fashion house, built as one Next.js app:
 
-- **Qavier Luxe** (`/luxe`) — quiet luxury. Noir, ivory & champagne. Serif editorial, generous whitespace, slow elegant motion.
-- **Qavier Pops** (`/pops`) — Gen-Z maximalism. Acid lime, hot magenta, electric violet & cyan. Neobrutalist, chunky type, marquees, stickers.
+- **Qavier** (`/`) — the main store. Timeless, considered pieces. Noir, ivory & champagne; serif editorial, generous whitespace, slow elegant motion.
+- **Qavier Pops** (`/pops`) — a loud, limited Gen-Z capsule, reached from the **Pops** entry in the menu. Acid lime, hot magenta, electric violet & cyan; neobrutalist, chunky type, marquees, stickers.
 
-Visitors land on a split-screen **portal** (`/`) and choose their universe. Each universe has its own navigation, footer, cart skin, product cards and voice — but they share one cart and one Shopify backend.
+Visitors land straight in the main Qavier store (`/`). A header **search bar** and a **Pops** menu link lead into the rest of the site. Each storefront has its own navigation, footer, cart skin, product cards and voice — but they share one cart and one Shopify backend.
 
 > **It runs right now with zero backend.** Until you connect Shopify, the whole
 > site is powered by a built-in demo catalogue, and every photo slot renders a
@@ -34,7 +34,7 @@ npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. You'll see the portal — pick **Luxe** or **Pops**.
+Open <http://localhost:3000>. You'll land in the main Qavier store; use the header search or the **Pops** menu link to explore.
 
 ### Useful scripts
 
@@ -56,10 +56,10 @@ code changes required.
 
 1. In Shopify admin, install/enable **Headless** (or create a custom app) and
    generate a **Storefront API access token**.
-2. Tag products so they land in the right universe:
-   - add the tag **`luxe`** to Qavier Luxe products,
-   - add the tag **`pops`** to Qavier Pops products.
-   (Anything without a `pops` tag is treated as Luxe.)
+2. Tag products so they land in the right storefront:
+   - add the tag **`pops`** to Qavier Pops products,
+   - main Qavier products use the internal `luxe` universe tag — anything without a
+     `pops` tag is treated as main Qavier.
 3. Optionally create two collections with handles `qavier-luxe` and
    `qavier-pops`.
 4. Optional product metafields (namespace `custom`): `material`, `tagline`.
@@ -97,19 +97,17 @@ wire them to metafields when your shots are ready.
 
 ```
 app/
-  page.tsx              → the portal (choose your universe)
   layout.tsx            → root layout, fonts, metadata
   globals.css           → Tailwind + shared component primitives
-  luxe/                 → Qavier Luxe universe (reference-style, page-based cart)
-    page.tsx · shop/ · collection/ · products/[handle]/ · about/
-    journal/ · cart/ · checkout/ · order-confirmed/
-  pops/                 → Qavier Pops universe (neobrutalist, slide-over cart)
+  (main)/               → the main Qavier store at the site root (page-based cart)
+    layout.tsx · page.tsx · shop/ · collection/ · products/[handle]/
+    about/ · journal/ · cart/ · checkout/ · order-confirmed/
+  pops/                 → Qavier Pops capsule (neobrutalist, slide-over cart)
     page.tsx · shop/ · products/[handle]/ · drops/
 components/
   shared/   → ShopImage, cart context + drawer, Reveal, Marquee
-  luxe/     → nav, footer, product card, purchase panel
+  luxe/     → main-store nav (with search bar), footer, product card, purchase panel
   pops/     → nav, footer, product card, purchase panel
-  portal/   → the split-screen portal
 lib/
   shopify/  → Storefront API client, GraphQL queries, types, demo catalogue
   utils.ts  → cn(), formatPrice(), discountPercent()
@@ -128,5 +126,5 @@ components never hard-code hex values. Fonts are wired through `next/font`
 ## Notes
 
 - Fully responsive and mobile-first; respects `prefers-reduced-motion`.
-- The cart persists in `localStorage` and is shared across both universes.
+- The cart persists in `localStorage` and is shared across the store and Pops.
 - In demo mode, checkout shows a friendly preview notice instead of redirecting.

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import type { Product } from '@/lib/shopify/types';
-import { cn, formatPrice } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
 
 // ————————————————————————————————————————————————————————————————
@@ -90,9 +90,11 @@ function productColors(product: Product): string[] {
 export function LuxeShop({
   products,
   initialCategory,
+  initialQuery = '',
 }: {
   products: Product[];
   initialCategory: string;
+  initialQuery?: string;
 }) {
   const normalizedInitial = initialCategory.toLowerCase();
   const validInitial = CATEGORIES.map((c) => c.toLowerCase()).includes(normalizedInitial)
@@ -100,6 +102,7 @@ export function LuxeShop({
     : 'all';
 
   const [category, setCategory] = useState<string>(validInitial);
+  const [query, setQuery] = useState<string>(initialQuery);
   const [sizes, setSizes] = useState<string[]>([]);
   const [colors, setColors] = useState<string[]>([]);
   const [priceId, setPriceId] = useState<string | null>(null);
@@ -118,12 +121,18 @@ export function LuxeShop({
   };
 
   const activeRange = PRICE_RANGES.find((r) => r.id === priceId);
+  const trimmedQuery = query.trim().toLowerCase();
 
   const filtersActive =
-    category !== 'all' || sizes.length > 0 || colors.length > 0 || priceId !== null;
+    category !== 'all' ||
+    sizes.length > 0 ||
+    colors.length > 0 ||
+    priceId !== null ||
+    trimmedQuery !== '';
 
   const clearAll = () => {
     setCategory('all');
+    setQuery('');
     setSizes([]);
     setColors([]);
     setPriceId(null);
@@ -132,6 +141,19 @@ export function LuxeShop({
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
       if (category !== 'all' && !productCategories(p).includes(category)) return false;
+
+      if (trimmedQuery) {
+        const haystack = [
+          p.title,
+          p.material ?? '',
+          p.tagline ?? '',
+          p.description,
+          ...p.tags,
+        ]
+          .join(' ')
+          .toLowerCase();
+        if (!haystack.includes(trimmedQuery)) return false;
+      }
 
       if (sizes.length) {
         const ps = productSizes(p);
@@ -174,7 +196,7 @@ export function LuxeShop({
     }
 
     return list;
-  }, [products, category, sizes, colors, activeRange, sort]);
+  }, [products, category, trimmedQuery, sizes, colors, activeRange, sort]);
 
   // ———————————————————————————————————————————————————————————————
   //  Filter sidebar (shared by desktop column + mobile panel)
@@ -314,10 +336,19 @@ export function LuxeShop({
       {/* Header */}
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-luxe-charcoal/10 pb-6">
         <div>
-          <p className="luxe-label text-luxe-stone">Qavier Luxe</p>
+          <p className="luxe-label text-luxe-stone">{trimmedQuery ? 'Search Results' : 'Qavier'}</p>
           <h1 className="mt-3 font-serif text-5xl font-light leading-none text-luxe-noir sm:text-6xl">
-            Shop
+            {trimmedQuery ? `“${query.trim()}”` : 'Shop'}
           </h1>
+          {trimmedQuery && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              className="luxe-label mt-3 text-luxe-gold underline-offset-4 transition-colors hover:text-luxe-noir hover:underline"
+            >
+              Clear search ✕
+            </button>
+          )}
         </div>
         <label className="flex items-center gap-3">
           <span className="luxe-label text-luxe-stone">Sort By</span>

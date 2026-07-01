@@ -143,7 +143,7 @@ export default async function PopsShop({
             seen enough?
           </h2>
           <p className="mt-3 font-sans text-pops-black/70">
-            peep what&apos;s dropping next or take a breather in luxe.
+            peep what&apos;s dropping next or take a breather over at qavier.
           </p>
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link href="/pops/drops" className="pops-btn">

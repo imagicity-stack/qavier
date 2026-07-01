@@ -25,7 +25,7 @@ export default function LuxeCartPage() {
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <header className="mb-12">
-          <span className="luxe-label">Qavier Luxe</span>
+          <span className="luxe-label">Qavier</span>
           <h1 className="mt-3 font-serif text-5xl font-light leading-none sm:text-6xl">
             Your Bag{' '}
             <span className="align-middle text-2xl text-luxe-stone sm:text-3xl">
@@ -53,7 +53,7 @@ export default function LuxeCartPage() {
                 last a lifetime.
               </p>
             </div>
-            <Link href="/luxe/shop" className="luxe-btn">
+            <Link href="/shop" className="luxe-btn">
               Continue Shopping
             </Link>
           </div>
@@ -75,7 +75,7 @@ export default function LuxeCartPage() {
                       className="flex gap-5 border-b border-luxe-charcoal/15 py-8 sm:gap-7"
                     >
                       <Link
-                        href={`/luxe/products/${line.productHandle}`}
+                        href={`/products/${line.productHandle}`}
                         className="relative h-32 w-24 shrink-0 overflow-hidden"
                         aria-label={`View ${line.productTitle}`}
                       >
@@ -91,7 +91,7 @@ export default function LuxeCartPage() {
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <Link
-                              href={`/luxe/products/${line.productHandle}`}
+                              href={`/products/${line.productHandle}`}
                               className="font-serif text-xl leading-tight transition-colors duration-300 hover:text-luxe-gold sm:text-2xl"
                             >
                               {line.productTitle}
@@ -164,7 +164,7 @@ export default function LuxeCartPage() {
                   </span>
                 </div>
 
-                <Link href="/luxe/checkout" className="luxe-btn mt-8 w-full">
+                <Link href="/checkout" className="luxe-btn mt-8 w-full">
                   Proceed to Checkout
                 </Link>
 
@@ -174,7 +174,7 @@ export default function LuxeCartPage() {
 
                 <div className="mt-6 text-center">
                   <Link
-                    href="/luxe/shop"
+                    href="/shop"
                     className="font-sans text-xs uppercase tracking-wider2 text-luxe-stone underline-offset-4 transition-colors duration-300 hover:text-luxe-noir hover:underline"
                   >
                     Continue Shopping

@@ -10,7 +10,7 @@ export function LuxeProductCard({ product, priority }: { product: Product; prior
   );
 
   return (
-    <Link href={`/luxe/products/${product.handle}`} className="group block">
+    <Link href={`/products/${product.handle}`} className="group block">
       <div className="relative aspect-[3/4] overflow-hidden bg-luxe-ivory">
         <ShopImage
           image={product.featuredImage}

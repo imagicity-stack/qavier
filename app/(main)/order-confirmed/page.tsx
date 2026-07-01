@@ -4,7 +4,7 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: 'Order Confirmed',
   description:
-    'Thank you for your order from Qavier Luxe. We have received it and will notify you when it ships.',
+    'Thank you for your order from Qavier. We have received it and will notify you when it ships.',
 };
 
 export default function OrderConfirmedPage({
@@ -50,7 +50,7 @@ export default function OrderConfirmedPage({
 
       <p className="luxe-label !text-luxe-noir">Order #{orderId}</p>
 
-      <Link href="/luxe/shop" className="luxe-btn mt-10">
+      <Link href="/shop" className="luxe-btn mt-10">
         Continue Shopping
       </Link>
     </div>
