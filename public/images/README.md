@@ -4,6 +4,13 @@ Every photo slot in the site currently renders a branded **"imagery forthcoming"
 placeholder (with a small label describing what belongs there). There are two
 ways to replace them with real images:
 
+## Home hero → `public/images/homescreen.png`
+The home page hero is already wired to this exact path. Just drop a file named
+**`homescreen.png`** into `public/images/` and it appears automatically — no
+code changes. Until that file exists, the hero shows the placeholder frame (no
+broken-image icon). Use a large landscape image (~2000px wide) so it isn't
+heavily cropped; a dark scrim keeps the headline and button legible.
+
 ## 1. Product photography → Shopify (recommended)
 Once you connect Shopify (see the root `README.md`), product images are pulled
 straight from the Shopify CDN and replace the product placeholders automatically.
