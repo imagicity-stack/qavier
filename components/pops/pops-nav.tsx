@@ -84,7 +84,7 @@ export function PopsNav() {
             href="/"
             className="hidden rounded-full border-2 border-pops-black px-4 py-2 font-display text-xs font-bold uppercase text-pops-black transition-colors hover:bg-pops-violet hover:text-white sm:inline-block"
           >
-            luxe ⟶
+            qavier ⟶
           </Link>
           <button
             onClick={openCart}
@@ -201,21 +201,14 @@ export function PopsNav() {
                 </ul>
               </div>
 
-              {/* Drawer footer — universe switch */}
+              {/* Drawer footer — back to the main Qavier store */}
               <div className="border-t-2 border-pops-black p-5">
                 <Link
                   href="/"
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-violet px-6 py-3 font-display text-sm font-bold uppercase text-white transition-transform hover:-translate-y-0.5"
                 >
-                  cross over to qavier luxe ⟶
-                </Link>
-                <Link
-                  href="/"
-                  onClick={() => setMenuOpen(false)}
-                  className="mt-3 block text-center font-display text-xs font-bold uppercase tracking-widest text-pops-black/40 hover:text-pops-black"
-                >
-                  ← the portal
+                  back to qavier ⟶
                 </Link>
               </div>
             </motion.aside>

@@ -2,7 +2,7 @@
   "name": "qavier",
   "version": "1.0.0",
   "private": true,
-  "description": "Qavier — a dual-universe luxury fashion house. Qavier Luxe & Qavier Pops.",
+  "description": "Qavier — a contemporary fashion house. The main Qavier store, plus the Qavier Pops capsule.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

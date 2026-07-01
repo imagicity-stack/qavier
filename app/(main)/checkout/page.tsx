@@ -67,7 +67,7 @@ export default function LuxeCheckoutPage() {
       // Demo mode / no checkout URL — fabricate an order and confirm locally.
       const orderId = `QAVIER-${Math.floor(10000 + Math.random() * 90000)}`;
       clear();
-      router.push(`/luxe/order-confirmed?order=${orderId}`);
+      router.push(`/order-confirmed?order=${orderId}`);
     } catch {
       setPlacing(false);
     }
@@ -85,7 +85,7 @@ export default function LuxeCheckoutPage() {
             There is nothing to check out just yet. Explore the collection and
             add a piece to begin.
           </p>
-          <Link href="/luxe/shop" className="luxe-btn">
+          <Link href="/shop" className="luxe-btn">
             Continue Shopping
           </Link>
         </div>
@@ -97,7 +97,7 @@ export default function LuxeCheckoutPage() {
     <div className="min-h-screen bg-luxe-cream px-6 pb-24 pt-28 text-luxe-noir sm:px-10 sm:pt-32">
       <div className="mx-auto max-w-6xl">
         <header className="mb-12">
-          <span className="luxe-label">Qavier Luxe</span>
+          <span className="luxe-label">Qavier</span>
           <h1 className="mt-3 font-serif text-5xl font-light leading-none sm:text-6xl">
             Checkout
           </h1>

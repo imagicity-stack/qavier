@@ -68,7 +68,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
             {/* Breadcrumb */}
             <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2">
               <Link
-                href="/luxe"
+                href="/"
                 className="luxe-label text-luxe-stone transition-colors duration-500 ease-luxe hover:text-luxe-gold"
               >
                 Home
@@ -77,7 +77,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
                 /
               </span>
               <Link
-                href="/luxe/shop"
+                href="/shop"
                 className="luxe-label text-luxe-stone transition-colors duration-500 ease-luxe hover:text-luxe-gold"
               >
                 Shop
@@ -149,7 +149,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
                 </h2>
               </div>
               <Link
-                href="/luxe/shop"
+                href="/shop"
                 className="luxe-label whitespace-nowrap text-luxe-charcoal transition-colors duration-500 ease-luxe hover:text-luxe-gold"
               >
                 View All →

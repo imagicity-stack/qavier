@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --portal-bg: #0b0b0c;
-}
-
 * {
   -webkit-tap-highlight-color: transparent;
 }

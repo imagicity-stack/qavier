@@ -238,7 +238,7 @@ export default function PopsHome() {
               href="/"
               className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-8 py-4 font-display text-base font-bold uppercase text-pops-black transition-transform hover:-translate-y-0.5"
             >
-              cross over to luxe ⟶
+              back to qavier ⟶
             </Link>
           </div>
         </Reveal>

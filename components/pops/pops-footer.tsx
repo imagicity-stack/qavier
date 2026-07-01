@@ -19,10 +19,10 @@ const COLUMNS = [
     ],
   },
   {
-    title: 'universe',
+    title: 'qavier',
     links: [
-      { label: 'qavier luxe', href: '/luxe' },
-      { label: 'the portal', href: '/' },
+      { label: 'home', href: '/' },
+      { label: 'shop', href: '/shop' },
     ],
   },
 ];

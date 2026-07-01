@@ -83,7 +83,7 @@ export function LuxePurchase({ product }: { product: Product }) {
               </span>
               {!isColor && (
                 <Link
-                  href="/luxe/about#care"
+                  href="/about#care"
                   className="luxe-label text-luxe-stone underline-offset-4 hover:text-luxe-gold hover:underline"
                 >
                   Size Guide
@@ -159,7 +159,7 @@ export function LuxePurchase({ product }: { product: Product }) {
           <span className="font-sans text-sm text-luxe-charcoal">
             <span className="text-luxe-gold">✦</span> Added to your bag
           </span>
-          <Link href="/luxe/cart" className="luxe-label text-luxe-noir hover:text-luxe-gold">
+          <Link href="/cart" className="luxe-label text-luxe-noir hover:text-luxe-gold">
             View Bag →
           </Link>
         </div>
