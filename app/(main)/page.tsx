@@ -35,11 +35,17 @@ export default async function QavierHome() {
           className="absolute inset-0 h-full w-full"
           label="Hero Campaign — Imagery Forthcoming"
         />
-        {/* Hero photo. Drop your image at `public/images/homescreen.png`.
-            Until that file exists this layer is transparent (no broken-image
-            icon) and the placeholder frame above simply shows through. */}
+        {/* Hero photo. Drop your images into `public/images/`:
+              • mobile  → homescreenmobile.png
+              • desktop → homescreen.png
+            Until a file exists its layer is transparent (no broken-image icon)
+            and the placeholder frame above simply shows through. */}
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center md:hidden"
+          style={{ backgroundImage: "url('/images/homescreenmobile.png')" }}
+        />
+        <div
+          className="absolute inset-0 hidden bg-cover bg-center md:block"
           style={{ backgroundImage: "url('/images/homescreen.png')" }}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-luxe-noir/35 via-transparent to-luxe-noir/5" />

@@ -50,7 +50,9 @@ export function LuxeNav() {
         'fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-luxe',
         scrolled || searchOpen
           ? 'border-b border-luxe-charcoal/10 bg-luxe-cream/90 backdrop-blur-md'
-          : 'bg-transparent',
+          : // Opaque on mobile from the start; only the wider header goes
+            // transparent over the hero until you scroll.
+            'border-b border-luxe-charcoal/10 bg-luxe-cream md:border-transparent md:bg-transparent',
       )}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:py-5">
@@ -142,9 +144,12 @@ export function LuxeNav() {
         {menuOpen && (
           <motion.div
             className="fixed inset-0 z-[120] flex flex-col bg-luxe-cream lg:hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            // Slide the opaque panel in rather than fading its opacity, so the
+            // cream background never turns see-through mid-animation.
+            initial={{ y: '-100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '-100%' }}
+            transition={{ type: 'tween', duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="flex items-center justify-between px-5 py-4">
               <span className="font-serif text-2xl tracking-[0.3em] text-luxe-noir">QAVIER</span>
