@@ -28,11 +28,19 @@ export default async function QavierHome() {
       {/* ——————————————————————————————————————————————————————
           HERO — image-led, minimal copy
          —————————————————————————————————————————————————————— */}
-      <section className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden">
+      <section className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-luxe-noir">
+        {/* Fallback frame — shows until the hero photo is added. */}
         <PlaceholderFrame
           universe="luxe"
           className="absolute inset-0 h-full w-full"
           label="Hero Campaign — Imagery Forthcoming"
+        />
+        {/* Hero photo. Drop your image at `public/images/homescreen.png`.
+            Until that file exists this layer is transparent (no broken-image
+            icon) and the placeholder frame above simply shows through. */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/images/homescreen.png')" }}
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-luxe-noir/35 via-transparent to-luxe-noir/5" />
 
