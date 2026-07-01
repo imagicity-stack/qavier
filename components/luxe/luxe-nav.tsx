@@ -3,16 +3,17 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useCart } from '@/components/shared/cart-context';
 import { cn } from '@/lib/utils';
 
+// Pops lives in its own universe — it gets the poppy pill treatment below,
+// so it's kept out of the quiet, minimal link list.
 const LINKS = [
   { href: '/shop', label: 'Shop' },
   { href: '/collection', label: 'Collections' },
   { href: '/about', label: 'About' },
   { href: '/journal', label: 'Journal' },
-  { href: '/pops', label: 'Pops' },
 ];
 
 export function LuxeNav() {
@@ -70,6 +71,7 @@ export function LuxeNav() {
                 {l.label}
               </Link>
             ))}
+            <PopsLink />
           </div>
         </div>
 
@@ -104,12 +106,7 @@ export function LuxeNav() {
               </span>
             )}
           </Link>
-          <Link
-            href="/pops"
-            className="luxe-label hidden text-luxe-stone transition-colors hover:text-luxe-noir md:inline-block lg:hidden"
-          >
-            ⟶ Pops
-          </Link>
+          <PopsLink className="hidden md:inline-flex lg:hidden" />
           <button
             onClick={() => setMenuOpen(true)}
             className="lg:hidden"
@@ -178,6 +175,14 @@ export function LuxeNav() {
                   </Link>
                 </motion.div>
               ))}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.07 * LINKS.length + 0.08 }}
+                className="mt-8"
+              >
+                <PopsLink variant="menu" onNavigate={() => setMenuOpen(false)} />
+              </motion.div>
               <Link
                 href="/cart"
                 onClick={() => setMenuOpen(false)}
@@ -190,6 +195,98 @@ export function LuxeNav() {
         )}
       </AnimatePresence>
     </header>
+  );
+}
+
+/**
+ * The odd one out — a loud, neobrutalist pill that pops out of the otherwise
+ * quiet nav. Clicking it fires a little "POP!" burst before crossing over to
+ * the Pops universe (unless the visitor prefers reduced motion).
+ */
+function PopsLink({
+  variant = 'nav',
+  className,
+  onNavigate,
+}: {
+  variant?: 'nav' | 'menu';
+  className?: string;
+  onNavigate?: () => void;
+}) {
+  const router = useRouter();
+  const reduceMotion = useReducedMotion();
+  const [popping, setPopping] = useState(false);
+  const isMenu = variant === 'menu';
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Reduced motion (or an already-running pop): let the plain link navigate.
+    if (reduceMotion || popping) {
+      onNavigate?.();
+      return;
+    }
+    e.preventDefault();
+    setPopping(true);
+    window.setTimeout(() => {
+      onNavigate?.();
+      router.push('/pops');
+    }, 620);
+  };
+
+  return (
+    <Link
+      href="/pops"
+      onClick={handleClick}
+      aria-label="Enter Qavier Pops"
+      className={cn(
+        'group relative inline-flex items-center gap-1.5 rounded-full border-2 border-pops-black bg-pops-lime font-display font-bold uppercase tracking-tight text-pops-black shadow-pops transition-transform duration-150 hover:-translate-y-0.5 hover:-rotate-2 active:translate-y-0.5 active:shadow-none',
+        isMenu ? 'px-6 py-2.5 text-lg' : 'px-3.5 py-1.5 text-xs',
+        className,
+      )}
+    >
+      <span>Pops</span>
+      <motion.span
+        aria-hidden
+        animate={popping ? { rotate: [0, -25, 25, 0], scale: [1, 1.5, 1] } : {}}
+        transition={{ duration: 0.5 }}
+      >
+        ✦
+      </motion.span>
+      <AnimatePresence>{popping && <PopBurst key="burst" />}</AnimatePresence>
+    </Link>
+  );
+}
+
+/**
+ * Staggered, multi-colour "POP!" that bursts out of the pill on click.
+ * Centred on the pill so it never clips against the top of the viewport in the
+ * fixed header, then drifts up and fades as the crossover fires.
+ */
+function PopBurst() {
+  const letters = ['P', 'O', 'P', '!'];
+  const colors = ['text-pops-magenta', 'text-pops-violet', 'text-pops-cyan', 'text-pops-orange'];
+
+  return (
+    <motion.span
+      className="pointer-events-none absolute left-1/2 top-1/2 z-[140] flex -translate-x-1/2 -translate-y-1/2 gap-0.5"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1, y: -14 }}
+      exit={{ opacity: 0, y: -26, scale: 1.3 }}
+      transition={{ duration: 0.25 }}
+    >
+      {letters.map((l, i) => (
+        <motion.span
+          key={i}
+          className={cn(
+            'font-display text-2xl font-black uppercase drop-shadow-[2px_2px_0_#0E0E12]',
+            colors[i % colors.length],
+          )}
+          initial={{ y: 6, scale: 0.3, rotate: -14 }}
+          animate={{ y: [6, -4, 0], scale: [0.3, 1.35, 1], rotate: [-14, 10, 0] }}
+          transition={{ delay: i * 0.06, duration: 0.42, ease: 'backOut' }}
+        >
+          {l}
+        </motion.span>
+      ))}
+    </motion.span>
   );
 }
 
