@@ -73,6 +73,26 @@ SHOPIFY_API_VERSION=2024-07
 
 Restart `npm run dev`. Done — real products, real cart, real checkout.
 
+---
+
+## Launch switch — "coming soon" → live
+
+The main Qavier store (home, shop, collections, products, cart, checkout) ships
+behind a **coming-soon holding page**. Qavier Pops (`/pops`) is a separate
+universe and stays live the whole time — the holding page links to it.
+
+When you're ready to sell the main line, open the store with **one setting**:
+
+- **On Vercel (recommended, no code change):** Project → Settings → Environment
+  Variables → set **`NEXT_PUBLIC_QAVIER_STORE=live`**, then redeploy.
+- **Locally:** add `NEXT_PUBLIC_QAVIER_STORE=live` to `.env.local`.
+- **Or in code:** flip `STORE_LIVE_FALLBACK` to `true` in `lib/config.ts`.
+
+Set it back to `coming-soon` (or unset it) to put the holding page back up.
+While it's `coming-soon`, the store routes are `noindex` and kept out of the
+sitemap. Combine this with the Shopify env vars above and, the moment you go
+live, you're adding products straight from Shopify.
+
 ### Adding product photography
 
 Once Shopify is connected, product images come straight from the Shopify CDN
