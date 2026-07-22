@@ -74,6 +74,7 @@ export function LuxeNav() {
                 {l.label}
               </Link>
             ))}
+            <LuxeLink />
             <PopsLink />
           </div>
         </div>
@@ -109,7 +110,10 @@ export function LuxeNav() {
               </span>
             )}
           </Link>
-          <PopsLink className="hidden md:inline-flex lg:hidden" />
+          <span className="hidden items-center gap-2 md:inline-flex lg:hidden">
+            <LuxeLink />
+            <PopsLink />
+          </span>
           <button
             onClick={() => setMenuOpen(true)}
             className="lg:hidden"
@@ -190,8 +194,9 @@ export function LuxeNav() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.07 * LINKS.length + 0.08 }}
-                className="mt-8"
+                className="mt-8 flex flex-wrap items-center gap-3"
               >
+                <LuxeLink variant="menu" onNavigate={() => setMenuOpen(false)} />
                 <PopsLink variant="menu" onNavigate={() => setMenuOpen(false)} />
               </motion.div>
               <Link
@@ -206,6 +211,44 @@ export function LuxeNav() {
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+/**
+ * Qavier Luxe entry — an elegant dark pill with a champagne "Soon" tag. The
+ * quiet counterpart to the loud Pops pill; links to the Luxe coming-soon page.
+ */
+function LuxeLink({
+  variant = 'nav',
+  className,
+  onNavigate,
+}: {
+  variant?: 'nav' | 'menu';
+  className?: string;
+  onNavigate?: () => void;
+}) {
+  const isMenu = variant === 'menu';
+  return (
+    <Link
+      href="/luxe"
+      onClick={onNavigate}
+      aria-label="Qavier Luxe — coming soon"
+      className={cn(
+        'group inline-flex items-center gap-1.5 rounded-full border border-luxe-noir bg-luxe-noir font-sans uppercase tracking-wider2 text-luxe-cream transition-colors hover:bg-luxe-charcoal',
+        isMenu ? 'px-5 py-2.5 text-sm' : 'px-3.5 py-1.5 text-[0.7rem]',
+        className,
+      )}
+    >
+      Luxe
+      <span
+        className={cn(
+          'rounded-full bg-luxe-champagne/90 font-sans leading-none text-luxe-noir',
+          isMenu ? 'px-2 py-0.5 text-[0.6rem]' : 'px-1.5 py-0.5 text-[0.5rem]',
+        )}
+      >
+        Soon
+      </span>
+    </Link>
   );
 }
 
