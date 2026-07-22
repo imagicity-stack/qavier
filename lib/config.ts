@@ -17,7 +17,7 @@
  *
  * The env var always wins over the fallback below.
  */
-const STORE_LIVE_FALLBACK = false;
+const STORE_LIVE_FALLBACK = true;
 
 export const STORE_LIVE: boolean =
   process.env.NEXT_PUBLIC_QAVIER_STORE === 'live'

@@ -105,7 +105,78 @@ function buildProduct(seed: SeedInput): Product {
 }
 
 // ————————————————————————————————————————————————————————————————
-// QAVIER LUXE — quiet luxury
+// QAVIER ESSENTIALS — the live main store (internally the 'luxe' universe key)
+// The T-shirt line that powers the home page rail.
+// ————————————————————————————————————————————————————————————————
+const TEE_SEEDS: SeedInput[] = [
+  {
+    handle: 'signature-q-tee',
+    title: 'Signature Q Tee',
+    tagline: 'Our everyday hero, embroidered Q.',
+    description:
+      'A heavyweight everyday tee in premium combed cotton with a subtle embroidered Q at the chest. Pre-shrunk and garment-dyed, built to keep its shape wash after wash.',
+    price: 1799,
+    universe: 'luxe',
+    tags: ['t-shirts', 'bestseller', 'essentials'],
+    material: '240gsm combed cotton',
+    badge: 'Bestseller',
+    colors: ['Noir', 'Sand', 'Chocolate'],
+  },
+  {
+    handle: 'minimal-logo-tee',
+    title: 'Minimal Logo Tee',
+    tagline: 'Clean lines, quiet logo.',
+    description:
+      'A relaxed-fit tee with a tonal, minimal logo. Soft-washed for that worn-in feel from the very first day.',
+    price: 1699,
+    universe: 'luxe',
+    tags: ['t-shirts', 'new', 'essentials'],
+    material: '220gsm ring-spun cotton',
+    badge: 'New',
+    colors: ['Sand', 'Chocolate', 'Noir'],
+  },
+  {
+    handle: 'classic-essential-tee',
+    title: 'Classic Essential Tee',
+    tagline: 'The one you reach for first.',
+    description:
+      'The Qavier classic — a true-to-size crew in breathable cotton. The foundation of every rotation.',
+    price: 1699,
+    universe: 'luxe',
+    tags: ['t-shirts', 'essentials'],
+    material: '200gsm cotton',
+    colors: ['Chocolate', 'Noir', 'Stone'],
+  },
+  {
+    handle: 'premium-q-tee',
+    title: 'Premium Q Tee',
+    tagline: 'Elevated weight, elevated feel.',
+    description:
+      'A premium boxy tee in dense pima cotton with a structured collar that holds its line all day.',
+    price: 1899,
+    universe: 'luxe',
+    tags: ['t-shirts', 'bestseller', 'essentials'],
+    material: '260gsm pima cotton',
+    badge: 'Bestseller',
+    colors: ['Forest', 'Noir', 'Stone'],
+  },
+  {
+    handle: 'back-print-tee',
+    title: 'Back Print Tee',
+    tagline: 'Subtle front, statement back.',
+    description:
+      'A minimalist front with a considered back print. Drop-shoulder fit and a heavyweight hand-feel.',
+    price: 1899,
+    universe: 'luxe',
+    tags: ['t-shirts', 'new', 'essentials'],
+    material: '240gsm combed cotton',
+    badge: 'New',
+    colors: ['Stone', 'Noir', 'Chocolate'],
+  },
+];
+
+// ————————————————————————————————————————————————————————————————
+// QAVIER LUXE — quiet luxury (the premium line, currently "coming soon")
 // ————————————————————————————————————————————————————————————————
 const LUXE_SEEDS: SeedInput[] = [
   {
@@ -335,6 +406,7 @@ const POPS_SEEDS: SeedInput[] = [
 ];
 
 export const MOCK_PRODUCTS: Product[] = [
+  ...TEE_SEEDS.map(buildProduct),
   ...LUXE_SEEDS.map(buildProduct),
   ...POPS_SEEDS.map(buildProduct),
 ];
