@@ -234,20 +234,12 @@ function LuxeLink({
       onClick={onNavigate}
       aria-label="Qavier Luxe — coming soon"
       className={cn(
-        'group inline-flex items-center gap-1.5 rounded-full border border-luxe-noir bg-luxe-noir font-sans uppercase tracking-wider2 text-luxe-cream transition-colors hover:bg-luxe-charcoal',
+        'group inline-flex items-center rounded-full border border-luxe-noir bg-luxe-noir font-sans uppercase tracking-wider2 text-luxe-cream transition-colors hover:bg-luxe-charcoal',
         isMenu ? 'px-5 py-2.5 text-sm' : 'px-3.5 py-1.5 text-[0.7rem]',
         className,
       )}
     >
       Luxe
-      <span
-        className={cn(
-          'rounded-full bg-luxe-champagne/90 font-sans leading-none text-luxe-noir',
-          isMenu ? 'px-2 py-0.5 text-[0.6rem]' : 'px-1.5 py-0.5 text-[0.5rem]',
-        )}
-      >
-        Soon
-      </span>
     </Link>
   );
 }
