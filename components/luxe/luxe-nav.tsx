@@ -10,10 +10,10 @@ import { cn } from '@/lib/utils';
 // Pops lives in its own universe — it gets the poppy pill treatment below,
 // so it's kept out of the quiet, minimal link list.
 const LINKS = [
-  { href: '/shop', label: 'Shop' },
-  { href: '/collection', label: 'Collections' },
-  { href: '/about', label: 'About' },
-  { href: '/journal', label: 'Journal' },
+  { href: '/shop', label: 'T-Shirts' },
+  { href: '/shop?q=new', label: 'New Arrivals' },
+  { href: '/shop?q=bestseller', label: 'Bestsellers' },
+  { href: '/about', label: 'About Us' },
 ];
 
 export function LuxeNav() {

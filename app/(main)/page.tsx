@@ -2,197 +2,208 @@ import Link from 'next/link';
 import { getProducts } from '@/lib/shopify';
 import { PlaceholderFrame } from '@/components/shared/shop-image';
 import { Reveal } from '@/components/shared/reveal';
-import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
+import { IntroSplash } from '@/components/intro-splash';
+import { TeeCard } from '@/components/home/tee-card';
 
-const FEATURES = ['Premium Fabrics', 'Thoughtful Design', 'Lasting Quality'];
-
-const COLLECTIONS = [
-  { label: 'Tailoring', count: '18 Pieces' },
-  { label: 'Eveningwear', count: '12 Pieces' },
-  { label: 'Knitwear', count: '24 Pieces' },
-  { label: 'Outerwear', count: '16 Pieces' },
-];
-
-const VALUES = [
-  { title: 'Premium Quality', body: 'The finest fabrics and craftsmanship.' },
-  { title: 'Timeless Design', body: 'Styles that transcend the season.' },
-  { title: 'Made for You', body: 'Considered, from first cut to final stitch.' },
+const FEATURES = [
+  { title: 'Premium Quality', sub: 'Finest Fabrics', Icon: BoxIcon },
+  { title: 'Secure Payments', sub: '100% Protected', Icon: ShieldIcon },
+  { title: 'Easy Returns', sub: 'Hassle Free', Icon: ReturnIcon },
+  { title: 'Worldwide Shipping', sub: 'Delivering Elegance', Icon: GlobeIcon },
 ];
 
 export default async function QavierHome() {
   const products = await getProducts({ universe: 'luxe' });
-  const newIn = products.slice(0, 4);
+  const tees = products.filter((p) => p.tags.includes('t-shirts')).slice(0, 5);
 
   return (
     <>
-      {/* ——————————————————————————————————————————————————————
-          HERO — image-led, minimal copy
-         —————————————————————————————————————————————————————— */}
-      <section className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-luxe-noir">
-        {/* Fallback frame — shows until the hero photo is added. */}
-        <PlaceholderFrame
-          universe="luxe"
-          className="absolute inset-0 h-full w-full"
-          label="Hero Campaign — Imagery Forthcoming"
-        />
-        {/* Hero photo. Drop your images into `public/images/`:
-              • mobile  → homescreenmobile.png
-              • desktop → homescreen.png
-            Until a file exists its layer is transparent (no broken-image icon)
-            and the placeholder frame above simply shows through. */}
-        <div
-          className="absolute inset-0 bg-cover bg-center md:hidden"
-          style={{ backgroundImage: "url('/images/homescreenmobile.png')" }}
-        />
-        <div
-          className="absolute inset-0 hidden bg-cover bg-center md:block"
-          style={{ backgroundImage: "url('/images/homescreen.png')" }}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-luxe-noir/35 via-transparent to-luxe-noir/5" />
+      <IntroSplash />
 
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16 sm:px-10 lg:pb-24">
-          <Reveal>
-            <p className="luxe-label text-luxe-noir/70">Qavier</p>
-            <h1 className="mt-5 max-w-2xl font-serif text-5xl font-light leading-[1.02] text-luxe-noir text-balance sm:text-6xl lg:text-7xl">
-              Timeless fashion.
-              <br />
-              Modern elegance.
-            </h1>
-            <p className="mt-5 max-w-sm font-sans text-base text-luxe-charcoal/80">
-              Effortless style for the modern woman.
+      {/* ————————————————————————————————————————————————
+          HERO — T-Shirts collection
+         ———————————————————————————————————————————————— */}
+      <section className="border-b border-luxe-charcoal/10 pt-20 sm:pt-24">
+        <div className="mx-auto grid max-w-7xl items-stretch gap-8 px-5 py-10 sm:px-8 lg:grid-cols-2 lg:gap-12 lg:py-14">
+          <Reveal className="flex flex-col justify-center">
+            <p className="font-sans text-[0.7rem] uppercase tracking-luxe text-luxe-gold">
+              Effortless. Everyday. Exceptional.
             </p>
-            <Link href="/shop" className="luxe-btn mt-9">
-              Shop Now
+            <h1 className="mt-5 font-serif text-5xl font-light leading-[1.02] text-luxe-noir sm:text-6xl">
+              T-Shirts
+              <br />
+              Collection
+            </h1>
+            <div className="mt-6 h-px w-16 bg-luxe-gold/70" />
+            <p className="mt-6 max-w-sm font-sans text-base leading-relaxed text-luxe-charcoal/80">
+              Premium fabrics. Timeless fits.
+              <br />
+              Made for every you.
+            </p>
+            <Link href="/shop" className="luxe-btn mt-9 self-start">
+              Explore Collection
             </Link>
           </Reveal>
-        </div>
 
-        {/* Feature strip */}
-        <div className="relative z-10 border-t border-luxe-noir/10 bg-luxe-cream/70 backdrop-blur-sm">
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-2 px-6 py-4 sm:px-10">
-            {FEATURES.map((f, i) => (
-              <span key={f} className="flex items-center gap-10">
-                {i > 0 && <span className="hidden h-1 w-1 rounded-full bg-luxe-stone sm:block" />}
-                <span className="luxe-label text-luxe-stone">{f}</span>
-              </span>
-            ))}
-          </div>
+          <Reveal delay={0.08} className="relative">
+            {/* Hero image — drop /images/tshirt-hero.png into public/images to use it. */}
+            <div className="relative aspect-[4/3] overflow-hidden rounded-lg lg:aspect-auto lg:h-full">
+              <PlaceholderFrame
+                universe="luxe"
+                className="absolute inset-0 h-full w-full"
+                label="Campaign — The Tee"
+              />
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: "url('/images/tshirt-hero.png')" }}
+              />
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* ——————————————————————————————————————————————————————
-          NEW IN — a clean four-up rail
-         —————————————————————————————————————————————————————— */}
-      <section className="mx-auto max-w-7xl px-6 py-20 sm:px-10 lg:py-28">
-        <Reveal className="mb-10 flex items-end justify-between">
-          <h2 className="font-serif text-3xl font-light text-luxe-noir sm:text-4xl">New In</h2>
+      {/* ————————————————————————————————————————————————
+          PRODUCT RAIL
+         ———————————————————————————————————————————————— */}
+      <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:py-16">
+        <div className="mb-8 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <span className="flex items-center gap-2 font-sans text-[0.7rem] uppercase tracking-wider2 text-luxe-charcoal">
+              <FilterIcon className="h-3.5 w-3.5" /> Filter
+            </span>
+            <span className="hidden font-sans text-[0.7rem] uppercase tracking-wider2 text-luxe-stone sm:inline">
+              Sort by: <span className="text-luxe-noir">Featured ▾</span>
+            </span>
+          </div>
           <Link
             href="/shop"
-            className="luxe-label text-luxe-charcoal transition-colors hover:text-luxe-gold"
+            className="font-sans text-[0.7rem] uppercase tracking-wider2 text-luxe-charcoal underline-offset-4 transition-colors hover:text-luxe-gold hover:underline"
           >
-            View All →
+            View All
           </Link>
-        </Reveal>
-        <div className="grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
-          {newIn.map((product, i) => (
-            <Reveal key={product.id} delay={(i % 4) * 0.06}>
-              <LuxeProductCard product={product} priority={i < 4} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 lg:grid-cols-5">
+          {tees.map((product, i) => (
+            <Reveal key={product.id} delay={(i % 5) * 0.05}>
+              <TeeCard product={product} priority={i < 5} />
             </Reveal>
           ))}
         </div>
       </section>
 
-      {/* ——————————————————————————————————————————————————————
-          COLLECTIONS — image cards, almost no words
-         —————————————————————————————————————————————————————— */}
-      <section className="bg-luxe-ivory/50 py-20 sm:py-28">
-        <div className="mx-auto max-w-7xl px-6 sm:px-10">
-          <Reveal className="mb-10 text-center">
-            <p className="luxe-label text-luxe-stone">Shop by Category</p>
-            <h2 className="mt-3 font-serif text-4xl font-light text-luxe-noir sm:text-5xl">
-              Collections
-            </h2>
-          </Reveal>
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-            {COLLECTIONS.map((c, i) => (
-              <Reveal key={c.label} delay={(i % 4) * 0.06}>
-                <Link href={`/shop?category=${c.label.toLowerCase()}`} className="group block">
-                  <PlaceholderFrame
-                    universe="luxe"
-                    className="aspect-[3/4] w-full overflow-hidden transition-transform duration-700 ease-luxe group-hover:scale-[1.02]"
-                    label={c.label}
-                  />
-                  <div className="mt-4 flex items-baseline justify-between">
-                    <h3 className="font-serif text-xl text-luxe-noir transition-colors group-hover:text-luxe-gold">
-                      {c.label}
-                    </h3>
-                    <span className="luxe-label text-luxe-stone">{c.count}</span>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ——————————————————————————————————————————————————————
-          EDITORIAL — one image, one line  (footer anchor: #atelier)
-         —————————————————————————————————————————————————————— */}
-      <section id="atelier" className="scroll-mt-24">
-        <div className="relative flex min-h-[70vh] items-center overflow-hidden">
-          <PlaceholderFrame
-            universe="luxe"
-            className="absolute inset-0 h-full w-full"
-            label="The Atelier"
+      {/* ————————————————————————————————————————————————
+          THE TWO UNIVERSES — Luxe (coming soon) & Pops (live)
+         ———————————————————————————————————————————————— */}
+      <section className="grid grid-cols-1 md:grid-cols-2">
+        {/* LUXE — coming soon */}
+        <div className="relative flex min-h-[300px] items-center overflow-hidden bg-luxe-noir px-8 py-16 sm:px-12">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-70"
+            style={{
+              backgroundImage:
+                'radial-gradient(70% 60% at 20% 30%, rgba(201,169,106,0.18), transparent 70%)',
+            }}
           />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-luxe-cream/80 via-luxe-cream/30 to-transparent" />
-          <Reveal className="relative z-10 mx-auto w-full max-w-7xl px-6 sm:px-10">
-            <div className="max-w-md">
-              <p className="luxe-label text-luxe-gold">The House of Qavier</p>
-              <h2 className="mt-5 font-serif text-4xl font-light leading-tight text-luxe-noir sm:text-5xl">
-                Designed for every moment, crafted to last.
-              </h2>
-              <Link href="/about" className="luxe-btn-ghost mt-8">
-                Our Story
+          <Reveal className="relative z-10">
+            <p className="font-sans text-[0.65rem] uppercase tracking-luxe text-luxe-champagne">
+              Luxury Redefined
+            </p>
+            <h2 className="mt-4 font-serif text-5xl font-light text-luxe-cream sm:text-6xl">Luxe</h2>
+            <span className="mt-4 inline-block border border-luxe-champagne/50 px-3 py-1 font-sans text-[0.6rem] uppercase tracking-wider2 text-luxe-champagne">
+              Coming Soon
+            </span>
+            <div>
+              <Link href="/luxe" className="luxe-btn-ghost mt-7 !border-luxe-champagne/50 !text-luxe-cream">
+                Explore Luxe
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+
+        {/* POPS — live */}
+        <div className="relative flex min-h-[300px] items-center overflow-hidden bg-pops-violet px-8 py-16 sm:px-12">
+          <div className="grain absolute inset-0 opacity-15 mix-blend-overlay" />
+          <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-pops-lime/30 blur-3xl" />
+          <Reveal className="relative z-10">
+            <p className="font-display text-[0.7rem] font-bold uppercase tracking-widest text-pops-lime">
+              Loud. Limited. Iconic.
+            </p>
+            <h2 className="mt-3 font-display text-5xl font-bold uppercase text-white drop-shadow-[3px_3px_0_#0E0E12] sm:text-6xl">
+              Pops
+            </h2>
+            <span className="pops-chip mt-4 bg-pops-lime text-pops-black">Now Live</span>
+            <div>
+              <Link
+                href="/pops"
+                className="mt-7 inline-flex items-center gap-2 rounded-full border-2 border-pops-black bg-pops-yellow px-7 py-3.5 font-display text-sm font-bold uppercase text-pops-black shadow-pops transition-transform hover:-translate-y-0.5"
+              >
+                Explore Pops ✦
               </Link>
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* ——————————————————————————————————————————————————————
-          VALUES — three lines, no more
-         —————————————————————————————————————————————————————— */}
-      <section className="mx-auto max-w-7xl px-6 py-20 sm:px-10 lg:py-28">
-        <div className="grid gap-12 border-y border-luxe-charcoal/10 py-14 sm:grid-cols-3 sm:gap-8">
-          {VALUES.map((v, i) => (
-            <Reveal key={v.title} delay={i * 0.08} className="text-center">
-              <p className="luxe-label text-luxe-gold">0{i + 1}</p>
-              <h3 className="mt-4 font-serif text-2xl text-luxe-noir">{v.title}</h3>
-              <p className="mt-2 font-sans text-sm text-luxe-stone">{v.body}</p>
-            </Reveal>
+      {/* ————————————————————————————————————————————————
+          FEATURES STRIP
+         ———————————————————————————————————————————————— */}
+      <section className="border-t border-luxe-charcoal/10 bg-luxe-cream">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-5 py-10 sm:px-8 lg:grid-cols-4">
+          {FEATURES.map(({ title, sub, Icon }) => (
+            <div key={title} className="flex items-center gap-3.5">
+              <Icon className="h-6 w-6 shrink-0 text-luxe-gold" />
+              <div>
+                <p className="font-sans text-[0.72rem] uppercase tracking-wider2 text-luxe-noir">
+                  {title}
+                </p>
+                <p className="mt-0.5 font-sans text-xs text-luxe-stone">{sub}</p>
+              </div>
+            </div>
           ))}
         </div>
       </section>
-
-      {/* ——————————————————————————————————————————————————————
-          CLOSING
-         —————————————————————————————————————————————————————— */}
-      <section className="relative overflow-hidden bg-luxe-noir">
-        <div className="relative mx-auto max-w-3xl px-6 py-24 text-center sm:px-10 lg:py-32">
-          <Reveal>
-            <h2 className="font-serif text-4xl font-light leading-tight text-luxe-cream sm:text-5xl">
-              Dress for the life you intend to lead.
-            </h2>
-            <Link
-              href="/shop"
-              className="mt-9 inline-flex items-center justify-center gap-2 border border-luxe-cream bg-luxe-cream px-9 py-4 font-sans text-[0.72rem] uppercase tracking-wider2 text-luxe-noir transition-all duration-500 ease-luxe hover:bg-transparent hover:text-luxe-cream"
-            >
-              Shop the Collection
-            </Link>
-          </Reveal>
-        </div>
-      </section>
     </>
+  );
+}
+
+/* ——— Inline icons ——— */
+function FilterIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <path d="M3 6h18M6 12h12M10 18h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+function BoxIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <path d="M12 3 3 7.5v9L12 21l9-4.5v-9L12 3Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+      <path d="M3 7.5 12 12l9-4.5M12 12v9" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function ShieldIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <path d="M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6l7-3Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+      <path d="m9 12 2 2 4-4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function ReturnIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <path d="M4 8h11a5 5 0 0 1 0 10H9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="m7 5-3 3 3 3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function GlobeIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M3 12h18M12 3c2.5 2.5 3.8 5.7 3.8 9S14.5 18.5 12 21c-2.5-2.5-3.8-5.7-3.8-9S9.5 5.5 12 3Z" stroke="currentColor" strokeWidth="1.3" />
+    </svg>
   );
 }

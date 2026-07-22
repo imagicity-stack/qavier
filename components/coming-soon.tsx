@@ -1,12 +1,19 @@
 import Link from 'next/link';
 
 /**
- * Holding page for the main Qavier store while it's pre-launch.
- * Shown by `app/(main)/layout.tsx` for every root store route whenever
- * `COMING_SOON` is true (see `lib/config.ts`). Qavier Pops stays live and is
- * offered here as the meantime destination.
+ * Reusable "coming soon" holding page.
+ * Used for the pre-launch Qavier Luxe line (`app/luxe/page.tsx`), and available
+ * to gate the whole main store via `app/(main)/layout.tsx` when `COMING_SOON`
+ * is true (see `lib/config.ts`). Qavier Pops stays live and is offered here as
+ * the meantime destination.
  */
-export function ComingSoon() {
+export function ComingSoon({
+  eyebrow = 'The House of Qavier',
+  blurb = 'Our first collection is being finished by hand. Join the list to be first through the door when the doors open.',
+}: {
+  eyebrow?: string;
+  blurb?: string;
+} = {}) {
   return (
     <div className="relative flex min-h-[100dvh] flex-col overflow-hidden bg-luxe-noir text-luxe-cream">
       {/* Soft editorial glow */}
@@ -20,9 +27,13 @@ export function ComingSoon() {
 
       {/* Top bar */}
       <header className="relative z-10 flex items-center justify-between px-5 py-6 sm:px-10">
-        <span className="font-serif text-2xl font-medium tracking-[0.32em] sm:text-3xl">
+        <Link
+          href="/"
+          className="font-serif text-2xl font-medium tracking-[0.32em] sm:text-3xl"
+          aria-label="Back to Qavier"
+        >
           QAVIER
-        </span>
+        </Link>
         <span className="font-sans text-[0.65rem] uppercase tracking-luxe text-luxe-cream/50">
           Est. MMXXV
         </span>
@@ -30,15 +41,14 @@ export function ComingSoon() {
 
       {/* Center */}
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-16 text-center">
-        <p className="luxe-label text-luxe-champagne">The House of Qavier</p>
+        <p className="luxe-label text-luxe-champagne">{eyebrow}</p>
 
         <h1 className="mt-6 font-serif text-6xl font-light leading-[1.02] text-balance sm:text-7xl lg:text-8xl">
           Coming Soon
         </h1>
 
         <p className="mt-7 max-w-md font-sans text-base leading-relaxed text-luxe-cream/70">
-          Our first collection is being finished by hand. Join the list to be
-          first through the door when the doors open.
+          {blurb}
         </p>
 
         {/* Newsletter (placeholder — wire to your provider when ready) */}
