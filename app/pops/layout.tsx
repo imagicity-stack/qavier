@@ -3,7 +3,7 @@ import { CartProvider } from '@/components/shared/cart-context';
 import { CartDrawer } from '@/components/shared/cart-drawer';
 import { PopsNav } from '@/components/pops/pops-nav';
 import { PopsFooter } from '@/components/pops/pops-footer';
-import { ComingSoon } from '@/components/coming-soon';
+import { PopsComingSoon } from '@/components/pops-coming-soon';
 import { POPS_LIVE } from '@/lib/config';
 
 export const metadata: Metadata = POPS_LIVE
@@ -21,12 +21,7 @@ export const metadata: Metadata = POPS_LIVE
 export default function PopsLayout({ children }: { children: React.ReactNode }) {
   // Held behind a "coming soon" page until NEXT_PUBLIC_POPS_STORE=live.
   if (!POPS_LIVE) {
-    return (
-      <ComingSoon
-        eyebrow="Qavier Pops"
-        blurb="Loud, limited and iconic — the first drop is being cooked up. Join the list so you don't miss it."
-      />
-    );
+    return <PopsComingSoon />;
   }
 
   return (

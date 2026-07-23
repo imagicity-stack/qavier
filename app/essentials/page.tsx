@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { ComingSoon } from '@/components/coming-soon';
+import { EssentialsComingSoon } from '@/components/essentials-coming-soon';
 import { EssentialsStore } from '@/components/essentials-store';
 import { ESSENTIALS_LIVE } from '@/lib/config';
 
@@ -16,12 +16,7 @@ export const metadata: Metadata = ESSENTIALS_LIVE
 
 export default function EssentialsPage() {
   if (!ESSENTIALS_LIVE) {
-    return (
-      <ComingSoon
-        eyebrow="Qavier Essentials"
-        blurb="The everyday basics line — quietly perfect, built to repeat — is almost here. Join the list to be first to shop the drop."
-      />
-    );
+    return <EssentialsComingSoon />;
   }
   return <EssentialsStore />;
 }
