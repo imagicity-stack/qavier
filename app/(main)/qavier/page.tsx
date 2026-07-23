@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { getProducts } from '@/lib/shopify';
 import { PlaceholderFrame } from '@/components/shared/shop-image';
 import { Reveal } from '@/components/shared/reveal';
-import { IntroSplash } from '@/components/intro-splash';
 import { TeeCard } from '@/components/home/tee-card';
+import { LUXE_LIVE, POPS_LIVE } from '@/lib/config';
 
 const FEATURES = [
   { title: 'Premium Quality', sub: 'Finest Fabrics', Icon: BoxIcon },
@@ -18,8 +18,6 @@ export default async function QavierHome() {
 
   return (
     <>
-      <IntroSplash />
-
       {/* ————————————————————————————————————————————————
           HERO — T-Shirts collection
          ———————————————————————————————————————————————— */}
@@ -111,7 +109,7 @@ export default async function QavierHome() {
             </p>
             <h2 className="mt-4 font-serif text-5xl font-light text-luxe-cream sm:text-6xl">Luxe</h2>
             <span className="mt-4 inline-block border border-luxe-champagne/50 px-3 py-1 font-sans text-[0.6rem] uppercase tracking-wider2 text-luxe-champagne">
-              Coming Soon
+              {LUXE_LIVE ? 'Now Live' : 'Coming Soon'}
             </span>
             <div>
               <Link href="/luxe" className="luxe-btn-ghost mt-7 !border-luxe-champagne/50 !text-luxe-cream">
@@ -132,7 +130,9 @@ export default async function QavierHome() {
             <h2 className="mt-3 font-display text-5xl font-bold uppercase text-white drop-shadow-[3px_3px_0_#0E0E12] sm:text-6xl">
               Pops
             </h2>
-            <span className="pops-chip mt-4 bg-pops-lime text-pops-black">Now Live</span>
+            <span className="pops-chip mt-4 bg-pops-lime text-pops-black">
+              {POPS_LIVE ? 'Now Live' : 'Coming Soon'}
+            </span>
             <div>
               <Link
                 href="/pops"

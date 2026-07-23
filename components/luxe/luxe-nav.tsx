@@ -59,7 +59,7 @@ export function LuxeNav() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:py-5">
         {/* Left — wordmark + links */}
         <div className="flex items-center gap-10">
-          <Link href="/" className="flex items-baseline gap-2" aria-label="Qavier home">
+          <Link href="/qavier" className="flex items-baseline gap-2" aria-label="Qavier home">
             <span className="font-serif text-2xl font-medium tracking-[0.32em] text-luxe-noir sm:text-3xl">
               QAVIER
             </span>
