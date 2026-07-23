@@ -68,7 +68,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
             {/* Breadcrumb */}
             <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2">
               <Link
-                href="/"
+                href="/qavier"
                 className="luxe-label text-luxe-stone transition-colors duration-500 ease-luxe hover:text-luxe-gold"
               >
                 Home

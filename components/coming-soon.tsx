@@ -10,9 +10,13 @@ import Link from 'next/link';
 export function ComingSoon({
   eyebrow = 'The House of Qavier',
   blurb = 'Our first collection is being finished by hand. Join the list to be first through the door when the doors open.',
+  ctaLabel = 'Enter Qavier',
+  ctaHref = '/qavier',
 }: {
   eyebrow?: string;
   blurb?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
 } = {}) {
   return (
     <div className="relative flex min-h-[100dvh] flex-col overflow-hidden bg-luxe-noir text-luxe-cream">
@@ -74,16 +78,14 @@ export function ComingSoon({
 
         <div className="luxe-rule my-12 max-w-xs opacity-40" />
 
-        {/* Meanwhile — Pops is live */}
+        {/* Meanwhile — send visitors to the always-open flagship */}
         <p className="font-sans text-sm text-luxe-cream/60">In the meantime</p>
         <Link
-          href="/pops"
-          className="group mt-4 inline-flex items-center gap-3 rounded-full border-2 border-pops-lime bg-pops-lime px-7 py-3.5 font-display text-sm font-bold uppercase text-pops-black shadow-pops transition-transform hover:-translate-y-0.5"
+          href={ctaHref}
+          className="group mt-4 inline-flex items-center gap-3 border border-luxe-champagne bg-luxe-champagne px-8 py-4 font-sans text-[0.72rem] uppercase tracking-wider2 text-luxe-noir transition-all duration-500 ease-luxe hover:bg-transparent hover:text-luxe-cream"
         >
-          Shop Qavier Pops
-          <span aria-hidden className="transition-transform group-hover:translate-x-1">
-            ✦
-          </span>
+          {ctaLabel}
+          <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
         </Link>
       </main>
 

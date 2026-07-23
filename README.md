@@ -75,23 +75,32 @@ Restart `npm run dev`. Done — real products, real cart, real checkout.
 
 ---
 
-## Launch switch — "coming soon" → live
+## The four worlds & launch switches
 
-The main Qavier store (home, shop, collections, products, cart, checkout) ships
-behind a **coming-soon holding page**. Qavier Pops (`/pops`) is a separate
-universe and stays live the whole time — the holding page links to it.
+The landing page (`/`) is a **2×2 hub** — after a short intro animation it shows
+four blocks:
 
-When you're ready to sell the main line, open the store with **one setting**:
+| Block | Route | Status |
+|---|---|---|
+| **Qavier** (flagship store) | `/qavier` (+ `/shop`, `/cart`, …) | **Always open** — no flag |
+| **Luxe** | `/luxe` | env-gated |
+| **Pops** | `/pops` | env-gated (store already built) |
+| **Essentials** | `/essentials` | env-gated |
 
-- **On Vercel (recommended, no code change):** Project → Settings → Environment
-  Variables → set **`NEXT_PUBLIC_QAVIER_STORE=live`**, then redeploy.
-- **Locally:** add `NEXT_PUBLIC_QAVIER_STORE=live` to `.env.local`.
-- **Or in code:** flip `STORE_LIVE_FALLBACK` to `true` in `lib/config.ts`.
+The three gated worlds default to a **coming-soon holding page**. Open one with
+**one setting** — no code change:
 
-Set it back to `coming-soon` (or unset it) to put the holding page back up.
-While it's `coming-soon`, the store routes are `noindex` and kept out of the
-sitemap. Combine this with the Shopify env vars above and, the moment you go
-live, you're adding products straight from Shopify.
+- **On Vercel:** Project → Settings → Environment Variables → set the world's
+  var to `live`, then redeploy:
+  - `NEXT_PUBLIC_LUXE_STORE=live`
+  - `NEXT_PUBLIC_POPS_STORE=live`
+  - `NEXT_PUBLIC_ESSENTIALS_STORE=live`
+- **Locally:** add the same to `.env.local`.
+
+Set a var back to `coming-soon` (or unset it) to put its holding page back up.
+While a world is coming-soon its routes are `noindex` and kept out of the
+sitemap. Connect the Shopify env vars above and, the moment a world goes live,
+you're adding its products straight from Shopify.
 
 ### Adding product photography
 

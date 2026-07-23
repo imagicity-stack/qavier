@@ -1,22 +1,31 @@
 /**
  * Site-level switches.
  *
- * ── Main Qavier store: "coming soon" vs live ──────────────────────────────
- * The main Qavier store (everything at the site root — home, shop, collections,
- * products, cart, checkout) can be held behind a "coming soon" page until you're
- * ready to sell. Qavier Pops (/pops) is a separate universe and is unaffected.
+ * The landing page (`/`) is a 2×2 hub with four worlds:
  *
- * Flip it ON (open the store) in one of two ways:
+ *   1. Qavier      → the flagship store at /qavier. Always open (no flag).
+ *   2. Luxe        → /luxe        — gated by NEXT_PUBLIC_LUXE_STORE
+ *   3. Pops        → /pops        — gated by NEXT_PUBLIC_POPS_STORE
+ *   4. Essentials  → /essentials  — gated by NEXT_PUBLIC_ESSENTIALS_STORE
  *
- *   1. Recommended — no code change:
- *      Set the env var  NEXT_PUBLIC_QAVIER_STORE=live  (Vercel → Settings →
- *      Environment Variables, or your local .env.local) and redeploy.
- *      Set it to  coming-soon  to force the holding page back on.
- *
- *   2. Or edit one line here: change STORE_LIVE_FALLBACK to `true` and commit.
- *
- * The env var always wins over the fallback below.
+ * Each gated world defaults to a "coming soon" holding page. Flip one live —
+ * with no code change — by setting its env var to `live` (Vercel → Settings →
+ * Environment Variables, or your local .env.local) and redeploying. Any other
+ * value (including unset) keeps it in "coming soon".
  */
+function isLive(value: string | undefined): boolean {
+  return value === 'live';
+}
+
+/** Qavier Luxe — the premium line. */
+export const LUXE_LIVE = isLive(process.env.NEXT_PUBLIC_LUXE_STORE);
+/** Qavier Pops — already built; revealed when flipped live. */
+export const POPS_LIVE = isLive(process.env.NEXT_PUBLIC_POPS_STORE);
+/** Qavier Essentials — the everyday basics line. */
+export const ESSENTIALS_LIVE = isLive(process.env.NEXT_PUBLIC_ESSENTIALS_STORE);
+
+// ── Legacy: whole-Qavier-store holding switch (the flagship is now always
+//    open via the hub, so this defaults to live). Kept for the /qavier gate.
 const STORE_LIVE_FALLBACK = true;
 
 export const STORE_LIVE: boolean =
@@ -26,5 +35,5 @@ export const STORE_LIVE: boolean =
       ? false
       : STORE_LIVE_FALLBACK;
 
-/** When true, the main store shows the "coming soon" holding page. */
+/** When true, the flagship store shows the "coming soon" holding page. */
 export const COMING_SOON = !STORE_LIVE;
