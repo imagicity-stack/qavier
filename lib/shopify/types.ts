@@ -8,6 +8,18 @@
  * data came from Shopify or the local mock.
  */
 
+/**
+ * The four storefront sections. A product lands in a section by carrying the
+ * matching Shopify tag (`qavier`, `luxe`, `pops`, `essentials`). See the README
+ * "Sections on Shopify" guide.
+ */
+export type Section = 'qavier' | 'luxe' | 'pops' | 'essentials';
+
+/**
+ * Visual/template family — drives the product-page route and cart skin.
+ * Everything except Pops uses the `luxe` (editorial) template; Pops products
+ * (tagged `pops`) use the neobrutalist Pops template.
+ */
 export type Universe = 'luxe' | 'pops';
 
 export interface Money {
@@ -61,9 +73,11 @@ export interface Product {
     maxVariantPrice: Money;
   };
   tags: string[];
-  /** Which universe this product belongs to (derived from tags/collection). */
+  /** Which universe this product belongs to (derived from the `pops` tag). */
   universe: Universe;
-  /** Optional editorial fields surfaced by metafields or the demo data. */
+  /** Shopify product "Type" — used as the shop's category facet. */
+  productType?: string;
+  /** Optional editorial fields surfaced by metafields. */
   material?: string;
   badge?: string;
 }

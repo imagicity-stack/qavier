@@ -60,7 +60,7 @@ export default async function PopsShop({
   const raw = typeof searchParams.c === 'string' ? searchParams.c : 'all';
   const active = CATS.find((c) => c.slug === raw) ?? CATS[0];
 
-  const all = await getProducts({ universe: 'pops' });
+  const all = await getProducts({ section: 'pops' });
   const products = all.filter(active.match);
 
   return (

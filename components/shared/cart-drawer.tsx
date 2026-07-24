@@ -23,7 +23,7 @@ export function CartDrawer({ universe }: { universe: Universe }) {
     totalQuantity,
     checkout,
     checkingOut,
-    isDemo,
+    checkoutError,
   } = useCart();
 
   const luxe = universe === 'luxe';
@@ -192,7 +192,7 @@ export function CartDrawer({ universe }: { universe: Universe }) {
                   luxe ? 'border-t border-luxe-charcoal/15' : 'border-t-2 border-pops-black',
                 )}
               >
-                {isDemo && (
+                {checkoutError && (
                   <div
                     className={cn(
                       'mb-4 px-4 py-3 text-xs',
@@ -201,8 +201,7 @@ export function CartDrawer({ universe }: { universe: Universe }) {
                         : 'rounded-2xl border-2 border-pops-black bg-pops-yellow text-pops-black',
                     )}
                   >
-                    <strong>Preview mode.</strong> Connect your Shopify store
-                    (SHOPIFY_* env vars) to enable real checkout. Your bag is saved locally.
+                    {checkoutError}
                   </div>
                 )}
                 <div className="mb-4 flex items-center justify-between">

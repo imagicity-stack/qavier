@@ -1,10 +1,10 @@
 /**
  * Qavier ⇄ Shopify Storefront API client.
  *
- * Design goal: the rest of the app calls these functions and never has to know
- * whether a real Shopify store is connected. When the SHOPIFY_* env vars are
- * present we hit the Storefront API; otherwise we transparently serve the
- * built-in demo catalogue (lib/shopify/mock-data.ts).
+ * All catalogue data comes straight from Shopify. Until the SHOPIFY_* env vars
+ * are set, the product functions return empty results (no demo/placeholder
+ * catalogue), so the storefront is production-ready the moment you connect a
+ * real store. See the README "Connecting Shopify" and "Sections on Shopify".
  */
 import {
   ADD_TO_CART_MUTATION,
@@ -16,17 +16,12 @@ import {
   REMOVE_FROM_CART_MUTATION,
   UPDATE_CART_MUTATION,
 } from './queries';
-import {
-  MOCK_PRODUCTS,
-  mockCollectionByHandle,
-  mockProductByHandle,
-  mockProductsByUniverse,
-} from './mock-data';
 import type {
   Cart,
   Collection,
   Image,
   Product,
+  Section,
   Universe,
 } from './types';
 
@@ -34,8 +29,19 @@ const DOMAIN = process.env.SHOPIFY_STORE_DOMAIN;
 const TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 const API_VERSION = process.env.SHOPIFY_API_VERSION || '2024-07';
 
-/** True when the store is connected. Drives the demo-data fallback everywhere. */
+/** True when the Storefront API credentials are present. */
 export const isShopifyConfigured = Boolean(DOMAIN && TOKEN);
+
+let warned = false;
+function warnNotConfigured() {
+  if (warned || process.env.NODE_ENV === 'production') return;
+  warned = true;
+  // eslint-disable-next-line no-console
+  console.warn(
+    '[qavier] Shopify is not configured — set SHOPIFY_STORE_DOMAIN and ' +
+      'SHOPIFY_STOREFRONT_ACCESS_TOKEN. Product data will be empty until then.',
+  );
+}
 
 const endpoint = DOMAIN
   ? `https://${DOMAIN.replace(/^https?:\/\//, '')}/api/${API_VERSION}/graphql.json`
@@ -128,7 +134,9 @@ function reshapeProduct(node: any): Product {
     compareAtPriceRange: node.compareAtPriceRange,
     tags,
     universe: deriveUniverse(tags),
+    productType: node.productType || undefined,
     material: node.material?.value,
+    badge: node.badge?.value,
   };
 }
 
@@ -137,27 +145,21 @@ function reshapeProduct(node: any): Product {
 // ————————————————————————————————————————————————————————————————
 
 export async function getProducts(options?: {
-  universe?: Universe;
+  /** Scope to a storefront section (matches the product's Shopify tag). */
+  section?: Section;
+  /** Free-text search (title, tag, type…). Combined with `section`. */
   query?: string;
   first?: number;
 }): Promise<Product[]> {
-  const { universe, query, first = 50 } = options ?? {};
+  const { section, query, first = 50 } = options ?? {};
 
   if (!isShopifyConfigured) {
-    let list = universe ? mockProductsByUniverse(universe) : MOCK_PRODUCTS;
-    if (query) {
-      const q = query.toLowerCase();
-      list = list.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.tags.some((t) => t.toLowerCase().includes(q)),
-      );
-    }
-    return list;
+    warnNotConfigured();
+    return [];
   }
 
-  // Compose a Shopify search query that scopes to the universe tag.
-  const searchParts = [query, universe ? `tag:${universe}` : ''].filter(Boolean);
+  // Compose a Shopify search query that scopes to the section tag.
+  const searchParts = [query, section ? `tag:${section}` : ''].filter(Boolean);
   const data = await shopifyFetch<{ products: Edges<any> }>({
     query: GET_PRODUCTS_QUERY,
     variables: { first, query: searchParts.join(' ') || undefined },
@@ -167,7 +169,10 @@ export async function getProducts(options?: {
 }
 
 export async function getProduct(handle: string): Promise<Product | undefined> {
-  if (!isShopifyConfigured) return mockProductByHandle(handle);
+  if (!isShopifyConfigured) {
+    warnNotConfigured();
+    return undefined;
+  }
 
   const data = await shopifyFetch<{ product: any }>({
     query: GET_PRODUCT_BY_HANDLE_QUERY,
@@ -181,7 +186,10 @@ export async function getCollection(
   handle: string,
   first = 50,
 ): Promise<Collection | undefined> {
-  if (!isShopifyConfigured) return mockCollectionByHandle(handle);
+  if (!isShopifyConfigured) {
+    warnNotConfigured();
+    return undefined;
+  }
 
   const data = await shopifyFetch<{ collection: any }>({
     query: GET_COLLECTION_QUERY,

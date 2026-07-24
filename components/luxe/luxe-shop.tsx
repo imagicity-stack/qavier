@@ -8,17 +8,6 @@ import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
 // ————————————————————————————————————————————————————————————————
 //  Filter definitions
 // ————————————————————————————————————————————————————————————————
-const CATEGORIES = [
-  'Tailoring',
-  'Outerwear',
-  'Dresses',
-  'Knitwear',
-  'Eveningwear',
-  'Accessories',
-] as const;
-
-const SIZES = ['XS', 'S', 'M', 'L', 'XL'] as const;
-
 interface PriceRange {
   id: string;
   label: string;
@@ -65,8 +54,8 @@ type SortId = (typeof SORTS)[number]['id'];
 // ————————————————————————————————————————————————————————————————
 //  Product predicates
 // ————————————————————————————————————————————————————————————————
-function productCategories(product: Product): string[] {
-  return product.tags.map((t) => t.toLowerCase());
+function productCategory(product: Product): string {
+  return (product.productType ?? '').toLowerCase();
 }
 
 function productSizes(product: Product): string[] {
@@ -96,8 +85,18 @@ export function LuxeShop({
   initialCategory: string;
   initialQuery?: string;
 }) {
+  // Category facets, derived from each product's Shopify "Type".
+  const allCategories = useMemo(() => {
+    const map = new Map<string, string>(); // slug -> display label
+    for (const p of products) {
+      const label = p.productType?.trim();
+      if (label) map.set(label.toLowerCase(), label);
+    }
+    return [...map.entries()].map(([slug, label]) => ({ slug, label }));
+  }, [products]);
+
   const normalizedInitial = initialCategory.toLowerCase();
-  const validInitial = CATEGORIES.map((c) => c.toLowerCase()).includes(normalizedInitial)
+  const validInitial = allCategories.some((c) => c.slug === normalizedInitial)
     ? normalizedInitial
     : 'all';
 
@@ -109,7 +108,13 @@ export function LuxeShop({
   const [sort, setSort] = useState<SortId>('featured');
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Union of all colours present across the catalogue, for the swatch list.
+  // Union of all sizes / colours present across the catalogue, for the facets.
+  const allSizes = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of products) productSizes(p).forEach((s) => set.add(s));
+    return [...set];
+  }, [products]);
+
   const allColors = useMemo(() => {
     const set = new Set<string>();
     for (const p of products) productColors(p).forEach((c) => set.add(c));
@@ -140,7 +145,7 @@ export function LuxeShop({
 
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
-      if (category !== 'all' && !productCategories(p).includes(category)) return false;
+      if (category !== 'all' && productCategory(p) !== category) return false;
 
       if (trimmedQuery) {
         const haystack = [
@@ -214,23 +219,21 @@ export function LuxeShop({
               All
             </FilterText>
           </li>
-          {CATEGORIES.map((c) => {
-            const slug = c.toLowerCase();
-            return (
-              <li key={c}>
-                <FilterText active={category === slug} onClick={() => setCategory(slug)}>
-                  {c}
-                </FilterText>
-              </li>
-            );
-          })}
+          {allCategories.map((c) => (
+            <li key={c.slug}>
+              <FilterText active={category === c.slug} onClick={() => setCategory(c.slug)}>
+                {c.label}
+              </FilterText>
+            </li>
+          ))}
         </ul>
       </FilterGroup>
 
       {/* SIZE */}
+      {allSizes.length > 0 && (
       <FilterGroup label="Size">
         <div className="flex flex-wrap gap-2">
-          {SIZES.map((s) => {
+          {allSizes.map((s) => {
             const on = sizes.includes(s);
             return (
               <button
@@ -252,6 +255,7 @@ export function LuxeShop({
           })}
         </div>
       </FilterGroup>
+      )}
 
       {/* COLOR */}
       {allColors.length > 0 && (

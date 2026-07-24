@@ -8,9 +8,7 @@ import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
  * A dark editorial hero over a rail of the premium (non-tee) pieces.
  */
 export async function LuxeLanding() {
-  const products = (await getProducts({ universe: 'luxe' }))
-    .filter((p) => !p.tags.includes('t-shirts'))
-    .slice(0, 6);
+  const products = (await getProducts({ section: 'luxe' })).slice(0, 6);
 
   return (
     <div className="min-h-[100dvh] bg-luxe-cream text-luxe-noir">

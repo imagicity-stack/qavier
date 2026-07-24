@@ -6,22 +6,21 @@ export interface CheckoutResult {
   ok: boolean;
   /** Present when Shopify is connected — redirect the browser here. */
   checkoutUrl?: string;
-  /** True when running on demo data (no real checkout available). */
-  demo?: boolean;
   error?: string;
 }
 
 /**
- * Turns the client-side cart into a real Shopify checkout.
- *
- * In demo mode (no Shopify creds) this returns `{ demo: true }` so the UI can
- * show a friendly "this is a preview" message instead of a broken redirect.
+ * Turns the client-side cart into a real Shopify checkout and returns the
+ * hosted checkout URL. Requires Shopify to be connected.
  */
 export async function startCheckout(
   lines: { merchandiseId: string; quantity: number }[],
 ): Promise<CheckoutResult> {
   if (!isShopifyConfigured) {
-    return { ok: true, demo: true };
+    return {
+      ok: false,
+      error: 'Checkout isn’t available yet — the store is still being connected.',
+    };
   }
   try {
     const cart = await createCart(lines);

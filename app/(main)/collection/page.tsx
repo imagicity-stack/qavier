@@ -8,24 +8,24 @@ import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
 export const metadata: Metadata = {
   title: 'Collections',
   description:
-    'Explore the Qavier collections — tailoring, outerwear, dresses, knitwear, eveningwear and accessories. Designed for every moment, crafted to last.',
+    'Explore the Qavier collections. Designed for every moment, crafted to last.',
 };
 
-const CATEGORIES = [
-  'Tailoring',
-  'Outerwear',
-  'Dresses',
-  'Knitwear',
-  'Eveningwear',
-  'Accessories',
-] as const;
-
 export default async function CollectionPage() {
-  const products = await getProducts({ universe: 'luxe' });
+  const products = await getProducts({ section: 'qavier' });
   const newIn = products.slice(0, 4);
 
-  const countFor = (slug: string) =>
-    products.filter((p) => p.tags.map((t) => t.toLowerCase()).includes(slug)).length;
+  // Categories are derived from each product's Shopify "Type".
+  const countByCategory = new Map<string, { label: string; count: number }>();
+  for (const p of products) {
+    const label = p.productType?.trim();
+    if (!label) continue;
+    const slug = label.toLowerCase();
+    const entry = countByCategory.get(slug) ?? { label, count: 0 };
+    entry.count += 1;
+    countByCategory.set(slug, entry);
+  }
+  const categories = [...countByCategory.entries()].map(([slug, v]) => ({ slug, ...v }));
 
   return (
     <section className="mx-auto max-w-7xl px-6 pb-24 pt-28 sm:px-10 sm:pt-32 lg:pb-32">
@@ -59,13 +59,13 @@ export default async function CollectionPage() {
           >
             All
           </Link>
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <Link
-              key={c}
-              href={`/shop?category=${c.toLowerCase()}`}
+              key={c.slug}
+              href={`/shop?category=${c.slug}`}
               className="luxe-label shrink-0 whitespace-nowrap border-b border-transparent pb-2 text-luxe-charcoal/70 transition-colors duration-500 ease-luxe hover:border-luxe-gold hover:text-luxe-gold"
             >
-              {c}
+              {c.label}
             </Link>
           ))}
         </nav>
@@ -76,31 +76,23 @@ export default async function CollectionPage() {
          —————————————————————————————————————————————————————— */}
       <Reveal delay={0.08}>
         <div className="mt-12 grid grid-cols-2 gap-5 lg:grid-cols-3">
-          {CATEGORIES.map((c) => {
-            const slug = c.toLowerCase();
-            const count = countFor(slug);
-            return (
-              <Link
-                key={c}
-                href={`/shop?category=${slug}`}
-                className="group block"
-              >
-                <PlaceholderFrame
-                  universe="luxe"
-                  className="aspect-[3/4] w-full overflow-hidden transition-transform duration-700 ease-luxe group-hover:scale-[1.02]"
-                  label={c}
-                />
-                <div className="mt-4 flex items-baseline justify-between">
-                  <h2 className="font-serif text-xl text-luxe-noir transition-colors duration-500 ease-luxe group-hover:text-luxe-gold sm:text-2xl">
-                    {c}
-                  </h2>
-                  <span className="luxe-label text-luxe-stone">
-                    {count} {count === 1 ? 'Piece' : 'Pieces'}
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
+          {categories.map((c) => (
+            <Link key={c.slug} href={`/shop?category=${c.slug}`} className="group block">
+              <PlaceholderFrame
+                universe="luxe"
+                className="aspect-[3/4] w-full overflow-hidden transition-transform duration-700 ease-luxe group-hover:scale-[1.02]"
+                label={c.label}
+              />
+              <div className="mt-4 flex items-baseline justify-between">
+                <h2 className="font-serif text-xl text-luxe-noir transition-colors duration-500 ease-luxe group-hover:text-luxe-gold sm:text-2xl">
+                  {c.label}
+                </h2>
+                <span className="luxe-label text-luxe-stone">
+                  {c.count} {c.count === 1 ? 'Piece' : 'Pieces'}
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
       </Reveal>
 

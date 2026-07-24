@@ -28,7 +28,7 @@ interface CartContextValue {
   subtotal: number;
   currencyCode: string;
   isOpen: boolean;
-  isDemo: boolean | null;
+  checkoutError: string | null;
   checkingOut: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -45,7 +45,7 @@ const STORAGE_KEY = 'qavier-cart-v1';
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<LocalCartLine[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [isDemo, setIsDemo] = useState<boolean | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [checkingOut, setCheckingOut] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
@@ -105,21 +105,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const checkout = useCallback(async () => {
     if (!lines.length) return;
     setCheckingOut(true);
+    setCheckoutError(null);
     try {
       const result = await startCheckout(
         lines.map((l) => ({ merchandiseId: l.variantId, quantity: l.quantity })),
       );
-      if (result.demo) {
-        setIsDemo(true);
-        return;
-      }
       if (result.checkoutUrl) {
         window.location.href = result.checkoutUrl;
         return;
       }
-      if (result.error) {
-        setIsDemo(true); // surface the demo notice as a graceful fallback
-      }
+      setCheckoutError(result.error ?? 'Checkout failed. Please try again.');
     } finally {
       setCheckingOut(false);
     }
@@ -141,7 +136,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     subtotal,
     currencyCode,
     isOpen,
-    isDemo,
+    checkoutError,
     checkingOut,
     openCart: () => setIsOpen(true),
     closeCart: () => setIsOpen(false),
