@@ -63,18 +63,31 @@ code changes.
 
 ### 1. Get a Storefront API access token
 
-In your Shopify admin:
+The app just needs a **public Storefront API token**. Either method below
+produces the same token — pick whichever is easier.
 
-1. **Settings → Apps and sales channels → Develop apps** → **Create an app**
-   (name it e.g. `Qavier Storefront`).
-2. Open the app → **Configuration → Storefront API** → **Configure**, and enable
-   at least these scopes:
+**Option A — Headless channel (easiest, recommended):**
+
+1. Install the free **Headless** sales channel from the Shopify App Store
+   (*Settings → Apps and sales channels → Shopify App Store* → search
+   **"Headless"** → Add channel).
+2. Open **Headless** → **Create storefront** (or use the default one).
+3. Under **Storefront API → Manage / API keys**, copy the **public access
+   token**. The product-read and checkout scopes are enabled for you.
+
+**Option B — Custom app (if you'd rather not add a channel):**
+
+1. **Settings → Apps and sales channels → Develop apps → Create an app**.
+2. **Configuration → Storefront API → Configure**, and enable at least:
    - `unauthenticated_read_product_listings`
    - `unauthenticated_read_product_tags`
    - `unauthenticated_read_product_inventory`
    - `unauthenticated_write_checkouts` and `unauthenticated_read_checkouts`
 3. **Install** the app, then under **API credentials** copy the
-   **Storefront API access token** (public token, safe for the browser).
+   **Storefront API access token**.
+
+Either way it's a public, browser-safe token (sent as
+`X-Shopify-Storefront-Access-Token`) — not the Admin API token.
 
 ### 2. Set environment variables
 
