@@ -51,13 +51,16 @@ interface ShopifyFetchOptions {
   query: string;
   variables?: Record<string, unknown>;
   cache?: RequestCache;
+  /** ISR window in seconds for read queries (ignored when `cache` is set). */
+  revalidate?: number;
   tags?: string[];
 }
 
 async function shopifyFetch<T>({
   query,
   variables,
-  cache = 'force-cache',
+  cache,
+  revalidate = 60,
   tags,
 }: ShopifyFetchOptions): Promise<T> {
   const res = await fetch(endpoint, {
@@ -67,17 +70,24 @@ async function shopifyFetch<T>({
       'X-Shopify-Storefront-Access-Token': TOKEN as string,
     },
     body: JSON.stringify({ query, variables }),
-    cache,
-    ...(tags ? { next: { tags } } : {}),
+    // Cart mutations pass cache:'no-store'; reads use ISR so new products,
+    // images and variants appear within `revalidate` seconds — no redeploy.
+    ...(cache ? { cache } : { next: { revalidate, ...(tags ? { tags } : {}) } }),
   });
 
   if (!res.ok) {
-    throw new Error(`Shopify ${res.status}: ${await res.text()}`);
+    const text = await res.text();
+    // eslint-disable-next-line no-console
+    console.error(`[qavier] Shopify HTTP ${res.status}: ${text}`);
+    throw new Error(`Shopify ${res.status}: ${text}`);
   }
 
   const body = (await res.json()) as { data: T; errors?: { message: string }[] };
   if (body.errors?.length) {
-    throw new Error(body.errors.map((e) => e.message).join('; '));
+    const msg = body.errors.map((e) => e.message).join('; ');
+    // eslint-disable-next-line no-console
+    console.error(`[qavier] Shopify GraphQL error: ${msg}`);
+    throw new Error(msg);
   }
   return body.data;
 }
@@ -160,12 +170,18 @@ export async function getProducts(options?: {
 
   // Compose a Shopify search query that scopes to the section tag.
   const searchParts = [query, section ? `tag:${section}` : ''].filter(Boolean);
-  const data = await shopifyFetch<{ products: Edges<any> }>({
-    query: GET_PRODUCTS_QUERY,
-    variables: { first, query: searchParts.join(' ') || undefined },
-    tags: ['products'],
-  });
-  return flatten<any>(data.products).map(reshapeProduct);
+  try {
+    const data = await shopifyFetch<{ products: Edges<any> }>({
+      query: GET_PRODUCTS_QUERY,
+      variables: { first, query: searchParts.join(' ') || undefined },
+      tags: ['products'],
+    });
+    return flatten<any>(data.products).map(reshapeProduct);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[qavier] getProducts failed:', err);
+    return [];
+  }
 }
 
 export async function getProduct(handle: string): Promise<Product | undefined> {
@@ -174,12 +190,18 @@ export async function getProduct(handle: string): Promise<Product | undefined> {
     return undefined;
   }
 
-  const data = await shopifyFetch<{ product: any }>({
-    query: GET_PRODUCT_BY_HANDLE_QUERY,
-    variables: { handle },
-    tags: ['products', `product:${handle}`],
-  });
-  return data.product ? reshapeProduct(data.product) : undefined;
+  try {
+    const data = await shopifyFetch<{ product: any }>({
+      query: GET_PRODUCT_BY_HANDLE_QUERY,
+      variables: { handle },
+      tags: ['products', `product:${handle}`],
+    });
+    return data.product ? reshapeProduct(data.product) : undefined;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(`[qavier] getProduct(${handle}) failed:`, err);
+    return undefined;
+  }
 }
 
 export async function getCollection(

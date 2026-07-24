@@ -14,50 +14,58 @@ const IMAGE_FRAGMENT = /* GraphQL */ `
   }
 `;
 
+// Cheap, scalar-only fields shared by every product query. (No connections
+// here — those drive Storefront API query cost, so they're added per-fragment.)
+const PRODUCT_BASE_FIELDS = /* GraphQL */ `
+  id
+  handle
+  title
+  description
+  descriptionHtml
+  availableForSale
+  tags
+  productType
+  featuredImage {
+    ...ImageFields
+  }
+  options {
+    id
+    name
+    values
+  }
+  priceRange {
+    minVariantPrice { amount currencyCode }
+    maxVariantPrice { amount currencyCode }
+  }
+  compareAtPriceRange {
+    minVariantPrice { amount currencyCode }
+    maxVariantPrice { amount currencyCode }
+  }
+  material: metafield(namespace: "custom", key: "material") { value }
+  tagline: metafield(namespace: "custom", key: "tagline") { value }
+  badge: metafield(namespace: "custom", key: "badge") { value }
+`;
+
+// Lightweight fragment for product LISTS (cards, rails, filters). Deliberately
+// omits the (expensive) variants connection and keeps images small so a
+// `products(first: 50)` query stays well under the 1000-point cost limit.
+// Size/colour facets are derived from `options`, so variants aren't needed here.
+const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
+  fragment ProductCard on Product {
+    ${PRODUCT_BASE_FIELDS}
+    images(first: 4) {
+      edges { node { ...ImageFields } }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+`;
+
+// Full fragment for a SINGLE product page (needs every variant for the picker).
 const PRODUCT_FRAGMENT = /* GraphQL */ `
   fragment ProductFields on Product {
-    id
-    handle
-    title
-    description
-    descriptionHtml
-    availableForSale
-    tags
-    productType
-    featuredImage {
-      ...ImageFields
-    }
+    ${PRODUCT_BASE_FIELDS}
     images(first: 12) {
-      edges {
-        node {
-          ...ImageFields
-        }
-      }
-    }
-    options {
-      id
-      name
-      values
-    }
-    priceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-      maxVariantPrice {
-        amount
-        currencyCode
-      }
-    }
-    compareAtPriceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-      maxVariantPrice {
-        amount
-        currencyCode
-      }
+      edges { node { ...ImageFields } }
     }
     variants(first: 100) {
       edges {
@@ -65,29 +73,11 @@ const PRODUCT_FRAGMENT = /* GraphQL */ `
           id
           title
           availableForSale
-          selectedOptions {
-            name
-            value
-          }
-          price {
-            amount
-            currencyCode
-          }
-          compareAtPrice {
-            amount
-            currencyCode
-          }
+          selectedOptions { name value }
+          price { amount currencyCode }
+          compareAtPrice { amount currencyCode }
         }
       }
-    }
-    material: metafield(namespace: "custom", key: "material") {
-      value
-    }
-    tagline: metafield(namespace: "custom", key: "tagline") {
-      value
-    }
-    badge: metafield(namespace: "custom", key: "badge") {
-      value
     }
   }
   ${IMAGE_FRAGMENT}
@@ -155,12 +145,12 @@ export const GET_PRODUCTS_QUERY = /* GraphQL */ `
     products(first: $first, query: $query, sortKey: $sortKey, reverse: $reverse) {
       edges {
         node {
-          ...ProductFields
+          ...ProductCard
         }
       }
     }
   }
-  ${PRODUCT_FRAGMENT}
+  ${PRODUCT_CARD_FRAGMENT}
 `;
 
 export const GET_PRODUCT_BY_HANDLE_QUERY = /* GraphQL */ `
@@ -185,13 +175,13 @@ export const GET_COLLECTION_QUERY = /* GraphQL */ `
       products(first: $first) {
         edges {
           node {
-            ...ProductFields
+            ...ProductCard
           }
         }
       }
     }
   }
-  ${PRODUCT_FRAGMENT}
+  ${PRODUCT_CARD_FRAGMENT}
 `;
 
 export const CREATE_CART_MUTATION = /* GraphQL */ `
