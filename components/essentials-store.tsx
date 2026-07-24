@@ -17,8 +17,7 @@ const VALUES = [
  * A warm, minimal "everyday basics" storefront.
  */
 export async function EssentialsStore() {
-  const products = await getProducts({ universe: 'luxe' });
-  const basics = products.filter((p) => p.tags.includes('t-shirts')).slice(0, 5);
+  const basics = (await getProducts({ section: 'essentials' })).slice(0, 5);
 
   return (
     <div className="min-h-[100dvh] bg-[#EFE7D8] text-luxe-noir">

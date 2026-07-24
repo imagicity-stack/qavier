@@ -33,7 +33,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
     notFound();
   }
 
-  const all = await getProducts({ universe: 'pops' });
+  const all = await getProducts({ section: 'pops' });
   const more = all.filter((p) => p.handle !== product.handle).slice(0, 4);
 
   // Build a playful "the details" list from whatever editorial fields exist.

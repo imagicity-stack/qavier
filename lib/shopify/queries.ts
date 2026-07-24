@@ -23,6 +23,7 @@ const PRODUCT_FRAGMENT = /* GraphQL */ `
     descriptionHtml
     availableForSale
     tags
+    productType
     featuredImage {
       ...ImageFields
     }
@@ -83,6 +84,9 @@ const PRODUCT_FRAGMENT = /* GraphQL */ `
       value
     }
     tagline: metafield(namespace: "custom", key: "tagline") {
+      value
+    }
+    badge: metafield(namespace: "custom", key: "badge") {
       value
     }
   }

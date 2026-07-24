@@ -1,16 +1,23 @@
 # QAVIER
 
-A contemporary fashion house, built as one Next.js app:
+A contemporary fashion house, built as one Next.js app. The landing page (`/`)
+is a **2×2 hub** of four worlds:
 
-- **Qavier** (`/`) — the main store. Timeless, considered pieces. Noir, ivory & champagne; serif editorial, generous whitespace, slow elegant motion.
-- **Qavier Pops** (`/pops`) — a loud, limited Gen-Z capsule, reached from the **Pops** entry in the menu. Acid lime, hot magenta, electric violet & cyan; neobrutalist, chunky type, marquees, stickers.
+- **Qavier** — the flagship store (`/qavier` + `/shop`, `/cart`, …). Editorial,
+  serif, generous whitespace.
+- **Luxe** — the premium line (`/luxe`).
+- **Pops** — a loud, limited Gen-Z capsule (`/pops`). Neobrutalist, chunky type,
+  marquees, stickers.
+- **Essentials** — everyday basics (`/essentials`). Warm and minimal.
 
-Visitors land straight in the main Qavier store (`/`). A header **search bar** and a **Pops** menu link lead into the rest of the site. Each storefront has its own navigation, footer, cart skin, product cards and voice — but they share one cart and one Shopify backend.
+Qavier is always open; Luxe, Pops and Essentials are individually switchable
+between a **coming-soon** holding page and their live store (see
+[The four worlds](#the-four-worlds--launch-switches)).
 
-> **It runs right now with zero backend.** Until you connect Shopify, the whole
-> site is powered by a built-in demo catalogue, and every photo slot renders a
-> branded "imagery forthcoming" frame — so you can preview the full experience
-> and drop real product photography in later with no layout changes.
+> **All catalogue data comes from Shopify.** There is no demo/placeholder
+> catalogue — product grids are simply empty until you connect a store, so the
+> site is production-ready the moment Shopify is wired up. Every photo slot
+> renders a branded "imagery forthcoming" frame until real images arrive.
 
 ---
 
@@ -22,7 +29,7 @@ Visitors land straight in the main Qavier store (`/`). A header **search bar** a
 | Language | TypeScript |
 | Styling | Tailwind CSS (two namespaced design systems: `luxe-*` / `pops-*`) |
 | Motion | Framer Motion |
-| Commerce | Shopify Storefront API (GraphQL) with transparent mock-data fallback |
+| Commerce | Shopify Storefront API (GraphQL) |
 | Deploy | Vercel |
 
 ---
@@ -34,9 +41,9 @@ npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. You'll land in the main Qavier store; use the header search or the **Pops** menu link to explore.
-
-### Useful scripts
+Open <http://localhost:3000>. Until Shopify is connected the storefronts render
+with empty product areas — everything else (hub, navigation, coming-soon pages)
+works. Add the Shopify env vars below to populate the catalogue.
 
 ```bash
 npm run dev        # local dev server
@@ -50,65 +57,133 @@ npm run typecheck  # tsc --noEmit
 
 ## Connecting Shopify (Storefront API)
 
-The site auto-detects Shopify. The moment the env vars below are present, it
-switches from demo data to your real catalogue and enables real checkout — no
-code changes required.
+The app talks to Shopify's **Storefront API** for products and checkout. Once
+the env vars are set, real products and real (hosted) checkout light up with no
+code changes.
 
-1. In Shopify admin, install/enable **Headless** (or create a custom app) and
-   generate a **Storefront API access token**.
-2. Tag products so they land in the right storefront:
-   - add the tag **`pops`** to Qavier Pops products,
-   - main Qavier products use the internal `luxe` universe tag — anything without a
-     `pops` tag is treated as main Qavier.
-3. Optionally create two collections with handles `qavier-luxe` and
-   `qavier-pops`.
-4. Optional product metafields (namespace `custom`): `material`, `tagline`.
-5. Copy `.env.example` to `.env.local` and fill in:
+### 1. Get a Storefront API access token
+
+In your Shopify admin:
+
+1. **Settings → Apps and sales channels → Develop apps** → **Create an app**
+   (name it e.g. `Qavier Storefront`).
+2. Open the app → **Configuration → Storefront API** → **Configure**, and enable
+   at least these scopes:
+   - `unauthenticated_read_product_listings`
+   - `unauthenticated_read_product_tags`
+   - `unauthenticated_read_product_inventory`
+   - `unauthenticated_write_checkouts` and `unauthenticated_read_checkouts`
+3. **Install** the app, then under **API credentials** copy the
+   **Storefront API access token** (public token, safe for the browser).
+
+### 2. Set environment variables
+
+Copy `.env.example` to `.env.local` (local) or add these in **Vercel → Settings →
+Environment Variables** (production):
 
 ```bash
-SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
-SHOPIFY_STOREFRONT_ACCESS_TOKEN=xxxxxxxxxxxxxxxx
-SHOPIFY_API_VERSION=2024-07
+SHOPIFY_STORE_DOMAIN=your-store.myshopify.com   # your *.myshopify.com domain
+SHOPIFY_STOREFRONT_ACCESS_TOKEN=xxxxxxxxxxxxxxxx # the token from step 1
+SHOPIFY_API_VERSION=2024-07                      # optional; sensible default
 ```
 
-Restart `npm run dev`. Done — real products, real cart, real checkout.
+Restart `npm run dev` (or redeploy). That's it — products, cart and checkout are
+now live. Checkout hands off to Shopify's secure hosted checkout.
+
+---
+
+## Sections on Shopify — routing a product to the right world
+
+This is the important part: **how a product ends up in Qavier, Luxe, Pops or
+Essentials.** It's driven entirely by fields you set in the Shopify product
+editor — no code, no redeploy.
+
+### Which world → a product **tag**
+
+Add the matching **tag** to a product and it appears in that world's store:
+
+| World | Route | Add this tag | Template / cart |
+|---|---|---|---|
+| Qavier (flagship) | `/qavier`, `/shop` | `qavier` | Editorial |
+| Luxe | `/luxe` | `luxe` | Editorial |
+| Pops | `/pops` | `pops` | **Pops** (neobrutalist, slide-over cart) |
+| Essentials | `/essentials` | `essentials` | Editorial |
+
+- A product can carry **several** section tags to appear in more than one world
+  (e.g. tag a hero tee `qavier` **and** `essentials`).
+- The **`pops` tag is special**: besides placing the product in Pops, it renders
+  that product with the Pops visual template and slide-over cart. Everything
+  without a `pops` tag uses the editorial template.
+- Tags are case-insensitive.
+
+### Category (shop filter) → the product **Type** field
+
+Set the product's **Product type** (Shopify's built-in field) to a category like
+`Tees`, `Hoodies`, `Outerwear`. The flagship **Shop** filters and the
+**Collections** page build their category lists automatically from the product
+types present — nothing is hard-coded.
+
+### Merchandising within a world → extra **tags**
+
+| Goal | Add this tag | Surfaces at |
+|---|---|---|
+| New Arrivals | `new` | header nav → `/shop?q=new` |
+| Bestsellers | `bestseller` | header nav → `/shop?q=bestseller` |
+
+Any tag is also searchable from the header **search bar**. Add whatever
+merchandising tags you like.
+
+### Size & colour filters → product **Options**
+
+Add product **Options** named exactly **`Size`** and **`Color`** (with their
+values, e.g. `S / M / L`, `Noir / Sand / Chocolate`). The shop's size buttons
+and colour swatches populate from these automatically. Swatch colours are mapped
+by name in `components/luxe/luxe-shop.tsx` / `components/home/tee-card.tsx` — add
+any custom colour names there.
+
+### Editorial extras → **metafields** (namespace `custom`)
+
+Optional, all under the `custom` namespace (Settings → Custom data → Products):
+
+| Metafield key | Type | Shows as |
+|---|---|---|
+| `tagline` | Single line text | Product one-liner |
+| `material` | Single line text | Fabric/material line |
+| `badge` | Single line text | Corner badge on cards (e.g. `Bestseller`, `New`) |
+
+### Images
+
+Product images come straight from the Shopify CDN and replace the "imagery
+forthcoming" placeholders automatically — no uploads to this repo needed.
+
+### Worked example — a Pops product
+
+1. Create the product in Shopify.
+2. **Tags:** `pops`, `new` (drops it into Pops + New Arrivals).
+3. **Product type:** `Tees`.
+4. **Options:** `Size` = S/M/L/XL, `Color` = Lime/Black.
+5. **Metafields:** `tagline` = "shrunken fit, maximum chaos", `badge` = `NEW`.
+6. Set `NEXT_PUBLIC_POPS_STORE=live` (below) and it's shoppable at `/pops`.
 
 ---
 
 ## The four worlds & launch switches
 
-The landing page (`/`) is a **2×2 hub** — after a short intro animation it shows
-four blocks:
+Qavier (the flagship) is **always open**. Luxe, Pops and Essentials each default
+to a **coming-soon holding page** (each in its own visual style) and flip to
+their live store with **one setting** — no code change:
 
-| Block | Route | Status |
-|---|---|---|
-| **Qavier** (flagship store) | `/qavier` (+ `/shop`, `/cart`, …) | **Always open** — no flag |
-| **Luxe** | `/luxe` | env-gated |
-| **Pops** | `/pops` | env-gated (store already built) |
-| **Essentials** | `/essentials` | env-gated |
-
-The three gated worlds default to a **coming-soon holding page**. Open one with
-**one setting** — no code change:
-
-- **On Vercel:** Project → Settings → Environment Variables → set the world's
-  var to `live`, then redeploy:
+- **On Vercel:** Project → Settings → Environment Variables → set the world's var
+  to `live`, then redeploy:
   - `NEXT_PUBLIC_LUXE_STORE=live`
   - `NEXT_PUBLIC_POPS_STORE=live`
   - `NEXT_PUBLIC_ESSENTIALS_STORE=live`
 - **Locally:** add the same to `.env.local`.
 
-Set a var back to `coming-soon` (or unset it) to put its holding page back up.
+Set a var back to `coming-soon` (or unset it) to put the holding page back up.
 While a world is coming-soon its routes are `noindex` and kept out of the
-sitemap. Connect the Shopify env vars above and, the moment a world goes live,
-you're adding its products straight from Shopify.
-
-### Adding product photography
-
-Once Shopify is connected, product images come straight from the Shopify CDN
-and replace the placeholder frames automatically. For editorial/campaign slots
-(hero, lookbook, the feed, bento tiles) the `<ShopImage>` / `<PlaceholderFrame>`
-components mark every photo zone with a label — swap them for `next/image` or
-wire them to metafields when your shots are ready.
+sitemap. Going live + connecting Shopify is all it takes to start selling that
+world.
 
 ---
 
@@ -116,8 +191,9 @@ wire them to metafields when your shots are ready.
 
 1. Push this repo to GitHub.
 2. Import it on [Vercel](https://vercel.com/new) — it auto-detects Next.js.
-3. Add the `SHOPIFY_*` environment variables in **Project → Settings →
-   Environment Variables** (leave them out to deploy the demo experience).
+3. Add the `SHOPIFY_*` variables (catalogue/checkout) and any
+   `NEXT_PUBLIC_*_STORE=live` flags in **Project → Settings → Environment
+   Variables**.
 4. Deploy. `vercel.json` already sets the framework, region and security headers.
 
 ---
@@ -127,18 +203,24 @@ wire them to metafields when your shots are ready.
 ```
 app/
   layout.tsx            → root layout, fonts, metadata
+  page.tsx              → the 2×2 landing hub (+ intro splash)
   globals.css           → Tailwind + shared component primitives
-  (main)/               → the main Qavier store at the site root (page-based cart)
-    layout.tsx · page.tsx · shop/ · collection/ · products/[handle]/
+  (main)/               → the Qavier flagship store (editorial, page-based cart)
+    layout.tsx · qavier/ · shop/ · collection/ · products/[handle]/
     about/ · journal/ · cart/ · checkout/ · order-confirmed/
+  luxe/ · essentials/   → gated worlds (coming-soon page or live store)
   pops/                 → Qavier Pops capsule (neobrutalist, slide-over cart)
-    page.tsx · shop/ · products/[handle]/ · drops/
 components/
+  hub.tsx · intro-splash.tsx      → landing hub + intro animation
+  *-coming-soon.tsx               → per-world holding pages
+  luxe-landing.tsx · essentials-store.tsx
   shared/   → ShopImage, cart context + drawer, Reveal, Marquee
-  luxe/     → main-store nav (with search bar), footer, product card, purchase panel
+  luxe/     → flagship nav (search), footer, product card, purchase panel
   pops/     → nav, footer, product card, purchase panel
+  home/     → tee-card (home/essentials product card)
 lib/
-  shopify/  → Storefront API client, GraphQL queries, types, demo catalogue
+  config.ts → world/launch switches (LUXE_LIVE, POPS_LIVE, …)
+  shopify/  → Storefront API client, GraphQL queries, types
   utils.ts  → cn(), formatPrice(), discountPercent()
   actions.ts→ checkout server action
 ```
@@ -147,13 +229,15 @@ lib/
 
 Both palettes live in `tailwind.config.ts` as namespaced tokens
 (`luxe-champagne`, `pops-magenta`, …) plus shared keyframes/animations, so
-components never hard-code hex values. Fonts are wired through `next/font`
-(`Cormorant Garamond`, `Jost`, `Space Grotesk`) in `app/fonts.ts`.
+components never hard-code hex values. Fonts are wired through `next/font` in
+`app/fonts.ts`.
 
 ---
 
 ## Notes
 
 - Fully responsive and mobile-first; respects `prefers-reduced-motion`.
-- The cart persists in `localStorage` and is shared across the store and Pops.
-- In demo mode, checkout shows a friendly preview notice instead of redirecting.
+- The cart persists in `localStorage`; checkout hands off to Shopify's hosted
+  checkout (requires the `SHOPIFY_*` env vars).
+- With no Shopify credentials, product functions return empty results — the
+  storefront renders, product grids are just empty.

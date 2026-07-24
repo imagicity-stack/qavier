@@ -13,8 +13,8 @@ const FEATURES = [
 ];
 
 export default async function QavierHome() {
-  const products = await getProducts({ universe: 'luxe' });
-  const tees = products.filter((p) => p.tags.includes('t-shirts')).slice(0, 5);
+  const products = await getProducts({ section: 'qavier' });
+  const featured = products.slice(0, 5);
 
   return (
     <>
@@ -82,7 +82,7 @@ export default async function QavierHome() {
         </div>
 
         <div className="grid grid-cols-2 gap-x-4 gap-y-9 sm:grid-cols-3 lg:grid-cols-5">
-          {tees.map((product, i) => (
+          {featured.map((product, i) => (
             <Reveal key={product.id} delay={(i % 5) * 0.05}>
               <TeeCard product={product} priority={i < 5} />
             </Reveal>

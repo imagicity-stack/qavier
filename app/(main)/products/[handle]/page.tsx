@@ -50,7 +50,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
     notFound();
   }
 
-  const related = (await getProducts({ universe: 'luxe' }))
+  const related = (await getProducts({ section: 'qavier' }))
     .filter((p) => p.handle !== product.handle)
     .slice(0, 4);
 

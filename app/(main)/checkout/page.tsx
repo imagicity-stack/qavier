@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useCart } from '@/components/shared/cart-context';
 import { ShopImage } from '@/components/shared/shop-image';
 import { startCheckout } from '@/lib/actions';
@@ -21,10 +20,10 @@ const SHIPPING_METHODS: ShippingMethod[] = [
 ];
 
 export default function LuxeCheckoutPage() {
-  const { lines, subtotal, currencyCode, clear } = useCart();
-  const router = useRouter();
+  const { lines, subtotal, currencyCode } = useCart();
 
   const [placing, setPlacing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [shippingId, setShippingId] = useState<string>('standard');
 
   // Contact + address form state.
@@ -54,21 +53,22 @@ export default function LuxeCheckoutPage() {
     if (empty || placing) return;
 
     setPlacing(true);
+    setError(null);
     try {
       const result = await startCheckout(
         lines.map((l) => ({ merchandiseId: l.variantId, quantity: l.quantity })),
       );
 
       if (result.checkoutUrl) {
+        // Hand off to Shopify's hosted, secure checkout.
         window.location.href = result.checkoutUrl;
         return;
       }
 
-      // Demo mode / no checkout URL — fabricate an order and confirm locally.
-      const orderId = `QAVIER-${Math.floor(10000 + Math.random() * 90000)}`;
-      clear();
-      router.push(`/order-confirmed?order=${orderId}`);
+      setError(result.error ?? 'Checkout failed. Please try again.');
     } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
       setPlacing(false);
     }
   }
@@ -319,17 +319,23 @@ export default function LuxeCheckoutPage() {
                 </span>
               </div>
 
+              {error && (
+                <p className="mt-6 border border-luxe-champagne/50 bg-luxe-ivory px-4 py-3 text-center font-sans text-xs text-luxe-charcoal">
+                  {error}
+                </p>
+              )}
+
               <button
                 type="submit"
                 disabled={placing}
                 className={`luxe-btn mt-8 w-full ${placing ? 'opacity-60' : ''}`}
               >
-                {placing ? 'Placing Order…' : 'Place Order'}
+                {placing ? 'Placing Order…' : 'Continue to Payment'}
               </button>
 
               <p className="mt-4 text-center font-sans text-[0.68rem] leading-relaxed text-luxe-stone">
-                By placing your order you agree to our terms. Taxes are included
-                where applicable.
+                You&rsquo;ll complete payment securely on Shopify. Taxes are
+                calculated at checkout.
               </p>
             </div>
           </aside>

@@ -13,7 +13,7 @@ export default async function ShopPage({
 }: {
   searchParams: { category?: string | string[]; q?: string | string[] };
 }) {
-  const products = await getProducts({ universe: 'luxe' });
+  const products = await getProducts({ section: 'qavier' });
   const initialCategory =
     typeof searchParams.category === 'string' ? searchParams.category : 'all';
   const initialQuery = typeof searchParams.q === 'string' ? searchParams.q : '';
