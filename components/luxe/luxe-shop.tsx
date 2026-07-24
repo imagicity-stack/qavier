@@ -59,17 +59,12 @@ function productCategory(product: Product): string {
 }
 
 function productSizes(product: Product): string[] {
-  const set = new Set<string>();
-  for (const v of product.variants) {
-    for (const opt of v.selectedOptions) {
-      if (opt.name === 'Size') set.add(opt.value);
-    }
-  }
-  return [...set];
+  const opt = product.options.find((o) => o.name.toLowerCase() === 'size');
+  return opt ? opt.values : [];
 }
 
 function productColors(product: Product): string[] {
-  const opt = product.options.find((o) => o.name === 'Color');
+  const opt = product.options.find((o) => o.name.toLowerCase() === 'color');
   return opt ? opt.values : [];
 }
 
