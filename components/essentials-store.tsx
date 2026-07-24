@@ -61,9 +61,14 @@ export async function EssentialsStore() {
               className="absolute inset-0 h-full w-full"
               label="Essentials — The Basics"
             />
+            {/* Hero image — drop desktop_essentials.png / mobile_essentials.png into public/images. */}
             <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: "url('/images/essentials-hero.png')" }}
+              className="absolute inset-0 bg-cover bg-center md:hidden"
+              style={{ backgroundImage: "url('/images/mobile_essentials.png')" }}
+            />
+            <div
+              className="absolute inset-0 hidden bg-cover bg-center md:block"
+              style={{ backgroundImage: "url('/images/desktop_essentials.png')" }}
             />
           </div>
         </Reveal>

@@ -44,7 +44,7 @@ export default async function QavierHome() {
           </Reveal>
 
           <Reveal delay={0.08} className="relative">
-            {/* Hero image — drop /images/tshirt-hero.png into public/images to use it. */}
+            {/* Hero image — drop desktop_qavier.png / mobile_qavier.png into public/images. */}
             <div className="relative aspect-[4/3] overflow-hidden rounded-lg lg:aspect-auto lg:h-full">
               <PlaceholderFrame
                 universe="luxe"
@@ -52,8 +52,12 @@ export default async function QavierHome() {
                 label="Campaign — The Tee"
               />
               <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: "url('/images/tshirt-hero.png')" }}
+                className="absolute inset-0 bg-cover bg-center md:hidden"
+                style={{ backgroundImage: "url('/images/mobile_qavier.png')" }}
+              />
+              <div
+                className="absolute inset-0 hidden bg-cover bg-center md:block"
+                style={{ backgroundImage: "url('/images/desktop_qavier.png')" }}
               />
             </div>
           </Reveal>

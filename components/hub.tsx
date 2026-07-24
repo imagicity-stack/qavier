@@ -1,11 +1,15 @@
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 import { LUXE_LIVE, POPS_LIVE, ESSENTIALS_LIVE } from '@/lib/config';
 
 /**
  * The landing hub — Qavier's four worlds. Fills exactly one screen: a stacked
- * 4-row grid on mobile (no scrolling) and a 2×2 grid from `md` up. Qavier is
- * always open; Luxe, Pops and Essentials show "Coming Soon" until their env
- * flag is flipped live (see lib/config.ts). Each block links to its own page.
+ * 4-row grid on mobile (no scrolling) and a 2×2 grid from `md` up.
+ *
+ * Each block is backed by a brand image (drop files into public/images):
+ *   desktop → /images/desktop_<slug>.png   mobile → /images/mobile_<slug>.png
+ * Until those exist the layer is transparent and the base colour shows through.
+ * Brand-tinted top/bottom gradients keep the label legible over any image.
  */
 export function Hub() {
   return (
@@ -15,11 +19,7 @@ export function Hub() {
         href="/qavier"
         className="group relative flex flex-col justify-between overflow-hidden bg-luxe-cream p-5 text-luxe-noir sm:p-8 md:p-10"
       >
-        <div
-          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-90 transition-transform duration-[1200ms] ease-luxe group-hover:scale-105"
-          style={{ backgroundImage: "url('/images/hub-qavier.png')" }}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-luxe-cream via-luxe-cream/40 to-transparent" />
+        <BlockMedia slug="qavier" topScrim="from-luxe-cream/70" bottomScrim="from-luxe-cream" />
         <span className="relative font-sans text-[0.6rem] uppercase tracking-luxe text-luxe-stone sm:text-[0.65rem]">
           01 · The Flagship
         </span>
@@ -40,11 +40,12 @@ export function Hub() {
         href="/luxe"
         className="group relative flex flex-col justify-between overflow-hidden bg-luxe-noir p-5 text-luxe-cream sm:p-8 md:p-10"
       >
+        <BlockMedia slug="luxe" topScrim="from-luxe-noir/70" bottomScrim="from-luxe-noir" />
         <div
-          className="pointer-events-none absolute inset-0 opacity-70 transition-opacity duration-700 group-hover:opacity-100"
+          className="pointer-events-none absolute inset-0 opacity-50 mix-blend-screen"
           style={{
             backgroundImage:
-              'radial-gradient(70% 60% at 80% 20%, rgba(201,169,106,0.22), transparent 70%)',
+              'radial-gradient(70% 60% at 80% 15%, rgba(201,169,106,0.35), transparent 70%)',
           }}
         />
         <span className="relative font-sans text-[0.6rem] uppercase tracking-luxe text-luxe-champagne sm:text-[0.65rem]">
@@ -64,8 +65,9 @@ export function Hub() {
         href="/pops"
         className="group relative flex flex-col justify-between overflow-hidden bg-pops-violet p-5 text-white sm:p-8 md:p-10"
       >
+        <BlockMedia slug="pops" topScrim="from-pops-violet/70" bottomScrim="from-pops-violet" />
         <div className="grain pointer-events-none absolute inset-0 opacity-15 mix-blend-overlay" />
-        <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-pops-lime/30 blur-3xl transition-transform duration-700 group-hover:scale-125" />
+        <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-pops-lime/40 blur-3xl transition-transform duration-700 group-hover:scale-125" />
         <span className="relative font-display text-[0.65rem] font-bold uppercase tracking-widest text-pops-lime sm:text-[0.7rem]">
           03 · Loud. Limited. Iconic.
         </span>
@@ -85,7 +87,8 @@ export function Hub() {
         href="/essentials"
         className="group relative flex flex-col justify-between overflow-hidden bg-[#E5DBCA] p-5 text-luxe-noir sm:p-8 md:p-10"
       >
-        <div className="pointer-events-none absolute inset-3 border border-luxe-noir/10" />
+        <BlockMedia slug="essentials" topScrim="from-[#E5DBCA]" bottomScrim="from-[#E5DBCA]" />
+        <div className="pointer-events-none absolute inset-3 z-[1] border border-luxe-noir/15" />
         <span className="relative font-sans text-[0.6rem] uppercase tracking-luxe text-luxe-stone sm:text-[0.65rem]">
           04 · Everyday Basics
         </span>
@@ -100,6 +103,32 @@ export function Hub() {
         </div>
       </Link>
     </section>
+  );
+}
+
+/** Responsive brand image + brand-tinted top/bottom gradients for a hub block. */
+function BlockMedia({
+  slug,
+  topScrim,
+  bottomScrim,
+}: {
+  slug: string;
+  topScrim: string;
+  bottomScrim: string;
+}) {
+  return (
+    <>
+      <div
+        className="pointer-events-none absolute inset-0 bg-cover bg-center transition-transform duration-[1500ms] ease-luxe group-hover:scale-105 md:hidden"
+        style={{ backgroundImage: `url('/images/mobile_${slug}.png')` }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 hidden bg-cover bg-center transition-transform duration-[1500ms] ease-luxe group-hover:scale-105 md:block"
+        style={{ backgroundImage: `url('/images/desktop_${slug}.png')` }}
+      />
+      <div className={cn('pointer-events-none absolute inset-0 bg-gradient-to-b to-transparent', topScrim)} />
+      <div className={cn('pointer-events-none absolute inset-0 bg-gradient-to-t to-transparent', bottomScrim)} />
+    </>
   );
 }
 
