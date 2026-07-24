@@ -82,11 +82,22 @@ export default function PopsHome() {
 
           {/* Hero photo zone */}
           <div className="relative">
-            <PlaceholderFrame
-              universe="pops"
-              label="Campaign Drop 01 — Pics Soon"
-              className="aspect-[4/5] w-full rotate-2 rounded-pops border-2 border-pops-black shadow-pops-lg"
-            />
+            <div className="relative aspect-[4/5] w-full rotate-2 overflow-hidden rounded-pops border-2 border-pops-black shadow-pops-lg">
+              <PlaceholderFrame
+                universe="pops"
+                label="Campaign Drop 01 — Pics Soon"
+                className="absolute inset-0 h-full w-full"
+              />
+              {/* Hero image — drop desktop_pops.png / mobile_pops.png into public/images. */}
+              <div
+                className="absolute inset-0 bg-cover bg-center md:hidden"
+                style={{ backgroundImage: "url('/images/mobile_pops.png')" }}
+              />
+              <div
+                className="absolute inset-0 hidden bg-cover bg-center md:block"
+                style={{ backgroundImage: "url('/images/desktop_pops.png')" }}
+              />
+            </div>
             <span className="absolute -left-3 top-6 -rotate-6 rounded-full border-2 border-pops-black bg-pops-lime px-4 py-2 font-display text-sm font-bold uppercase text-pops-black shadow-pops sm:-left-6">
               brand new ✦
             </span>

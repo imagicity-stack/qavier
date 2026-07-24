@@ -25,6 +25,15 @@ export async function LuxeLanding() {
           className="absolute inset-0 h-full w-full"
           label="Luxe — The Atelier"
         />
+        {/* Hero image — drop desktop_luxe.png / mobile_luxe.png into public/images. */}
+        <div
+          className="absolute inset-0 bg-cover bg-center md:hidden"
+          style={{ backgroundImage: "url('/images/mobile_luxe.png')" }}
+        />
+        <div
+          className="absolute inset-0 hidden bg-cover bg-center md:block"
+          style={{ backgroundImage: "url('/images/desktop_luxe.png')" }}
+        />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-luxe-cream via-luxe-cream/30 to-transparent" />
         <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-12 sm:px-10">
           <p className="luxe-label text-luxe-gold">Luxury Redefined</p>
