@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/logo';
 import { LUXE_LIVE, POPS_LIVE, ESSENTIALS_LIVE } from '@/lib/config';
 
 /**
@@ -24,7 +25,7 @@ export function Hub() {
           01 · The Flagship
         </span>
         <div className="relative">
-          <h2 className="font-serif text-3xl font-light leading-none md:text-6xl">Qavier</h2>
+          <Logo className="h-7 w-auto text-luxe-noir md:h-12" title="Qavier" />
           <p className="mt-3 hidden max-w-xs font-sans text-sm text-luxe-charcoal/80 md:block">
             The house. Timeless essentials, considered in every seam.
           </p>

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Logo } from '@/components/logo';
 
 const COLUMNS = [
   {
@@ -43,7 +44,7 @@ export function LuxeFooter() {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_repeat(3,1fr)_1.6fr] lg:gap-10">
           {/* Brand */}
           <div>
-            <span className="font-serif text-3xl tracking-[0.28em]">QAVIER</span>
+            <Logo className="h-7 w-auto text-luxe-cream" />
             <p className="mt-5 max-w-xs font-sans text-sm leading-relaxed text-luxe-cream/50">
               Qavier is more than fashion. It&rsquo;s a mindset. A lifestyle.
               Built for those who lead.

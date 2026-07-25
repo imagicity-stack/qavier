@@ -3,6 +3,7 @@ import { getProducts } from '@/lib/shopify';
 import { PlaceholderFrame } from '@/components/shared/shop-image';
 import { Reveal } from '@/components/shared/reveal';
 import { TeeCard } from '@/components/home/tee-card';
+import { Logo } from '@/components/logo';
 
 const CATEGORIES = ['Tees', 'Hoodies', 'Sweatpants', 'Caps'];
 
@@ -23,8 +24,8 @@ export async function EssentialsStore() {
     <div className="min-h-[100dvh] bg-[#EFE7D8] text-luxe-noir">
       {/* Top bar */}
       <header className="flex items-center justify-between px-5 py-5 sm:px-10">
-        <Link href="/" className="font-serif text-2xl tracking-[0.28em]" aria-label="Qavier worlds">
-          QAVIER
+        <Link href="/" className="flex items-center" aria-label="Qavier worlds">
+          <Logo className="h-5 w-auto text-luxe-noir sm:h-6" />
         </Link>
         <span className="rounded-full border border-luxe-noir/25 px-3 py-1 font-sans text-[0.6rem] uppercase tracking-wider2 text-luxe-charcoal">
           Essentials

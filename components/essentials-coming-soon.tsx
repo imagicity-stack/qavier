@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Logo } from '@/components/logo';
 
 /** Qavier Essentials holding page — warm, minimal, understated. */
 export function EssentialsComingSoon() {
@@ -7,8 +8,8 @@ export function EssentialsComingSoon() {
       <div className="pointer-events-none absolute inset-4 border border-luxe-noir/10 sm:inset-6" />
 
       <header className="relative z-10 flex items-center justify-between px-5 py-6 sm:px-10">
-        <Link href="/" className="font-serif text-2xl tracking-[0.28em]" aria-label="Qavier worlds">
-          QAVIER
+        <Link href="/" className="flex items-center" aria-label="Qavier worlds">
+          <Logo className="h-5 w-auto text-luxe-noir sm:h-6" />
         </Link>
         <span className="rounded-full border border-luxe-noir/25 px-3 py-1 font-sans text-[0.6rem] uppercase tracking-wider2 text-luxe-charcoal">
           Essentials

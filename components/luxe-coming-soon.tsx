@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Logo } from '@/components/logo';
 
 /** Qavier Luxe holding page — dark, editorial, gold-lit. */
 export function LuxeComingSoon() {
@@ -13,12 +14,8 @@ export function LuxeComingSoon() {
       />
 
       <header className="relative z-10 flex items-center justify-between px-5 py-6 sm:px-10">
-        <Link
-          href="/"
-          className="font-serif text-2xl font-medium tracking-[0.32em] sm:text-3xl"
-          aria-label="Qavier worlds"
-        >
-          QAVIER
+        <Link href="/" className="flex items-center" aria-label="Qavier worlds">
+          <Logo className="h-5 w-auto text-luxe-cream sm:h-6" />
         </Link>
         <span className="luxe-label text-luxe-champagne">Luxe</span>
       </header>

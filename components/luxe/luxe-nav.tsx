@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useCart } from '@/components/shared/cart-context';
+import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 
 // Pops lives in its own universe — it gets the poppy pill treatment below,
@@ -59,10 +60,8 @@ export function LuxeNav() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:py-5">
         {/* Left — wordmark + links */}
         <div className="flex items-center gap-10">
-          <Link href="/qavier" className="flex items-baseline gap-2" aria-label="Qavier home">
-            <span className="font-serif text-2xl font-medium tracking-[0.32em] text-luxe-noir sm:text-3xl">
-              QAVIER
-            </span>
+          <Link href="/qavier" className="flex items-center" aria-label="Qavier home">
+            <Logo className="h-5 w-auto text-luxe-noir sm:h-6" />
           </Link>
           <div className="hidden items-center gap-8 lg:flex">
             {LINKS.map((l) => (
@@ -162,7 +161,7 @@ export function LuxeNav() {
             transition={{ type: 'tween', duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="flex items-center justify-between px-5 py-4">
-              <span className="font-serif text-2xl tracking-[0.3em] text-luxe-noir">QAVIER</span>
+              <Logo className="h-6 w-auto text-luxe-noir" />
               <button onClick={() => setMenuOpen(false)} aria-label="Close menu">
                 <CloseIcon className="h-6 w-6 text-luxe-noir" />
               </button>
