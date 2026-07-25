@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-
-const REST = ['A', 'V', 'I', 'E', 'R'];
+import { LOGO_LETTERS, LOGO_VIEWBOX } from './logo-data';
 
 /**
- * First-load intro. A single "Q" appears, the rest of QAVIER assembles around
- * it, then the whole thing lifts away to reveal the store. Shown once per
- * browser session, and skipped entirely for reduced-motion users.
+ * First-load intro. The logo's "Q" appears, then the rest of the QAVIER
+ * wordmark assembles letter by letter, before the whole thing lifts away to
+ * reveal the store. Shown once per browser session; skipped for reduced motion.
  */
 export function IntroSplash() {
   const [visible, setVisible] = useState(true);
@@ -24,11 +23,10 @@ export function IntroSplash() {
       return;
     }
     sessionStorage.setItem('qavier-intro-seen', '1');
-    const t = window.setTimeout(() => setVisible(false), 2700);
+    const t = window.setTimeout(() => setVisible(false), 2800);
     return () => window.clearTimeout(t);
   }, []);
 
-  // Lock scroll while the splash is up.
   useEffect(() => {
     document.body.style.overflow = visible ? 'hidden' : '';
     return () => {
@@ -40,7 +38,7 @@ export function IntroSplash() {
     <AnimatePresence>
       {visible && (
         <motion.div
-          className="fixed inset-0 z-[200] flex flex-col items-center justify-center overflow-hidden bg-luxe-noir"
+          className="fixed inset-0 z-[200] flex flex-col items-center justify-center overflow-hidden bg-luxe-noir px-8"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, y: -24, transition: { duration: 0.6, ease: [0.65, 0, 0.35, 1] } }}
         >
@@ -52,38 +50,42 @@ export function IntroSplash() {
             transition={{ duration: 1 }}
             style={{
               backgroundImage:
-                'radial-gradient(50% 40% at 50% 45%, rgba(201,169,106,0.20), transparent 70%)',
+                'radial-gradient(50% 40% at 50% 46%, rgba(201,169,106,0.20), transparent 70%)',
             }}
           />
 
-          {/* Wordmark: Q appears first, the rest assembles */}
-          <div className="relative flex items-baseline">
-            <motion.span
-              className="font-serif text-7xl font-medium tracking-[0.15em] text-luxe-cream sm:text-8xl lg:text-9xl"
-              initial={{ scale: 0.35, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            >
-              Q
-            </motion.span>
-            {REST.map((ch, i) => (
-              <motion.span
-                key={ch + i}
-                className="font-serif text-7xl font-medium tracking-[0.15em] text-luxe-cream sm:text-8xl lg:text-9xl"
-                initial={{ opacity: 0, y: 22 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.85 + i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          {/* Logo wordmark — Q first, then the rest assemble */}
+          <svg
+            viewBox={LOGO_VIEWBOX}
+            className="w-[82%] max-w-2xl text-luxe-cream"
+            fill="currentColor"
+            role="img"
+            aria-label="Qavier"
+          >
+            {LOGO_LETTERS.map((letter, i) => (
+              <motion.g
+                key={letter.key}
+                style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
+                initial={i === 0 ? { opacity: 0, scale: 0.35 } : { opacity: 0, scale: 0.7, y: 26 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={
+                  i === 0
+                    ? { duration: 0.7, ease: [0.22, 1, 0.36, 1] }
+                    : { delay: 0.85 + (i - 1) * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+                }
               >
-                {ch}
-              </motion.span>
+                {letter.paths.map((d, j) => (
+                  <path key={j} d={d} />
+                ))}
+              </motion.g>
             ))}
-          </div>
+          </svg>
 
           <motion.p
-            className="mt-6 font-sans text-[0.6rem] uppercase tracking-luxe text-luxe-champagne sm:text-xs"
+            className="mt-8 font-sans text-[0.6rem] uppercase tracking-luxe text-luxe-champagne sm:text-xs"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.45, duration: 0.6 }}
+            transition={{ delay: 1.55, duration: 0.6 }}
           >
             Crafted to Define. Designed to Excel.
           </motion.p>
@@ -95,7 +97,7 @@ export function IntroSplash() {
             className="group absolute bottom-12 flex flex-col items-center gap-2 text-luxe-cream/70 transition-colors hover:text-luxe-cream"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.8, duration: 0.6 }}
+            transition={{ delay: 1.9, duration: 0.6 }}
             aria-label="Enter Qavier"
           >
             <span className="font-sans text-[0.6rem] uppercase tracking-luxe">Enter</span>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Marquee } from '@/components/shared/marquee';
+import { Logo } from '@/components/logo';
 
 const TICKER = ['DROPPING SOON', '✦', 'JOIN THE LIST', '✦', 'NO SPAM PINKY PROMISE', '✦', 'STAY TUNED', '✦'];
 
@@ -25,7 +26,7 @@ export function PopsComingSoon() {
       {/* Top bar */}
       <header className="relative z-10 flex items-center justify-between px-5 py-5 sm:px-10">
         <Link href="/" className="flex items-center gap-2" aria-label="Qavier worlds">
-          <span className="font-display text-2xl font-bold uppercase tracking-tight">QAVIER</span>
+          <Logo className="h-5 w-auto text-white" />
           <span className="pops-chip bg-pops-lime text-pops-black">pops</span>
         </Link>
       </header>

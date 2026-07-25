@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Marquee } from '@/components/shared/marquee';
+import { Logo } from '@/components/logo';
 
 const COLUMNS = [
   {
@@ -78,10 +79,12 @@ export function PopsFooter() {
         {/* Columns */}
         <div className="mt-12 grid grid-cols-2 gap-10 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
-            <span className="font-display text-4xl font-bold uppercase text-pops-cream">QAVIER</span>
-            <span className="ml-2 rounded-full bg-pops-magenta px-3 py-1 font-display text-xs font-bold uppercase text-white">
-              pops
-            </span>
+            <div className="flex items-center gap-2">
+              <Logo className="h-8 w-auto text-pops-cream" />
+              <span className="rounded-full bg-pops-magenta px-3 py-1 font-display text-xs font-bold uppercase text-white">
+                pops
+              </span>
+            </div>
             <p className="mt-4 max-w-xs font-sans text-sm text-pops-cream/50">
               loud, limited & a little chaotic. the other half of the house.
             </p>

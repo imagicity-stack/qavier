@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCart } from '@/components/shared/cart-context';
+import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 
 /** Big "shop by" entries — these live in the side menu now (not on the home page). */
@@ -69,9 +70,7 @@ export function PopsNav() {
             <span className="hidden sm:inline">menu</span>
           </button>
           <Link href="/pops" className="flex items-center gap-2" aria-label="Qavier Pops home">
-            <span className="font-display text-xl font-bold uppercase tracking-tight text-pops-black sm:text-2xl">
-              QAVIER
-            </span>
+            <Logo className="h-4 w-auto text-pops-black sm:h-5" />
             <span className="pops-chip hidden bg-pops-lime text-pops-black sm:inline-flex">
               pops
             </span>

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getProducts } from '@/lib/shopify';
 import { PlaceholderFrame } from '@/components/shared/shop-image';
 import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
+import { Logo } from '@/components/logo';
 
 /**
  * Simple Qavier Luxe landing, shown when NEXT_PUBLIC_LUXE_STORE=live.
@@ -13,8 +14,8 @@ export async function LuxeLanding() {
   return (
     <div className="min-h-[100dvh] bg-luxe-cream text-luxe-noir">
       <header className="flex items-center justify-between px-5 py-5 sm:px-10">
-        <Link href="/" className="font-serif text-2xl tracking-[0.3em]" aria-label="Qavier worlds">
-          QAVIER
+        <Link href="/" className="flex items-center" aria-label="Qavier worlds">
+          <Logo className="h-5 w-auto text-luxe-noir sm:h-6" />
         </Link>
         <span className="luxe-label text-luxe-gold">Luxe</span>
       </header>
