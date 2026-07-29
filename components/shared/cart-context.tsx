@@ -6,10 +6,11 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import type { Image, Money, Universe } from '@/lib/shopify/types';
-import { startCheckout } from '@/lib/actions';
+import { refreshCartPrices, startCheckout } from '@/lib/actions';
 
 export interface LocalCartLine {
   variantId: string;
@@ -36,6 +37,8 @@ interface CartContextValue {
   updateQuantity: (variantId: string, quantity: number) => void;
   removeItem: (variantId: string) => void;
   clear: () => void;
+  /** Re-read every line's price from Shopify (cart/checkout entry points). */
+  refreshPrices: () => Promise<void>;
   checkout: () => Promise<void>;
 }
 
@@ -49,16 +52,60 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [checkingOut, setCheckingOut] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
-  // Hydrate from localStorage once on mount.
+  // Latest lines, readable from callbacks without re-creating them.
+  const linesRef = useRef<LocalCartLine[]>([]);
+  linesRef.current = lines;
+
+  /**
+   * Re-price the bag against Shopify. Stored lines carry the price they had
+   * when they were added, so without this a price change in the Shopify admin
+   * would never reach a shopper with an existing cart — and the bag total would
+   * disagree with the Shopify checkout they're sent to.
+   */
+  const syncPrices = useCallback(async (target?: LocalCartLine[]) => {
+    const current = target ?? linesRef.current;
+    const ids = Array.from(new Set(current.map((l) => l.variantId)));
+    if (!ids.length) return;
+
+    const fresh = await refreshCartPrices(ids);
+    if (!Object.keys(fresh).length) return; // offline / not configured — keep the snapshot
+
+    setLines((prev) => {
+      let changed = false;
+      const next = prev.map((line) => {
+        const update = fresh[line.variantId];
+        if (
+          !update ||
+          (update.price.amount === line.price.amount &&
+            update.price.currencyCode === line.price.currencyCode)
+        ) {
+          return line;
+        }
+        changed = true;
+        return { ...line, price: update.price };
+      });
+      return changed ? next : prev;
+    });
+  }, []);
+
+  // Hydrate from localStorage once on mount, then re-price against Shopify.
   useEffect(() => {
+    let stored: LocalCartLine[] = [];
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setLines(JSON.parse(raw));
+      if (raw) stored = JSON.parse(raw);
     } catch {
       /* ignore corrupt storage */
     }
+    if (stored.length) setLines(stored);
     setHydrated(true);
-  }, []);
+    void syncPrices(stored);
+  }, [syncPrices]);
+
+  // Whenever the bag is opened, confirm its prices are still the Shopify ones.
+  useEffect(() => {
+    if (isOpen) void syncPrices();
+  }, [isOpen, syncPrices]);
 
   // Persist whenever the cart changes (after hydration).
   useEffect(() => {
@@ -102,6 +149,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clear = useCallback(() => setLines([]), []);
 
+  // Stable identity — callers put this in effect dependency arrays.
+  const refreshPrices = useCallback(() => syncPrices(), [syncPrices]);
+
   const checkout = useCallback(async () => {
     if (!lines.length) return;
     setCheckingOut(true);
@@ -144,6 +194,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     updateQuantity,
     removeItem,
     clear,
+    refreshPrices,
     checkout,
   };
 

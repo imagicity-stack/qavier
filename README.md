@@ -103,6 +103,42 @@ SHOPIFY_API_VERSION=2024-07                      # optional; sensible default
 Restart `npm run dev` (or redeploy). That's it — products, cart and checkout are
 now live. Checkout hands off to Shopify's secure hosted checkout.
 
+### 3. Keep prices in sync
+
+Shopify is the single source of truth for price — nothing is hard-coded here —
+but catalogue reads are cached so the storefront stays fast. Two knobs control
+how quickly an edit in the Shopify admin shows up:
+
+```bash
+SHOPIFY_REVALIDATE_SECONDS=60   # max age of cached catalogue data (0 = always live)
+SHOPIFY_WEBHOOK_SECRET=         # signing secret for instant, on-demand flushes
+```
+
+Without a webhook, a price edit appears within `SHOPIFY_REVALIDATE_SECONDS`.
+For instant updates, add a webhook in **Shopify → Settings → Notifications →
+Webhooks** for each of `products/create`, `products/update`, `products/delete`
+and `collections/update`, pointing at:
+
+```
+https://<your-domain>/api/revalidate
+```
+
+Then paste the signing secret Shopify shows you into `SHOPIFY_WEBHOOK_SECRET`.
+The route verifies the HMAC and clears the affected cache tags, so the new price
+is live on the next page view.
+
+To flush by hand, set `SHOPIFY_REVALIDATE_SECRET` and call:
+
+```bash
+curl -X POST "https://<your-domain>/api/revalidate?secret=<token>"
+```
+
+The bag is separate: it lives in `localStorage` and stores the price each line
+had when it was added. It re-reads those prices from Shopify (uncached) on load,
+whenever the drawer opens, and on the Cart and Checkout pages — so a shopper
+with a week-old bag still sees today's price, and the totals always match the
+Shopify checkout they're handed off to.
+
 ---
 
 ## Sections on Shopify — routing a product to the right world

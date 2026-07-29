@@ -66,9 +66,10 @@ export function LuxePurchase({ product }: { product: Product }) {
         <span className="font-serif text-3xl text-luxe-noir">
           {formatPrice(activeVariant?.price, { compact: true })}
         </span>
-        {product.compareAtPriceRange?.minVariantPrice && (
+        {/* Compare-at follows the selected variant, not the product-wide range. */}
+        {activeVariant?.compareAtPrice && (
           <span className="font-sans text-base text-luxe-stone line-through">
-            {formatPrice(product.compareAtPriceRange.minVariantPrice, { compact: true })}
+            {formatPrice(activeVariant.compareAtPrice, { compact: true })}
           </span>
         )}
       </div>

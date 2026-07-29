@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/components/shared/cart-context';
 import { ShopImage } from '@/components/shared/shop-image';
@@ -20,7 +20,12 @@ const SHIPPING_METHODS: ShippingMethod[] = [
 ];
 
 export default function LuxeCheckoutPage() {
-  const { lines, subtotal, currencyCode } = useCart();
+  const { lines, subtotal, currencyCode, refreshPrices } = useCart();
+
+  // The summary must match what Shopify will charge, so re-price on entry.
+  useEffect(() => {
+    void refreshPrices();
+  }, [refreshPrices]);
 
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState<string | null>(null);
