@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PlaceholderFrame } from '@/components/shared/shop-image';
 import { Reveal } from '@/components/shared/reveal';
+import { SizeChartTable } from '@/components/qavier/size-chart';
 
 export const metadata: Metadata = {
   title: 'About',
@@ -39,6 +40,7 @@ const CARE = [
   {
     summary: 'Size Guide',
     body: 'Each piece is cut true to size with a considered, easy fit. Between sizes, we recommend sizing up for tailoring and down for knitwear. Our stylists are happy to advise.',
+    chart: true,
   },
   {
     summary: 'FAQs',
@@ -178,6 +180,9 @@ export default function AboutPage() {
                   <p className="pb-7 font-sans text-sm leading-relaxed text-luxe-stone">
                     {row.body}
                   </p>
+                  {'chart' in row && row.chart && (
+                    <SizeChartTable className="pb-8" />
+                  )}
                 </details>
               ))}
             </div>

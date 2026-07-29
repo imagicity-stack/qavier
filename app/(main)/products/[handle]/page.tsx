@@ -6,6 +6,7 @@ import { Reveal } from '@/components/shared/reveal';
 import { LuxeGallery } from '@/components/luxe/luxe-gallery';
 import { LuxePurchase } from '@/components/luxe/luxe-purchase';
 import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
+import { SizeChartTable } from '@/components/qavier/size-chart';
 
 // Catalogue pages are regenerated at most this often, so Shopify price and
 // stock edits reach the storefront without a redeploy. The /api/revalidate
@@ -125,6 +126,9 @@ export default async function Page({ params }: { params: { handle: string } }) {
               <Accordion summary="Details">
                 {product.description}{' '}
                 Designed for an easy, considered fit — true to size, with room to layer.
+              </Accordion>
+              <Accordion summary="Size Chart">
+                <SizeChartTable />
               </Accordion>
               <Accordion summary="Fabric & Care">
                 {product.material ? `${product.material}. ` : ''}
