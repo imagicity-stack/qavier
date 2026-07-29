@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useCart } from '@/components/shared/cart-context';
+import { SizeChartDialog } from '@/components/qavier/size-chart';
 import type { Product } from '@/lib/shopify/types';
 import { cn, formatPrice } from '@/lib/utils';
 
@@ -83,12 +84,7 @@ export function LuxePurchase({ product }: { product: Product }) {
                 {option.name}: <span className="text-luxe-stone">{selected[option.name]}</span>
               </span>
               {!isColor && (
-                <Link
-                  href="/about#care"
-                  className="luxe-label text-luxe-stone underline-offset-4 hover:text-luxe-gold hover:underline"
-                >
-                  Size Guide
-                </Link>
+                <SizeChartDialog className="luxe-label text-luxe-stone underline-offset-4 transition-colors duration-300 hover:text-luxe-gold hover:underline" />
               )}
             </div>
 

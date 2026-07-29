@@ -265,6 +265,7 @@ components/
   luxe-landing.tsx · essentials-store.tsx
   shared/   → ShopImage, cart context + drawer, Reveal, Marquee
   luxe/     → flagship nav (search), footer, product card, purchase panel
+  qavier/   → size chart (flagship store only — Pops/Luxe/Essentials excluded)
   pops/     → nav, footer, product card, purchase panel
   home/     → tee-card (home/essentials product card)
 lib/
