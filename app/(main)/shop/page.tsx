@@ -2,6 +2,11 @@ import type { Metadata } from 'next';
 import { getProducts } from '@/lib/shopify';
 import { LuxeShop } from '@/components/luxe/luxe-shop';
 
+// Catalogue pages are regenerated at most this often, so Shopify price and
+// stock edits reach the storefront without a redeploy. The /api/revalidate
+// webhook flushes them immediately when Shopify pushes a change.
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'Shop',
   description:

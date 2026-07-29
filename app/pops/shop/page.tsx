@@ -7,6 +7,11 @@ import { PopsProductCard } from '@/components/pops/pops-product-card';
 import { Reveal } from '@/components/shared/reveal';
 import { Marquee } from '@/components/shared/marquee';
 
+// Catalogue pages are regenerated at most this often, so Shopify price and
+// stock edits reach the storefront without a redeploy. The /api/revalidate
+// webhook flushes them immediately when Shopify pushes a change.
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'Shop',
   description:

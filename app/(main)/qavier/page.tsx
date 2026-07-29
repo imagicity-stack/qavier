@@ -5,6 +5,11 @@ import { Reveal } from '@/components/shared/reveal';
 import { TeeCard } from '@/components/home/tee-card';
 import { LUXE_LIVE, POPS_LIVE } from '@/lib/config';
 
+// Catalogue pages are regenerated at most this often, so Shopify price and
+// stock edits reach the storefront without a redeploy. The /api/revalidate
+// webhook flushes them immediately when Shopify pushes a change.
+export const revalidate = 60;
+
 const FEATURES = [
   { title: 'Premium Quality', sub: 'Finest Fabrics', Icon: BoxIcon },
   { title: 'Secure Payments', sub: '100% Protected', Icon: ShieldIcon },

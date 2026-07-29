@@ -1,12 +1,40 @@
 'use server';
 
-import { createCart, isShopifyConfigured } from './shopify';
+import { createCart, getVariantPrices, isShopifyConfigured } from './shopify';
+import type { Money } from './shopify/types';
 
 export interface CheckoutResult {
   ok: boolean;
   /** Present when Shopify is connected — redirect the browser here. */
   checkoutUrl?: string;
   error?: string;
+}
+
+export interface CartPriceUpdate {
+  price: Money;
+  availableForSale: boolean;
+}
+
+/**
+ * Re-reads the current Shopify price for each variant in the local bag.
+ *
+ * The cart persists to localStorage, so a line keeps whatever price it had when
+ * it was added — sometimes weeks ago. This lets the cart re-price itself against
+ * Shopify on load, so the bag, the checkout summary and the Shopify checkout all
+ * agree. Variants missing from the result no longer exist in the store.
+ */
+export async function refreshCartPrices(
+  variantIds: string[],
+): Promise<Record<string, CartPriceUpdate>> {
+  if (!isShopifyConfigured || !variantIds.length) return {};
+
+  const variants = await getVariantPrices(variantIds);
+  return Object.fromEntries(
+    Object.entries(variants).map(([id, v]) => [
+      id,
+      { price: v.price, availableForSale: v.availableForSale },
+    ]),
+  );
 }
 
 /**

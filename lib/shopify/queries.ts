@@ -140,6 +140,28 @@ const CART_FRAGMENT = /* GraphQL */ `
   }
 `;
 
+// Live re-price lookup for cart lines. Deliberately tiny: the cart stores a
+// snapshot of each line when it was added, and this re-reads the authoritative
+// price straight from Shopify (uncached) so a price edit in the admin shows up
+// in an existing bag instead of the stale snapshot.
+export const GET_VARIANT_PRICES_QUERY = /* GraphQL */ `
+  query getVariantPrices($ids: [ID!]!) {
+    nodes(ids: $ids) {
+      ... on ProductVariant {
+        id
+        title
+        availableForSale
+        price { amount currencyCode }
+        compareAtPrice { amount currencyCode }
+        product {
+          handle
+          title
+        }
+      }
+    }
+  }
+`;
+
 export const GET_PRODUCTS_QUERY = /* GraphQL */ `
   query getProducts($first: Int!, $query: String, $sortKey: ProductSortKeys, $reverse: Boolean) {
     products(first: $first, query: $query, sortKey: $sortKey, reverse: $reverse) {

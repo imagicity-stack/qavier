@@ -7,6 +7,11 @@ import { LuxeGallery } from '@/components/luxe/luxe-gallery';
 import { LuxePurchase } from '@/components/luxe/luxe-purchase';
 import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
 
+// Catalogue pages are regenerated at most this often, so Shopify price and
+// stock edits reach the storefront without a redeploy. The /api/revalidate
+// webhook flushes them immediately when Shopify pushes a change.
+export const revalidate = 60;
+
 export async function generateMetadata({
   params,
 }: {

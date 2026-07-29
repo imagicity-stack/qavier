@@ -13,6 +13,7 @@ import {
   GET_COLLECTION_QUERY,
   GET_PRODUCTS_QUERY,
   GET_PRODUCT_BY_HANDLE_QUERY,
+  GET_VARIANT_PRICES_QUERY,
   REMOVE_FROM_CART_MUTATION,
   UPDATE_CART_MUTATION,
 } from './queries';
@@ -20,6 +21,7 @@ import type {
   Cart,
   Collection,
   Image,
+  Money,
   Product,
   Section,
   Universe,
@@ -28,6 +30,17 @@ import type {
 const DOMAIN = process.env.SHOPIFY_STORE_DOMAIN;
 const TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 const API_VERSION = process.env.SHOPIFY_API_VERSION || '2024-07';
+
+/**
+ * How long (seconds) catalogue reads may be served from the Next data cache.
+ * Price/stock edits in Shopify land within this window at the latest; the
+ * `/api/revalidate` webhook makes them land immediately. Set
+ * SHOPIFY_REVALIDATE_SECONDS=0 to always read live (slower, no caching).
+ */
+const REVALIDATE_SECONDS = (() => {
+  const raw = Number(process.env.SHOPIFY_REVALIDATE_SECONDS);
+  return Number.isFinite(raw) && raw >= 0 ? raw : 60;
+})();
 
 /** True when the Storefront API credentials are present. */
 export const isShopifyConfigured = Boolean(DOMAIN && TOKEN);
@@ -60,7 +73,7 @@ async function shopifyFetch<T>({
   query,
   variables,
   cache,
-  revalidate = 60,
+  revalidate = REVALIDATE_SECONDS,
   tags,
 }: ShopifyFetchOptions): Promise<T> {
   const res = await fetch(endpoint, {
@@ -114,6 +127,30 @@ function normalizeImage(img: any, alt: string): Image {
   };
 }
 
+function normalizeMoney(m: any): Money | null {
+  if (!m || m.amount == null) return null;
+  const amount = Number(m.amount);
+  if (!Number.isFinite(amount)) return null;
+  return { amount: String(m.amount), currencyCode: m.currencyCode };
+}
+
+/**
+ * Compare-at ("was") prices. Shopify reports `0.0` rather than null when no
+ * compare-at price is set, which would otherwise render a struck-through zero,
+ * so anything at or below zero is treated as "not on sale".
+ */
+function normalizeCompareAt(m: any): Money | null {
+  const money = normalizeMoney(m);
+  return money && Number(money.amount) > 0 ? money : null;
+}
+
+function normalizeCompareAtRange(range: any) {
+  const min = normalizeCompareAt(range?.minVariantPrice);
+  const max = normalizeCompareAt(range?.maxVariantPrice);
+  if (!min) return undefined;
+  return { minVariantPrice: min, maxVariantPrice: max ?? min };
+}
+
 function reshapeProduct(node: any): Product {
   const tags: string[] = node.tags ?? [];
   const images = flatten<any>(node.images).map((i) => normalizeImage(i, node.title));
@@ -137,11 +174,11 @@ function reshapeProduct(node: any): Product {
       title: vnode.title,
       availableForSale: vnode.availableForSale,
       selectedOptions: vnode.selectedOptions ?? [],
-      price: vnode.price,
-      compareAtPrice: vnode.compareAtPrice,
+      price: normalizeMoney(vnode.price) ?? { amount: '0', currencyCode: 'INR' },
+      compareAtPrice: normalizeCompareAt(vnode.compareAtPrice),
     })),
     priceRange: node.priceRange,
-    compareAtPriceRange: node.compareAtPriceRange,
+    compareAtPriceRange: normalizeCompareAtRange(node.compareAtPriceRange),
     tags,
     universe: deriveUniverse(tags),
     productType: node.productType || undefined,
@@ -230,6 +267,58 @@ export async function getCollection(
     universe: products[0]?.universe ?? 'luxe',
     products,
   };
+}
+
+export interface VariantSnapshot {
+  id: string;
+  title: string;
+  availableForSale: boolean;
+  price: Money;
+  compareAtPrice: Money | null;
+  productHandle?: string;
+  productTitle?: string;
+}
+
+/**
+ * Live prices for a set of variant IDs, keyed by ID. Read uncached — this backs
+ * the cart, where a stale price is a wrong price. Variants that no longer exist
+ * are simply absent from the result.
+ */
+export async function getVariantPrices(
+  ids: string[],
+): Promise<Record<string, VariantSnapshot>> {
+  if (!isShopifyConfigured || !ids.length) {
+    if (!isShopifyConfigured) warnNotConfigured();
+    return {};
+  }
+
+  try {
+    const data = await shopifyFetch<{ nodes: (any | null)[] }>({
+      query: GET_VARIANT_PRICES_QUERY,
+      variables: { ids },
+      cache: 'no-store',
+    });
+
+    const out: Record<string, VariantSnapshot> = {};
+    for (const node of data.nodes ?? []) {
+      const price = normalizeMoney(node?.price);
+      if (!node?.id || !price) continue;
+      out[node.id] = {
+        id: node.id,
+        title: node.title,
+        availableForSale: node.availableForSale ?? true,
+        price,
+        compareAtPrice: normalizeCompareAt(node.compareAtPrice),
+        productHandle: node.product?.handle,
+        productTitle: node.product?.title,
+      };
+    }
+    return out;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[qavier] getVariantPrices failed:', err);
+    return {};
+  }
 }
 
 // ————————————————————————————————————————————————————————————————

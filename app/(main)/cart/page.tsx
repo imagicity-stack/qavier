@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/components/shared/cart-context';
 import { ShopImage } from '@/components/shared/shop-image';
@@ -15,7 +16,13 @@ export default function LuxeCartPage() {
     currencyCode,
     updateQuantity,
     removeItem,
+    refreshPrices,
   } = useCart();
+
+  // Re-read prices from Shopify so the bag never shows a stale snapshot.
+  useEffect(() => {
+    void refreshPrices();
+  }, [refreshPrices]);
 
   const currency = currencyCode || 'INR';
   const total = subtotal + SHIPPING_FLAT;
