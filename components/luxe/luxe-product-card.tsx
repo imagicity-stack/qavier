@@ -9,6 +9,10 @@ export function LuxeProductCard({ product, priority }: { product: Product; prior
     product.compareAtPriceRange?.minVariantPrice,
   );
 
+  // Category (the Shopify product "Type") is the more useful second line;
+  // fabric fills in for products that have no type set.
+  const subtitle = product.productType || product.material;
+
   return (
     <Link href={`/products/${product.handle}`} className="group block">
       <div className="relative aspect-[3/4] overflow-hidden bg-luxe-ivory">
@@ -36,21 +40,25 @@ export function LuxeProductCard({ product, priority }: { product: Product; prior
         </div>
       </div>
 
-      <div className="mt-4 flex items-start justify-between gap-4">
+      {/* Meta stacks on mobile so the full title and category fit in a
+          half-width card; the title/price row returns from `sm` up. */}
+      <div className="mt-3 flex flex-col gap-1 sm:mt-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="min-w-0">
-          <h3 className="truncate font-serif text-xl text-luxe-noir transition-colors group-hover:text-luxe-gold">
+          <h3 className="font-serif text-sm leading-snug text-luxe-noir transition-colors group-hover:text-luxe-gold sm:text-base lg:text-lg">
             {product.title}
           </h3>
-          {product.material && (
-            <p className="mt-0.5 truncate font-sans text-xs text-luxe-stone">{product.material}</p>
+          {subtitle && (
+            <p className="mt-0.5 font-sans text-[0.68rem] leading-snug text-luxe-stone sm:text-xs">
+              {subtitle}
+            </p>
           )}
         </div>
-        <div className="shrink-0 text-right">
-          <p className="font-sans text-sm text-luxe-charcoal">
+        <div className="shrink-0 sm:text-right">
+          <p className="font-sans text-xs text-luxe-charcoal sm:text-sm">
             {formatPrice(product.priceRange.minVariantPrice, { compact: true })}
           </p>
           {product.compareAtPriceRange?.minVariantPrice && discount && (
-            <p className="font-sans text-xs text-luxe-stone line-through">
+            <p className="font-sans text-[0.68rem] text-luxe-stone line-through sm:text-xs">
               {formatPrice(product.compareAtPriceRange.minVariantPrice, { compact: true })}
             </p>
           )}
