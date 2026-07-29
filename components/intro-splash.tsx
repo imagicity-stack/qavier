@@ -87,7 +87,7 @@ export function IntroSplash() {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.55, duration: 0.6 }}
           >
-            Crafted to Define. Designed to Excel.
+            Where Simplicity Becomes Luxury
           </motion.p>
 
           {/* Enter — skips straight through */}
