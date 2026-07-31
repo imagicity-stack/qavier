@@ -43,10 +43,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${serif.variable} ${sans.variable} ${display.variable}`}
       suppressHydrationWarning
     >
-      <body className="bg-luxe-noir text-luxe-cream antialiased">
-        {children}
+      <head>
+        {/* Google tag (gtag.js) — first thing in the head, per Google. */}
         <Analytics />
-      </body>
+      </head>
+      <body className="bg-luxe-noir text-luxe-cream antialiased">{children}</body>
     </html>
   );
 }

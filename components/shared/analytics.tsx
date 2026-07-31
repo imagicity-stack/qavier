@@ -1,20 +1,22 @@
-import Script from 'next/script';
 import { GA_MEASUREMENT_ID } from '@/lib/config';
 
 /**
- * Google Analytics 4 (gtag.js).
+ * Google Analytics 4 (gtag.js) — the Google tag, exactly as issued for this
+ * account, rendered into <head> from the root layout so it appears once at the
+ * top of every page across all four worlds.
  *
- * Loaded from the root layout, so it covers every world — the hub, the Qavier
- * flagship, Pops, Luxe and Essentials. `afterInteractive` keeps the tag off the
- * critical path; it still fires well before a shopper can act on the page.
+ * Plain <script> tags rather than next/script: `beforeInteractive` is the only
+ * next/script strategy that reaches the head, and it would block on the tag
+ * before hydration for no benefit. These are server-rendered straight into the
+ * initial HTML, so the tag fires as early as Google's own snippet does.
  *
  * Client-side route changes are covered by GA4's enhanced measurement, which
  * counts page views from browser history events (the App Router navigates with
  * pushState). No manual page_view call here — sending one as well would double
  * count every navigation.
  *
- * Set NEXT_PUBLIC_GA_MEASUREMENT_ID to point at a different property, or to
- * an empty value to switch analytics off entirely.
+ * Set NEXT_PUBLIC_GA_MEASUREMENT_ID to point at a different property, or to an
+ * empty value to switch analytics off.
  */
 export function Analytics() {
   // Keep local development out of the production property's reporting.
@@ -22,18 +24,18 @@ export function Analytics() {
 
   return (
     <>
-      <Script
+      <script
+        async
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        strategy="afterInteractive"
       />
-      <Script id="ga-init" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${GA_MEASUREMENT_ID}');
-        `}
-      </Script>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA_MEASUREMENT_ID}');`,
+        }}
+      />
     </>
   );
 }
