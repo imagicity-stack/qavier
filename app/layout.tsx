@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Analytics } from '@/components/shared/analytics';
 import { display, sans, serif } from './fonts';
 import './globals.css';
 
@@ -42,6 +43,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${serif.variable} ${sans.variable} ${display.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Google tag (gtag.js) — first thing in the head, per Google. */}
+        <Analytics />
+      </head>
       <body className="bg-luxe-noir text-luxe-cream antialiased">{children}</body>
     </html>
   );
