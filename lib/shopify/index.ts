@@ -13,6 +13,7 @@ import {
   GET_COLLECTION_QUERY,
   GET_PRODUCTS_QUERY,
   GET_PRODUCT_BY_HANDLE_QUERY,
+  GET_PRODUCT_SITEMAP_QUERY,
   GET_VARIANT_PRICES_QUERY,
   REMOVE_FROM_CART_MUTATION,
   UPDATE_CART_MUTATION,
@@ -267,6 +268,57 @@ export async function getCollection(
     universe: products[0]?.universe ?? 'luxe',
     products,
   };
+}
+
+export interface ProductRef {
+  handle: string;
+  universe: Universe;
+  /** Shopify's own last-modified timestamp, for <lastmod>. */
+  updatedAt?: string;
+}
+
+/**
+ * Every product in the store as a handle + universe + updated date, for the
+ * sitemap. Unlike `getProducts` this pages through the whole catalogue rather
+ * than stopping at the first 50, so large stores are listed in full.
+ */
+export async function getAllProductRefs(): Promise<ProductRef[]> {
+  if (!isShopifyConfigured) {
+    warnNotConfigured();
+    return [];
+  }
+
+  const refs: ProductRef[] = [];
+  let after: string | null = null;
+  // Bounded so a pagination bug can never spin: 250 × 40 = 10,000 products.
+  for (let page = 0; page < 40; page += 1) {
+    try {
+      const data: { products: Edges<any> & { pageInfo: any } } = await shopifyFetch({
+        query: GET_PRODUCT_SITEMAP_QUERY,
+        variables: { first: 250, after },
+        tags: ['products'],
+      });
+
+      for (const node of flatten<any>(data.products)) {
+        if (!node?.handle) continue;
+        refs.push({
+          handle: node.handle,
+          universe: deriveUniverse(node.tags ?? []),
+          updatedAt: node.updatedAt,
+        });
+      }
+
+      if (!data.products.pageInfo?.hasNextPage) break;
+      after = data.products.pageInfo.endCursor;
+    } catch (err) {
+      // Return what we have — a partial sitemap beats no sitemap.
+      // eslint-disable-next-line no-console
+      console.error('[qavier] getAllProductRefs failed:', err);
+      break;
+    }
+  }
+
+  return refs;
 }
 
 export interface VariantSnapshot {

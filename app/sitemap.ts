@@ -1,33 +1,77 @@
 import type { MetadataRoute } from 'next';
-import { getProducts } from '@/lib/shopify';
-import { COMING_SOON, LUXE_LIVE, POPS_LIVE, ESSENTIALS_LIVE } from '@/lib/config';
+import { getAllProductRefs } from '@/lib/shopify';
+import {
+  COMING_SOON,
+  LUXE_LIVE,
+  POPS_LIVE,
+  ESSENTIALS_LIVE,
+  SITE_URL,
+} from '@/lib/config';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+/**
+ * Served at /sitemap.xml, and pointed to by /robots.txt.
+ *
+ * Only live worlds and their products are listed — a world behind its
+ * coming-soon flag stays out of the index until it opens. Cart, checkout and
+ * order confirmation are deliberately absent (see robots.ts, which disallows
+ * them): they're per-shopper pages with nothing to crawl.
+ *
+ * Regenerated hourly so products added in Shopify get listed without a
+ * redeploy; the /api/revalidate webhook refreshes it immediately on a
+ * catalogue change, since it reads through the same `products` cache tag.
+ */
+export const revalidate = 3600;
+
+interface Entry {
+  path: string;
+  priority: number;
+  changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'];
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // The hub is always listed. Each world is only advertised once it's live.
-  const paths: string[] = [''];
-  if (!COMING_SOON) paths.push('/qavier', '/shop', '/collection', '/about', '/journal');
-  if (LUXE_LIVE) paths.push('/luxe');
-  if (POPS_LIVE) paths.push('/pops', '/pops/shop', '/pops/drops');
-  if (ESSENTIALS_LIVE) paths.push('/essentials');
+  const now = new Date();
 
-  const staticRoutes = paths.map((path) => ({
-    url: `${siteUrl}${path}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: path === '' ? 1 : 0.8,
+  // The hub is always listed. Each world is only advertised once it's live.
+  const entries: Entry[] = [{ path: '', priority: 1, changeFrequency: 'weekly' }];
+
+  if (!COMING_SOON) {
+    entries.push(
+      { path: '/qavier', priority: 0.9, changeFrequency: 'daily' },
+      { path: '/shop', priority: 0.9, changeFrequency: 'daily' },
+      { path: '/collection', priority: 0.8, changeFrequency: 'weekly' },
+      { path: '/about', priority: 0.5, changeFrequency: 'monthly' },
+      { path: '/journal', priority: 0.5, changeFrequency: 'monthly' },
+    );
+  }
+  if (LUXE_LIVE) entries.push({ path: '/luxe', priority: 0.8, changeFrequency: 'weekly' });
+  if (POPS_LIVE) {
+    entries.push(
+      { path: '/pops', priority: 0.8, changeFrequency: 'weekly' },
+      { path: '/pops/shop', priority: 0.8, changeFrequency: 'daily' },
+      { path: '/pops/drops', priority: 0.7, changeFrequency: 'daily' },
+    );
+  }
+  if (ESSENTIALS_LIVE) {
+    entries.push({ path: '/essentials', priority: 0.8, changeFrequency: 'weekly' });
+  }
+
+  const staticRoutes: MetadataRoute.Sitemap = entries.map((entry) => ({
+    url: `${SITE_URL}${entry.path}`,
+    lastModified: now,
+    changeFrequency: entry.changeFrequency,
+    priority: entry.priority,
   }));
 
-  const products = await getProducts();
-  const productRoutes = products
+  const productRoutes: MetadataRoute.Sitemap = (await getAllProductRefs())
     .filter((p) => (p.universe === 'pops' ? POPS_LIVE : !COMING_SOON))
     .map((p) => ({
       // Flagship (Qavier) products sit at the root; Pops products stay under /pops.
-      url: `${siteUrl}${p.universe === 'pops' ? '/pops' : ''}/products/${p.handle}`,
-      lastModified: new Date(),
+      url: `${SITE_URL}${p.universe === 'pops' ? '/pops' : ''}/products/${p.handle}`,
+      // Shopify's own updatedAt, so <lastmod> reflects a real edit rather than
+      // "whenever this sitemap was built".
+      lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
       changeFrequency: 'weekly' as const,
-      priority: 0.6,
+      priority: 0.7,
     }));
 
   return [...staticRoutes, ...productRoutes];

@@ -291,6 +291,12 @@ components never hard-code hex values. Fonts are wired through `next/font` in
   checkout (requires the `SHOPIFY_*` env vars).
 - With no Shopify credentials, product functions return empty results — the
   storefront renders, product grids are just empty.
+- `sitemap.xml` and `robots.txt` are generated from `app/sitemap.ts` and
+  `app/robots.ts`. The sitemap lists the hub, every live world and all their
+  products (paginated, so it isn't capped at the first 50), dated with
+  Shopify's own `updatedAt`, and refreshes hourly. Worlds still behind their
+  coming-soon flag are left out until they open. Set `NEXT_PUBLIC_SITE_URL` to
+  your real domain — every URL in the sitemap is built from it.
 - Google Analytics 4 (gtag.js) is rendered into `<head>` from the root layout,
   so every page carries the tag exactly once — never add a second one to an
   individual page. It runs in production builds only; point it at another
