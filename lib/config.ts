@@ -37,3 +37,11 @@ export const STORE_LIVE: boolean =
 
 /** When true, the flagship store shows the "coming soon" holding page. */
 export const COMING_SOON = !STORE_LIVE;
+
+/**
+ * Google Analytics 4 measurement ID. Defaults to the Qavier property; override
+ * with NEXT_PUBLIC_GA_MEASUREMENT_ID, or set it to an empty value to turn
+ * analytics off. The tag only loads in production builds.
+ */
+export const GA_MEASUREMENT_ID =
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? 'G-PSJ1WV8V5X';

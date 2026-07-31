@@ -291,3 +291,8 @@ components never hard-code hex values. Fonts are wired through `next/font` in
   checkout (requires the `SHOPIFY_*` env vars).
 - With no Shopify credentials, product functions return empty results — the
   storefront renders, product grids are just empty.
+- Google Analytics 4 (gtag.js) loads from the root layout, so it covers every
+  world. It runs in production builds only; point it at another property with
+  `NEXT_PUBLIC_GA_MEASUREMENT_ID`, or set that to empty to switch it off.
+  Client-side navigations are counted by GA4 enhanced measurement (browser
+  history events), so no manual `page_view` is sent.
