@@ -218,16 +218,25 @@ forthcoming" placeholders automatically — no uploads to this repo needed.
 
 ## The four worlds & launch switches
 
-Qavier (the flagship) is **always open**. Luxe, Pops and Essentials each default
-to a **coming-soon holding page** (each in its own visual style) and flip to
-their live store with **one setting** — no code change:
+Every world is a **coming-soon holding page** (each in its own visual style)
+until its switch is flipped — including the Qavier flagship, which defaults to
+open but can be held back the same way. No code change either way:
 
 - **On Vercel:** Project → Settings → Environment Variables → set the world's var
   to `live`, then redeploy:
-  - `NEXT_PUBLIC_LUXE_STORE=live`
   - `NEXT_PUBLIC_POPS_STORE=live`
+  - `NEXT_PUBLIC_LUXE_STORE=live`
   - `NEXT_PUBLIC_ESSENTIALS_STORE=live`
+  - `NEXT_PUBLIC_QAVIER_STORE=coming-soon` holds the flagship back (it's open
+    unless set to this).
 - **Locally:** add the same to `.env.local`.
+
+These are `NEXT_PUBLIC_*` vars, so they're baked in at build time — a change
+takes effect on the next deploy, not on a running server.
+
+The hub reflects whatever the switches say: a world that isn't live shows a
+Coming Soon chip instead of an Enter link. Hub order is fixed in
+`components/hub.tsx` — currently Pops, Qavier, Luxe, Essentials.
 
 Set a var back to `coming-soon` (or unset it) to put the holding page back up.
 While a world is coming-soon its routes are `noindex` and kept out of the
