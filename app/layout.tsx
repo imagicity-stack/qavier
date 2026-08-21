@@ -1,12 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 import { Analytics } from '@/components/shared/analytics';
+import { SITE_URL } from '@/lib/config';
 import { display, sans, serif } from './fonts';
 import './globals.css';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'QAVIER — Timeless Fashion, Modern Elegance',
     template: '%s · QAVIER',
@@ -17,7 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'QAVIER — Timeless Fashion, Modern Elegance',
     description: 'Considered, timeless pieces made to last. Plus Qavier Pops — loud, limited, iconic.',
-    url: siteUrl,
+    url: SITE_URL,
     siteName: 'Qavier',
     type: 'website',
   },

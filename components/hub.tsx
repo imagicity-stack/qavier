@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
-import { LUXE_LIVE, POPS_LIVE, ESSENTIALS_LIVE } from '@/lib/config';
+import { COMING_SOON, LUXE_LIVE, POPS_LIVE, ESSENTIALS_LIVE } from '@/lib/config';
 
 /**
  * The landing hub — Qavier's four worlds. Fills exactly one screen: a stacked
@@ -15,28 +15,49 @@ import { LUXE_LIVE, POPS_LIVE, ESSENTIALS_LIVE } from '@/lib/config';
 export function Hub() {
   return (
     <section className="grid h-[100dvh] grid-cols-1 grid-rows-4 overflow-hidden md:grid-cols-2 md:grid-rows-2">
-      {/* 01 — QAVIER (flagship, always open) — top left */}
+      {/* 01 — POPS — top left, the world currently leading the site */}
+      <Link
+        href="/pops"
+        className="group relative flex flex-col justify-between overflow-hidden bg-pops-violet p-5 text-white sm:p-8 md:p-10"
+      >
+        <BlockMedia slug="pops" topScrim="from-pops-violet/70" bottomScrim="from-pops-violet" />
+        <div className="grain pointer-events-none absolute inset-0 opacity-15 mix-blend-overlay" />
+        <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-pops-lime/40 blur-3xl transition-transform duration-700 group-hover:scale-125" />
+        <span className="relative font-display text-[0.65rem] font-bold uppercase tracking-widest text-pops-lime sm:text-[0.7rem]">
+          01 · Loud. Limited. Iconic.
+        </span>
+        <div className="relative">
+          <h2 className="font-display text-3xl font-bold uppercase leading-none drop-shadow-[3px_3px_0_#0E0E12] md:text-6xl">
+            Pops
+          </h2>
+          <p className="mt-3 hidden max-w-xs font-display text-sm font-bold uppercase text-pops-cream md:block">
+            gone before you finish scrolling.
+          </p>
+          <Status live={POPS_LIVE} theme="pops" />
+        </div>
+      </Link>
+
+      {/* 02 — QAVIER (the flagship) — top right */}
       <Link
         href="/qavier"
         className="group relative flex flex-col justify-between overflow-hidden bg-luxe-cream p-5 text-luxe-noir sm:p-8 md:p-10"
       >
         <BlockMedia slug="qavier" topScrim="from-luxe-cream/70" bottomScrim="from-luxe-cream" />
         <span className="relative font-sans text-[0.6rem] uppercase tracking-luxe text-luxe-stone sm:text-[0.65rem]">
-          01 · The Flagship
+          02 · The Flagship
         </span>
         <div className="relative">
           <Logo className="h-7 w-auto text-luxe-noir md:h-12" title="Qavier" />
           <p className="mt-3 hidden max-w-xs font-sans text-sm text-luxe-charcoal/80 md:block">
             The house. Timeless essentials, considered in every seam.
           </p>
-          <span className="mt-2.5 inline-flex items-center gap-2 font-sans text-[0.7rem] uppercase tracking-wider2 text-luxe-noir md:mt-5">
-            Enter
-            <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
-          </span>
+          {/* Follows the flagship's own switch, so the hub can't invite
+              shoppers into a store that's showing a holding page. */}
+          <Status live={!COMING_SOON} theme="flagship" />
         </div>
       </Link>
 
-      {/* 02 — LUXE — top right */}
+      {/* 03 — LUXE — bottom left */}
       <Link
         href="/luxe"
         className="group relative flex flex-col justify-between overflow-hidden bg-luxe-noir p-5 text-luxe-cream sm:p-8 md:p-10"
@@ -50,7 +71,7 @@ export function Hub() {
           }}
         />
         <span className="relative font-sans text-[0.6rem] uppercase tracking-luxe text-luxe-champagne sm:text-[0.65rem]">
-          02 · Luxury Redefined
+          03 · Luxury Redefined
         </span>
         <div className="relative">
           <h2 className="font-serif text-3xl font-light leading-none md:text-6xl">Luxe</h2>
@@ -58,28 +79,6 @@ export function Hub() {
             The premium line — investment pieces made to outlive the season.
           </p>
           <Status live={LUXE_LIVE} theme="luxe" />
-        </div>
-      </Link>
-
-      {/* 03 — POPS — bottom left */}
-      <Link
-        href="/pops"
-        className="group relative flex flex-col justify-between overflow-hidden bg-pops-violet p-5 text-white sm:p-8 md:p-10"
-      >
-        <BlockMedia slug="pops" topScrim="from-pops-violet/70" bottomScrim="from-pops-violet" />
-        <div className="grain pointer-events-none absolute inset-0 opacity-15 mix-blend-overlay" />
-        <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-pops-lime/40 blur-3xl transition-transform duration-700 group-hover:scale-125" />
-        <span className="relative font-display text-[0.65rem] font-bold uppercase tracking-widest text-pops-lime sm:text-[0.7rem]">
-          03 · Loud. Limited. Iconic.
-        </span>
-        <div className="relative">
-          <h2 className="font-display text-3xl font-bold uppercase leading-none drop-shadow-[3px_3px_0_#0E0E12] md:text-6xl">
-            Pops
-          </h2>
-          <p className="mt-3 hidden max-w-xs font-display text-sm font-bold uppercase text-pops-cream md:block">
-            gone before you finish scrolling.
-          </p>
-          <Status live={POPS_LIVE} theme="pops" />
         </div>
       </Link>
 
@@ -133,7 +132,13 @@ function BlockMedia({
   );
 }
 
-function Status({ live, theme }: { live: boolean; theme: 'luxe' | 'pops' | 'essentials' }) {
+function Status({
+  live,
+  theme,
+}: {
+  live: boolean;
+  theme: 'flagship' | 'luxe' | 'pops' | 'essentials';
+}) {
   if (live) {
     const color =
       theme === 'pops'

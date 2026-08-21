@@ -162,6 +162,27 @@ export const GET_VARIANT_PRICES_QUERY = /* GraphQL */ `
   }
 `;
 
+// Sitemap feed: just enough to build a URL and date it. Scalars only, so a
+// full page of 250 stays cheap, and cursor-paginated so stores larger than a
+// single page are still listed in full.
+export const GET_PRODUCT_SITEMAP_QUERY = /* GraphQL */ `
+  query getProductSitemap($first: Int!, $after: String) {
+    products(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          handle
+          tags
+          updatedAt
+        }
+      }
+    }
+  }
+`;
+
 export const GET_PRODUCTS_QUERY = /* GraphQL */ `
   query getProducts($first: Int!, $query: String, $sortKey: ProductSortKeys, $reverse: Boolean) {
     products(first: $first, query: $query, sortKey: $sortKey, reverse: $reverse) {
