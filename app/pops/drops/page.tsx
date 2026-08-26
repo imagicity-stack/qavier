@@ -1,31 +1,21 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { PlaceholderFrame } from '@/components/shared/shop-image';
+import { getProducts } from '@/lib/shopify';
+import { PlaceholderFrame, ShopImage } from '@/components/shared/shop-image';
+import { PopsProductCard } from '@/components/pops/pops-product-card';
 import { Reveal } from '@/components/shared/reveal';
 import { Marquee } from '@/components/shared/marquee';
 import { PopsCountdown } from '@/components/pops/pops-countdown';
 
+// Catalogue pages are regenerated at most this often, so Shopify price and
+// stock edits reach the storefront without a redeploy. The /api/revalidate
+// webhook flushes them immediately when Shopify pushes a change.
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: 'Drops',
   description:
-    'New drops every Friday 6pm. Limited runs, no restocks, gone before you finish scrolling. The Qavier Pops drop schedule, live.',
-};
-
-type Status = 'live' | 'soon' | 'sold out';
-
-const SCHEDULE: { n: string; name: string; status: Status; bg: string }[] = [
-  { n: '06', name: 'acid summer', status: 'soon', bg: 'bg-pops-lime' },
-  { n: '05', name: 'oil slick', status: 'live', bg: 'bg-pops-cyan' },
-  { n: '04', name: 'cyber bloom', status: 'sold out', bg: 'bg-pops-pink' },
-  { n: '03', name: 'static noise', status: 'sold out', bg: 'bg-pops-violet' },
-  { n: '02', name: 'bubblegum riot', status: 'sold out', bg: 'bg-pops-yellow' },
-  { n: '01', name: 'genesis', status: 'sold out', bg: 'bg-pops-orange' },
-];
-
-const STATUS_STYLE: Record<Status, string> = {
-  live: 'bg-pops-lime text-pops-black',
-  soon: 'bg-pops-paper text-pops-black',
-  'sold out': 'bg-pops-black text-pops-cream',
+    'New drops every Friday 6pm. Limited runs, no restocks, gone before you finish scrolling. The Qavier Pops drop, live.',
 };
 
 const FAQ = [
@@ -51,7 +41,16 @@ const FAQ = [
   },
 ];
 
-export default function PopsDrops() {
+export default async function PopsDrops() {
+  // The drop is whatever is tagged `pops` in Shopify, newest first.
+  const products = await getProducts({
+    section: 'pops',
+    sortKey: 'CREATED_AT',
+    reverse: true,
+  });
+  const hero = products[0];
+  const inStock = products.filter((p) => p.availableForSale).length;
+
   return (
     <div className="overflow-hidden">
       {/* ——————————————————————————— HEADER ——————————————————————————— */}
@@ -79,29 +78,62 @@ export default function PopsDrops() {
             <div className="pointer-events-none absolute -bottom-12 left-1/3 h-48 w-48 animate-floaty rounded-full bg-pops-cyan/50 blur-3xl [animation-delay:1.2s]" />
 
             <div className="relative z-10 grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
-              {/* Drop photo zone */}
+              {/* Drop photo zone — the newest piece in the drop. */}
               <div className="relative order-2 lg:order-1">
-                <PlaceholderFrame
-                  universe="pops"
-                  label="This Week's Drop"
-                  className="aspect-[4/5] w-full -rotate-2 rounded-pops border-2 border-pops-black shadow-pops"
-                />
-                <span className="absolute -right-3 top-6 rotate-6 rounded-full border-2 border-pops-black bg-pops-lime px-4 py-2 font-display text-sm font-bold uppercase text-pops-black shadow-pops">
-                  live now ⚡
-                </span>
+                {hero ? (
+                  <Link
+                    href={`/pops/products/${hero.handle}`}
+                    className="group block aspect-[4/5] w-full -rotate-2 overflow-hidden rounded-pops border-2 border-pops-black shadow-pops"
+                  >
+                    <ShopImage
+                      image={hero.featuredImage}
+                      universe="pops"
+                      priority
+                      sizes="(max-width: 1024px) 90vw, 45vw"
+                      label={hero.title}
+                      className="h-full w-full transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </Link>
+                ) : (
+                  <PlaceholderFrame
+                    universe="pops"
+                    label="This Week's Drop"
+                    className="aspect-[4/5] w-full -rotate-2 rounded-pops border-2 border-pops-black shadow-pops"
+                  />
+                )}
+                {products.length > 0 && (
+                  <span className="absolute -right-3 top-6 rotate-6 rounded-full border-2 border-pops-black bg-pops-lime px-4 py-2 font-display text-sm font-bold uppercase text-pops-black shadow-pops">
+                    live now ⚡
+                  </span>
+                )}
               </div>
 
               {/* Drop info + countdown */}
               <div className="order-1 lg:order-2">
-                <span className="pops-chip bg-pops-yellow text-pops-black">★ drop 05 · oil slick</span>
+                <span className="pops-chip bg-pops-yellow text-pops-black">
+                  {products.length > 0
+                    ? `★ ${products.length} ${products.length === 1 ? 'piece' : 'pieces'} · ${inStock} in stock`
+                    : '★ the next drop is loading'}
+                </span>
                 <h2 className="mt-4 font-display text-5xl font-bold uppercase leading-[0.9] text-pops-lime sm:text-6xl">
-                  this week&apos;s
-                  <br />
-                  drop is live.
+                  {products.length > 0 ? (
+                    <>
+                      this week&apos;s
+                      <br />
+                      drop is live.
+                    </>
+                  ) : (
+                    <>
+                      the next
+                      <br />
+                      drop lands soon.
+                    </>
+                  )}
                 </h2>
                 <p className="mt-4 max-w-md font-sans text-white/85">
-                  iridescent everything. oil-slick shells, reflective trims, and the most chaotic
-                  colourways we&apos;ve made yet. next drop lands:
+                  {products.length > 0
+                    ? 'limited runs, no restocks. once a size sells out it is gone for good. next drop lands:'
+                    : 'nothing live right this second. the next one lands:'}
                 </p>
 
                 <div className="mt-6">
@@ -144,62 +176,37 @@ export default function PopsDrops() {
         </Marquee>
       </div>
 
-      {/* ——————————————————————————— DROP SCHEDULE ——————————————————————————— */}
+      {/* ——————————————————————————— IN THE DROP ——————————————————————————— */}
+      {/* The live drop, straight from Shopify — every product tagged `pops`,
+          newest first. Nothing here is authored in code. */}
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
         <Reveal className="mb-8 sm:mb-12">
           <span className="pops-chip bg-pops-violet text-white">✦ the lineup</span>
           <h2 className="mt-3 font-display text-5xl font-bold uppercase leading-none text-pops-black sm:text-6xl">
-            drop schedule
+            in this drop
           </h2>
           <p className="mt-3 max-w-lg font-sans text-pops-black/70">
-            past, present & coming up. catch &apos;em while they&apos;re live or admire the
-            sold-out hall of fame.
+            everything live right now, newest first. catch &apos;em while they last — sold out
+            means sold out.
           </p>
         </Reveal>
 
-        <Reveal className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-          {SCHEDULE.map((drop) => (
-            <div
-              key={drop.n}
-              className={`group relative flex flex-col overflow-hidden rounded-pops border-2 border-pops-black ${drop.bg} shadow-pops transition-transform duration-200 hover:-translate-y-1.5 hover:shadow-pops-lg`}
-            >
-              <div className="relative aspect-[4/3] overflow-hidden border-b-2 border-pops-black">
-                <PlaceholderFrame
-                  universe="pops"
-                  label={`Drop ${drop.n} — ${drop.name}`}
-                  className="absolute inset-0 transition-transform duration-300 group-hover:scale-105"
-                />
-                <span
-                  className={`absolute right-3 top-3 rotate-2 rounded-full border-2 border-pops-black px-3 py-1 font-display text-[0.7rem] font-bold uppercase shadow-pops ${STATUS_STYLE[drop.status]}`}
-                >
-                  {drop.status}
-                </span>
-              </div>
-              <div className="flex items-end justify-between gap-2 p-4">
-                <div>
-                  <span className="font-display text-[0.7rem] font-bold uppercase text-pops-black/60">
-                    drop {drop.n}
-                  </span>
-                  <h3 className="font-display text-2xl font-bold uppercase leading-none text-pops-black">
-                    {drop.name}
-                  </h3>
-                </div>
-                {drop.status === 'live' ? (
-                  <Link
-                    href="/pops/shop"
-                    className="shrink-0 rounded-full border-2 border-pops-black bg-pops-black px-4 py-2 font-display text-xs font-bold uppercase text-pops-lime"
-                  >
-                    shop ⟶
-                  </Link>
-                ) : (
-                  <span className="shrink-0 font-display text-2xl font-bold text-pops-black/50" aria-hidden>
-                    {drop.status === 'soon' ? '👀' : '🫠'}
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-        </Reveal>
+        {products.length > 0 ? (
+          <Reveal className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+            {products.slice(0, 12).map((p, i) => (
+              <PopsProductCard key={p.id} product={p} index={i} priority={i < 4} />
+            ))}
+          </Reveal>
+        ) : (
+          <Reveal className="rounded-pops border-2 border-dashed border-pops-black/40 bg-pops-cream p-12 text-center">
+            <p className="font-display text-3xl font-bold uppercase text-pops-black">
+              nothing live rn 🫠
+            </p>
+            <p className="mt-2 font-sans text-pops-black/60">
+              the next drop is still in the studio. check back friday 6pm.
+            </p>
+          </Reveal>
+        )}
       </section>
 
       {/* ——————————————————————————— FAQ ——————————————————————————— */}

@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getProducts } from '@/lib/shopify';
-import type { Product } from '@/lib/shopify/types';
+import {
+  POPS_CATEGORIES,
+  filterPopsCategory,
+  findPopsCategory,
+} from '@/lib/pops-categories';
 import { cn } from '@/lib/utils';
 import { PopsProductCard } from '@/components/pops/pops-product-card';
 import { Reveal } from '@/components/shared/reveal';
@@ -18,42 +22,6 @@ export const metadata: Metadata = {
     'The whole drop in one place. Filter by new arrivals, trending, best sellers and more. Loud, limited, yours.',
 };
 
-/**
- * Category definitions shared with the side menu (components/pops/pops-nav.tsx).
- * `women`/`men` map to the full line — the demo catalogue is unisex until real
- * gendered collections are wired up in Shopify.
- */
-interface Cat {
-  slug: string;
-  label: string;
-  blurb: string;
-  match: (p: Product) => boolean;
-}
-
-const CATS: Cat[] = [
-  { slug: 'all', label: 'shop all', blurb: "everything we've got, all in one chaotic place 🫠", match: () => true },
-  { slug: 'women', label: 'women', blurb: 'the full line — styled for her', match: () => true },
-  { slug: 'men', label: 'men', blurb: 'the full line — styled for him', match: () => true },
-  { slug: 'new', label: 'new arrivals', blurb: 'fresh off the drop, still warm', match: (p) => p.tags.includes('new') },
-  {
-    slug: 'trending',
-    label: 'trending',
-    blurb: 'what everyone is copping rn',
-    match: (p) => p.tags.some((t) => t === 'drop' || t === 'bestseller'),
-  },
-  {
-    slug: 'bestsellers',
-    label: 'best sellers',
-    blurb: 'the hall of fame',
-    match: (p) => p.tags.includes('bestseller') || ['BESTSELLER', 'CULT FAVE'].includes(p.badge ?? ''),
-  },
-  { slug: 'sale', label: 'sale', blurb: 'get it before someone else does', match: (p) => p.tags.includes('sale') },
-  { slug: 'tops', label: 'tops', blurb: 'tees, hoodies & everything up top', match: (p) => p.tags.includes('tops') },
-  { slug: 'bottoms', label: 'bottoms', blurb: 'cargos, skirts & the rest', match: (p) => p.tags.includes('bottoms') },
-  { slug: 'outerwear', label: 'outerwear', blurb: 'puffers, bombers, layers', match: (p) => p.tags.includes('outerwear') },
-  { slug: 'footwear', label: 'footwear', blurb: 'stompers only', match: (p) => p.tags.includes('footwear') },
-];
-
 // The chips shown on the page (curated subset; the full set lives in the menu).
 const CHIP_SLUGS = ['all', 'new', 'trending', 'bestsellers', 'tops', 'bottoms', 'outerwear', 'footwear', 'sale'];
 
@@ -63,10 +31,11 @@ export default async function PopsShop({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const raw = typeof searchParams.c === 'string' ? searchParams.c : 'all';
-  const active = CATS.find((c) => c.slug === raw) ?? CATS[0];
+  const active = findPopsCategory(raw);
 
-  const all = await getProducts({ section: 'pops' });
-  const products = all.filter(active.match);
+  // Everything tagged `pops` in Shopify, newest first, then faceted in memory.
+  const all = await getProducts({ section: 'pops', sortKey: 'CREATED_AT', reverse: true });
+  const products = filterPopsCategory(all, active);
 
   return (
     <div className="overflow-hidden">
@@ -92,7 +61,7 @@ export default async function PopsShop({
         {/* Functional category chips */}
         <Reveal delay={0.1} className="scrollbar-none mt-8 flex gap-2.5 overflow-x-auto pb-1">
           {CHIP_SLUGS.map((slug) => {
-            const cat = CATS.find((c) => c.slug === slug)!;
+            const cat = POPS_CATEGORIES.find((c) => c.slug === slug)!;
             const isActive = cat.slug === active.slug;
             return (
               <Link
