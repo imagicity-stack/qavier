@@ -182,6 +182,25 @@ types present — nothing is hard-coded.
 Any tag is also searchable from the header **search bar**. Add whatever
 merchandising tags you like.
 
+**Pops facets.** Everything in the Pops world — the home-page grid and category
+tiles, the shop chips, the drops page — is built from products tagged `pops`.
+Nothing is authored in code, so a category with no products simply doesn't
+appear. Tag a Pops product further to place it:
+
+| Facet | Add this tag (or set product Type) | Surfaces at |
+|---|---|---|
+| Tops / Bottoms / Outerwear / Footwear | `tops`, `bottoms`, `outerwear`, `footwear` | home tiles + `/pops/shop?c=…` |
+| New arrivals | `new` | `/pops/shop?c=new` |
+| Trending | `drop` or `bestseller` | `/pops/shop?c=trending` |
+| Best sellers | `bestseller` | `/pops/shop?c=bestsellers` |
+| Sale | `sale` | `/pops/shop?c=sale` |
+| Women / Men | `women`, `men` | `/pops/shop?c=women` · `?c=men` |
+
+The garment categories match either the tag or a Shopify product **Type** of the
+same name. `women`/`men` show the full line until those tags exist, so the menu
+links are never dead. The facets live in `lib/pops-categories.ts` — edit there to
+add one.
+
 ### Size & colour filters → product **Options**
 
 Add product **Options** named exactly **`Size`** and **`Color`** (with their
