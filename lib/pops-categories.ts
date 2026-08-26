@@ -24,12 +24,52 @@ export interface PopsCategory {
   fallbackToAll?: boolean;
 }
 
-const hasTag = (p: Product, tag: string) =>
-  p.tags.some((t) => t.toLowerCase() === tag);
+/**
+ * Tag vocabulary. Stores don't all use the same words — "bottomwear", "upper"
+ * and "bottoms" all mean the same rail — so each category accepts a list of
+ * synonyms. Match on the Shopify tag OR the product Type, either of which may
+ * use any spelling below. To support another word, add it to the list; nothing
+ * else needs to change.
+ */
+const ALIASES: Record<string, string[]> = {
+  tops: [
+    'tops', 'top', 'upper', 'uppers', 'upperwear', 'upper-wear', 'topwear',
+    'top-wear', 'tees', 'tee', 't-shirts', 'tshirts', 't-shirt', 'tshirt',
+    'shirts', 'shirt', 'hoodies', 'hoodie', 'sweatshirts', 'crop-tops',
+  ],
+  bottoms: [
+    'bottoms', 'bottom', 'bottomwear', 'bottom-wear', 'lowers', 'lower',
+    'cargos', 'cargo', 'pants', 'trousers', 'joggers', 'jeans', 'denim',
+    'skirts', 'skirt', 'shorts',
+  ],
+  outerwear: [
+    'outerwear', 'outer', 'outer-wear', 'jackets', 'jacket', 'puffers',
+    'puffer', 'bombers', 'bomber', 'coats', 'coat', 'layers',
+  ],
+  footwear: [
+    'footwear', 'foot-wear', 'shoes', 'shoe', 'sneakers', 'sneaker', 'boots',
+    'boot', 'stompers', 'slides',
+  ],
+  women: ['women', 'woman', 'womens', "women's", 'female', 'her'],
+  men: ['men', 'man', 'mens', "men's", 'male', 'him'],
+  new: ['new', 'new-arrival', 'new-arrivals', 'newin', 'new-in'],
+  bestseller: ['bestseller', 'bestsellers', 'best-seller', 'best-sellers'],
+  sale: ['sale', 'on-sale', 'clearance', 'discount'],
+};
 
-/** A garment category matches its tag, or a Shopify product Type of the same name. */
-const isType = (p: Product, slug: string) =>
-  hasTag(p, slug) || (p.productType ?? '').toLowerCase() === slug;
+/** Normalise a tag or type for comparison: lowercase, spaces/underscores → dashes. */
+const norm = (value: string) =>
+  value.toLowerCase().trim().replace(/[\s_]+/g, '-');
+
+/**
+ * True when the product carries any of the category's words, as a tag or as its
+ * Shopify product Type.
+ */
+function matches(p: Product, key: string): boolean {
+  const words = ALIASES[key] ?? [key];
+  const fields = [...p.tags, p.productType ?? ''].map(norm).filter(Boolean);
+  return words.some((w) => fields.includes(norm(w)));
+}
 
 export const POPS_CATEGORIES: PopsCategory[] = [
   {
@@ -44,7 +84,7 @@ export const POPS_CATEGORIES: PopsCategory[] = [
     label: 'women',
     blurb: 'the full line — styled for her',
     bg: 'bg-pops-pink',
-    match: (p) => hasTag(p, 'women'),
+    match: (p) => matches(p, 'women'),
     fallbackToAll: true,
   },
   {
@@ -52,7 +92,7 @@ export const POPS_CATEGORIES: PopsCategory[] = [
     label: 'men',
     blurb: 'the full line — styled for him',
     bg: 'bg-pops-blue',
-    match: (p) => hasTag(p, 'men'),
+    match: (p) => matches(p, 'men'),
     fallbackToAll: true,
   },
   {
@@ -60,14 +100,14 @@ export const POPS_CATEGORIES: PopsCategory[] = [
     label: 'new arrivals',
     blurb: 'fresh off the drop, still warm',
     bg: 'bg-pops-cyan',
-    match: (p) => hasTag(p, 'new'),
+    match: (p) => matches(p, 'new'),
   },
   {
     slug: 'trending',
     label: 'trending',
     blurb: 'what everyone is copping rn',
     bg: 'bg-pops-violet',
-    match: (p) => hasTag(p, 'drop') || hasTag(p, 'bestseller'),
+    match: (p) => matches(p, 'drop') || matches(p, 'bestseller'),
   },
   {
     slug: 'bestsellers',
@@ -75,42 +115,42 @@ export const POPS_CATEGORIES: PopsCategory[] = [
     blurb: 'the hall of fame',
     bg: 'bg-pops-orange',
     match: (p) =>
-      hasTag(p, 'bestseller') || ['BESTSELLER', 'CULT FAVE'].includes(p.badge ?? ''),
+      matches(p, 'bestseller') || ['BESTSELLER', 'CULT FAVE'].includes(p.badge ?? ''),
   },
   {
     slug: 'sale',
     label: 'sale',
     blurb: 'get it before someone else does',
     bg: 'bg-pops-magenta',
-    match: (p) => hasTag(p, 'sale'),
+    match: (p) => matches(p, 'sale'),
   },
   {
     slug: 'tops',
     label: 'tops',
     blurb: 'tees, hoodies & everything up top',
     bg: 'bg-pops-lime',
-    match: (p) => isType(p, 'tops'),
+    match: (p) => matches(p, 'tops'),
   },
   {
     slug: 'bottoms',
     label: 'bottoms',
     blurb: 'cargos, skirts & the rest',
     bg: 'bg-pops-cyan',
-    match: (p) => isType(p, 'bottoms'),
+    match: (p) => matches(p, 'bottoms'),
   },
   {
     slug: 'outerwear',
     label: 'outerwear',
     blurb: 'puffers, bombers, layers',
     bg: 'bg-pops-pink',
-    match: (p) => isType(p, 'outerwear'),
+    match: (p) => matches(p, 'outerwear'),
   },
   {
     slug: 'footwear',
     label: 'footwear',
     blurb: 'stompers only',
     bg: 'bg-pops-yellow',
-    match: (p) => isType(p, 'footwear'),
+    match: (p) => matches(p, 'footwear'),
   },
 ];
 

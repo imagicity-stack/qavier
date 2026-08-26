@@ -189,17 +189,25 @@ appear. Tag a Pops product further to place it:
 
 | Facet | Add this tag (or set product Type) | Surfaces at |
 |---|---|---|
-| Tops / Bottoms / Outerwear / Footwear | `tops`, `bottoms`, `outerwear`, `footwear` | home tiles + `/pops/shop?c=…` |
-| New arrivals | `new` | `/pops/shop?c=new` |
+| Tops | `tops`, `upper`, `upperwear`, `topwear`, `tees`, `t-shirts`, `shirts`, `hoodies` | home tiles + `/pops/shop?c=tops` |
+| Bottoms | `bottoms`, `bottomwear`, `lowers`, `cargos`, `pants`, `trousers`, `jeans`, `skirts`, `shorts` | `/pops/shop?c=bottoms` |
+| Outerwear | `outerwear`, `jackets`, `puffers`, `bombers`, `coats` | `/pops/shop?c=outerwear` |
+| Footwear | `footwear`, `shoes`, `sneakers`, `boots` | `/pops/shop?c=footwear` |
+| New arrivals | `new`, `new-arrivals` | `/pops/shop?c=new` |
 | Trending | `drop` or `bestseller` | `/pops/shop?c=trending` |
-| Best sellers | `bestseller` | `/pops/shop?c=bestsellers` |
-| Sale | `sale` | `/pops/shop?c=sale` |
-| Women / Men | `women`, `men` | `/pops/shop?c=women` · `?c=men` |
+| Best sellers | `bestseller`, `best-sellers` | `/pops/shop?c=bestsellers` |
+| Sale | `sale`, `on-sale`, `clearance` | `/pops/shop?c=sale` |
+| Women / Men | `women`, `men` (or `womens`/`mens`) | `/pops/shop?c=women` · `?c=men` |
 
-The garment categories match either the tag or a Shopify product **Type** of the
-same name. `women`/`men` show the full line until those tags exist, so the menu
-links are never dead. The facets live in `lib/pops-categories.ts` — edit there to
-add one.
+Each row lists **synonyms** — any one of them works, so you don't have to retag
+a store that already says `bottomwear` or `upper`. Matching ignores case, spaces
+and underscores (`Upper Wear`, `upper_wear` and `upperwear` are the same thing),
+and reads the Shopify product **Type** as well as tags — so setting Type to
+`Bottomwear` is enough on its own.
+
+`women`/`men` show the full line until those tags exist, so the menu links are
+never dead. The vocabulary lives in the `ALIASES` map in
+`lib/pops-categories.ts` — add a word there to support it.
 
 ### Size & colour filters → product **Options**
 
