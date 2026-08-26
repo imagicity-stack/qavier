@@ -198,8 +198,12 @@ export async function getProducts(options?: {
   /** Free-text search (title, tag, type…). Combined with `section`. */
   query?: string;
   first?: number;
+  /** Shopify sort key — e.g. 'CREATED_AT' for newest-first drops. */
+  sortKey?: 'CREATED_AT' | 'BEST_SELLING' | 'PRICE' | 'TITLE' | 'UPDATED_AT';
+  /** Reverse the sort (with CREATED_AT this gives newest first). */
+  reverse?: boolean;
 }): Promise<Product[]> {
-  const { section, query, first = 50 } = options ?? {};
+  const { section, query, first = 50, sortKey, reverse } = options ?? {};
 
   if (!isShopifyConfigured) {
     warnNotConfigured();
@@ -211,7 +215,12 @@ export async function getProducts(options?: {
   try {
     const data = await shopifyFetch<{ products: Edges<any> }>({
       query: GET_PRODUCTS_QUERY,
-      variables: { first, query: searchParts.join(' ') || undefined },
+      variables: {
+        first,
+        query: searchParts.join(' ') || undefined,
+        sortKey,
+        reverse,
+      },
       tags: ['products'],
     });
     return flatten<any>(data.products).map(reshapeProduct);
