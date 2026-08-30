@@ -22,7 +22,17 @@ export function PopsGallery({ images, title }: { images: Image[]; title: string 
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="relative">
+      {/*
+        Height is capped against the viewport so a tall photo can't swallow the
+        whole screen — the title, price and Add to Bag stay in view on a phone.
+        The cap is applied as a max-WIDTH derived from the ratio, so the frame
+        keeps the photo's exact shape and centres, instead of letterboxing.
+        At `lg` the value is large enough never to bind: the column governs.
+      */}
+      <div
+        className="relative mx-auto w-full [--gal-h:50svh] sm:[--gal-h:66svh] lg:[--gal-h:1200px]"
+        style={{ maxWidth: `calc(var(--gal-h) * ${ratio})` }}
+      >
         <ShopImage
           image={main}
           universe="pops"
@@ -48,7 +58,7 @@ export function PopsGallery({ images, title }: { images: Image[]; title: string 
               aria-label={`View image ${i + 1} of ${gallery.length}`}
               aria-pressed={i === active}
               className={cn(
-                'relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 border-pops-black transition-transform sm:h-24 sm:w-24',
+                'relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 border-pops-black transition-transform sm:h-24 sm:w-24',
                 i === active
                   ? 'shadow-pops ring-2 ring-pops-magenta ring-offset-2 ring-offset-pops-paper'
                   : 'opacity-70 hover:-translate-y-0.5 hover:opacity-100',
