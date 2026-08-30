@@ -43,6 +43,49 @@ export function delay(ms: number) {
 }
 
 /**
+ * Size values in wearing order, whatever order Shopify hands them over in.
+ *
+ * Shopify lists option values in whatever order they were typed, so a product
+ * can show "2XL, XL, L, XS, M, S" — nobody scans that. Letter sizes are put on
+ * the standard ladder and pure numbers sort numerically.
+ *
+ * Only reorders when EVERY value is recognised: a store using its own scheme
+ * ("one size", "kids 4-5") keeps the order it chose, rather than being shuffled
+ * into something arbitrary.
+ */
+const SIZE_LADDER: Record<string, number> = {
+  xxxs: 0, xxs: 1, xs: 2, s: 3, small: 3, m: 4, medium: 4, l: 5, large: 5,
+  xl: 6, xxl: 7, '2xl': 7, xxxl: 8, '3xl': 8, xxxxl: 9, '4xl': 9, '5xl': 10,
+};
+
+export function sortSizes(values: string[]): string[] {
+  const key = (v: string) => v.toLowerCase().replace(/[\s._-]/g, '');
+
+  const ranks = values.map((v) => SIZE_LADDER[key(v)]);
+  if (ranks.every((r) => r !== undefined)) {
+    return values
+      .map((v, i) => ({ v, r: ranks[i] as number }))
+      .sort((a, b) => a.r - b.r)
+      .map((x) => x.v);
+  }
+
+  const numbers = values.map((v) => Number(key(v)));
+  if (numbers.every((n) => Number.isFinite(n))) {
+    return values
+      .map((v, i) => ({ v, n: numbers[i] }))
+      .sort((a, b) => a.n - b.n)
+      .map((x) => x.v);
+  }
+
+  return values;
+}
+
+/** True for an option that names a garment size, in any casing. */
+export function isSizeOption(name: string): boolean {
+  return name.trim().toLowerCase() === 'size';
+}
+
+/**
  * The frame shape for a product gallery, taken from the store's own photography.
  *
  * Forcing every photo into one fixed ratio and cropping to fill is what makes a

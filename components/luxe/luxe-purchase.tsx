@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { useCart } from '@/components/shared/cart-context';
 import { SizeChartDialog } from '@/components/qavier/size-chart';
 import type { Product } from '@/lib/shopify/types';
-import { cn, formatPrice } from '@/lib/utils';
+import { cn, formatPrice, isSizeOption, sortSizes } from '@/lib/utils';
 
 /** Best-effort name → swatch colour for the demo catalogue. */
 const COLOR_HEX: Record<string, string> = {
@@ -32,8 +32,17 @@ export function LuxePurchase({ product }: { product: Product }) {
   const [added, setAdded] = useState(false);
   const [wished, setWished] = useState(false);
 
+  // Sizes in wearing order, not the order they happen to sit in Shopify.
+  const options = useMemo(
+    () =>
+      product.options.map((o) =>
+        isSizeOption(o.name) ? { ...o, values: sortSizes(o.values) } : o,
+      ),
+    [product.options],
+  );
+
   const [selected, setSelected] = useState<Record<string, string>>(() =>
-    Object.fromEntries(product.options.map((o) => [o.name, o.values[0]])),
+    Object.fromEntries(options.map((o) => [o.name, o.values[0]])),
   );
 
   const activeVariant = useMemo(
@@ -75,7 +84,7 @@ export function LuxePurchase({ product }: { product: Product }) {
         )}
       </div>
 
-      {product.options.map((option) => {
+      {options.map((option) => {
         const isColor = option.name.toLowerCase() === 'color';
         return (
           <div key={option.id}>

@@ -65,12 +65,14 @@ export default async function Page({ params }: { params: { handle: string } }) {
       <section className="mx-auto max-w-7xl px-6 pb-20 pt-28 sm:px-10 sm:pt-32 lg:pb-28">
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
           {/* —————————————————————————— Gallery —————————————————————————— */}
-          <div>
+          {/* min-w-0: a grid item defaults to min-width:auto, so wide content
+              would stretch this column past the viewport and clip its siblings. */}
+          <div className="min-w-0">
             <LuxeGallery images={product.images} title={product.title} />
           </div>
 
           {/* —————————————————————————— Info column —————————————————————————— */}
-          <div className="lg:sticky lg:top-28 lg:self-start">
+          <div className="min-w-0 lg:sticky lg:top-28 lg:self-start">
             {/* Breadcrumb */}
             <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2">
               <Link

@@ -20,7 +20,7 @@ export function LuxeGallery({ images, title }: { images: Image[]; title: string 
   const ratio = galleryAspectRatio(gallery[0], 3 / 4);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-4">
       {/*
         Capped against the viewport so a tall photo doesn't fill a whole phone
         screen on its own. Applied as a max-WIDTH derived from the ratio, so the

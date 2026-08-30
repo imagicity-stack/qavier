@@ -84,13 +84,18 @@ export default async function Page({ params }: { params: { handle: string } }) {
 
         {/* Main: gallery + info */}
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-          {/* LEFT — gallery */}
-          <Reveal>
+          {/* LEFT — gallery.
+              `min-w-0` matters: a grid item defaults to min-width:auto, so the
+              horizontally scrolling thumbnail strip would widen this column to
+              its full content width (6 thumbs = 444px on a 390px phone) and
+              every sibling — Add to Bag, the size pills, the description —
+              would be laid out that wide and clipped by the page. */}
+          <Reveal className="min-w-0">
             <PopsGallery images={product.images} title={product.title} />
           </Reveal>
 
           {/* RIGHT — info */}
-          <Reveal delay={0.1} className="flex flex-col gap-6">
+          <Reveal delay={0.1} className="flex min-w-0 flex-col gap-6">
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 {product.badge && (

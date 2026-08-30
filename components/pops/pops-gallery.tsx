@@ -21,7 +21,7 @@ export function PopsGallery({ images, title }: { images: Image[]; title: string 
   const ratio = galleryAspectRatio(gallery[0], 4 / 5);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-4">
       {/*
         Height is capped against the viewport so a tall photo can't swallow the
         whole screen — the title, price and Add to Bag stay in view on a phone.
@@ -49,7 +49,7 @@ export function PopsGallery({ images, title }: { images: Image[]; title: string 
       </div>
 
       {gallery.length > 1 && (
-        <div className="scrollbar-none flex gap-3 overflow-x-auto pb-1">
+        <div className="scrollbar-none flex w-full min-w-0 gap-3 overflow-x-auto pb-1">
           {gallery.map((img, i) => (
             <button
               key={i}
