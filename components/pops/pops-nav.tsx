@@ -151,7 +151,7 @@ export function PopsNav() {
                         href={item.href}
                         onClick={() => setMenuOpen(false)}
                         className={cn(
-                          'group flex items-center justify-between border-b border-pops-black/10 py-3 font-display text-3xl font-bold uppercase leading-none text-pops-black transition-colors sm:text-4xl',
+                          'group flex items-center justify-between border-b border-pops-black/10 py-2.5 font-display text-2xl font-bold uppercase leading-none text-pops-black transition-colors sm:py-3 sm:text-3xl lg:text-4xl',
                           item.accent,
                         )}
                       >

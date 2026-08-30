@@ -67,13 +67,14 @@ body {
   /* ——— POPS primitives ——— */
   .pops-btn {
     @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black
-           bg-pops-lime px-7 py-3.5 font-display text-base font-bold uppercase text-pops-black
+           bg-pops-lime px-5 py-3 font-display text-sm font-bold uppercase text-pops-black
            shadow-pops transition-transform duration-150 hover:-translate-y-0.5 hover:translate-x-0.5
-           hover:shadow-pops-lg active:translate-x-1 active:translate-y-1 active:shadow-none;
+           hover:shadow-pops-lg active:translate-x-1 active:translate-y-1 active:shadow-none
+           sm:px-7 sm:py-3.5 sm:text-base;
   }
   .pops-chip {
-    @apply inline-flex items-center gap-1 rounded-full border-2 border-pops-black px-3 py-1
-           font-display text-xs font-bold uppercase;
+    @apply inline-flex items-center gap-1 rounded-full border-2 border-pops-black px-2.5 py-0.5
+           font-display text-[0.65rem] font-bold uppercase sm:px-3 sm:py-1 sm:text-xs;
   }
   .pops-card {
     @apply rounded-pops border-2 border-pops-black bg-pops-paper shadow-pops;

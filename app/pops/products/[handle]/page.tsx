@@ -54,7 +54,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
 
   return (
     <div className="overflow-hidden">
-      <section className="mx-auto max-w-7xl px-5 pt-28 sm:px-8">
+      <section className="mx-auto max-w-7xl px-4 pt-24 sm:px-8 sm:pt-28">
         {/* Breadcrumb chips */}
         <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2">
           <Link
@@ -98,7 +98,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
                 )}
                 <span className="pops-chip bg-pops-cyan text-pops-black">in the drop ⚡</span>
               </div>
-              <h1 className="mt-4 font-display text-5xl font-bold uppercase leading-[0.92] text-pops-black text-balance sm:text-6xl lg:text-7xl">
+              <h1 className="mt-4 font-display text-3xl font-bold uppercase leading-[0.95] text-pops-black text-balance sm:text-5xl lg:text-7xl">
                 {product.title}
               </h1>
               {product.tagline && (
@@ -152,7 +152,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
             (w, i) => (
               <span
                 key={i}
-                className="mx-5 font-display text-xl font-bold uppercase tracking-tight text-white sm:text-2xl"
+                className="mx-3 font-display text-sm font-bold uppercase tracking-tight text-white sm:mx-5 sm:text-xl lg:text-2xl"
               >
                 {w}
               </span>
@@ -166,11 +166,11 @@ export default async function Page({ params }: { params: { handle: string } }) {
         <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
           <Reveal className="mb-8 sm:mb-12">
             <span className="pops-chip bg-pops-lime text-pops-black">★ don&apos;t stop now</span>
-            <h2 className="mt-3 font-display text-5xl font-bold uppercase leading-none text-pops-black sm:text-6xl">
+            <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-black sm:text-5xl lg:text-6xl">
               you might also slap
             </h2>
           </Reveal>
-          <Reveal className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+          <Reveal className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
             {more.map((p, i) => (
               <PopsProductCard key={p.id} product={p} index={i} />
             ))}
@@ -181,7 +181,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
             </Link>
             <Link
               href="/pops/drops"
-              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-7 py-3.5 font-display text-base font-bold uppercase text-pops-black transition-transform hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-5 py-3 font-display text-sm font-bold uppercase text-pops-black sm:px-7 sm:py-3.5 sm:text-base transition-transform hover:-translate-y-0.5"
             >
               peep the drops ⚡
             </Link>

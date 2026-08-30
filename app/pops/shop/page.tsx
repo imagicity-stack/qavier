@@ -39,17 +39,17 @@ export default async function PopsShop({
 
   return (
     <div className="overflow-hidden">
-      <section className="mx-auto max-w-7xl px-5 pt-28 sm:px-8">
+      <section className="mx-auto max-w-7xl px-4 pt-24 sm:px-8 sm:pt-28">
         {/* Header */}
-        <Reveal className="relative overflow-hidden rounded-pops border-2 border-pops-black bg-gradient-to-br from-pops-cyan via-pops-lime to-pops-yellow p-8 shadow-pops sm:p-12">
+        <Reveal className="relative overflow-hidden rounded-pops border-2 border-pops-black bg-gradient-to-br from-pops-cyan via-pops-lime to-pops-yellow p-5 shadow-pops sm:p-8 lg:p-12">
           <div className="grain pointer-events-none absolute inset-0 opacity-15" />
           <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 animate-floaty rounded-full bg-pops-magenta/40 blur-2xl" />
           <div className="relative z-10">
             <span className="pops-chip bg-pops-black text-pops-lime">✦ {active.slug === 'all' ? 'the full lineup' : 'filtered'}</span>
-            <h1 className="mt-4 font-display text-6xl font-bold uppercase leading-[0.9] text-pops-black text-balance sm:text-7xl lg:text-8xl">
+            <h1 className="mt-4 font-display text-4xl font-bold uppercase leading-[0.95] text-pops-black text-balance sm:text-6xl md:text-7xl lg:text-8xl">
               {active.label}
             </h1>
-            <p className="mt-4 flex flex-wrap items-center gap-3 font-sans text-lg text-pops-black/80">
+            <p className="mt-4 flex flex-wrap items-center gap-2 font-sans text-sm text-pops-black/80 sm:gap-3 sm:text-lg">
               <span className="rounded-full border-2 border-pops-black bg-pops-paper px-4 py-1 font-display text-base font-bold uppercase">
                 {products.length} {products.length === 1 ? 'piece' : 'pieces'}
               </span>
@@ -68,7 +68,7 @@ export default async function PopsShop({
                 key={slug}
                 href={slug === 'all' ? '/pops/shop' : `/pops/shop?c=${slug}`}
                 className={cn(
-                  'shrink-0 rounded-full border-2 border-pops-black px-5 py-2.5 font-display text-sm font-bold uppercase transition-transform hover:-translate-y-0.5',
+                  'shrink-0 rounded-full border-2 border-pops-black px-4 py-2 font-display text-xs font-bold uppercase transition-transform hover:-translate-y-0.5 sm:px-5 sm:py-2.5 sm:text-sm',
                   isActive ? 'bg-pops-black text-pops-lime shadow-pops' : 'bg-pops-paper text-pops-black',
                 )}
               >
@@ -80,7 +80,7 @@ export default async function PopsShop({
 
         {/* Product grid */}
         {products.length > 0 ? (
-          <div className="mt-8 grid grid-cols-2 gap-4 pb-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-3 pb-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
             {products.map((p, i) => (
               <PopsProductCard key={p.id} product={p} index={i} priority={i < 4} />
             ))}
@@ -102,7 +102,7 @@ export default async function PopsShop({
           {['THAT WAS THE DROP', '✦', 'BACK SOON WITH MORE', '★', 'JOIN THE LIST', '⚡'].map((w, i) => (
             <span
               key={i}
-              className="mx-5 font-display text-xl font-bold uppercase tracking-tight text-white sm:text-2xl"
+              className="mx-3 font-display text-sm font-bold uppercase tracking-tight text-white sm:mx-5 sm:text-xl lg:text-2xl"
             >
               {w}
             </span>
@@ -111,9 +111,9 @@ export default async function PopsShop({
       </div>
 
       {/* Tiny closing nudge */}
-      <section className="bg-pops-paper py-16 text-center">
-        <Reveal className="mx-auto max-w-xl px-5">
-          <h2 className="font-display text-4xl font-bold uppercase leading-none text-pops-black sm:text-5xl">
+      <section className="bg-pops-paper py-10 text-center sm:py-16">
+        <Reveal className="mx-auto max-w-xl px-4 sm:px-5">
+          <h2 className="font-display text-2xl font-bold uppercase leading-none text-pops-black sm:text-4xl lg:text-5xl">
             seen enough?
           </h2>
           <p className="mt-3 font-sans text-pops-black/70">
@@ -125,7 +125,7 @@ export default async function PopsShop({
             </Link>
             <Link
               href="/pops"
-              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-7 py-3.5 font-display text-base font-bold uppercase text-pops-black transition-transform hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-5 py-3 font-display text-sm font-bold uppercase text-pops-black sm:px-7 sm:py-3.5 sm:text-base transition-transform hover:-translate-y-0.5"
             >
               back home ⟵
             </Link>

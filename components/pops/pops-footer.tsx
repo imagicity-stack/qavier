@@ -47,12 +47,12 @@ export function PopsFooter() {
         </Marquee>
       </div>
 
-      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-8 sm:py-14">
         {/* Newsletter */}
-        <div className="rounded-pops border-2 border-pops-lime bg-pops-ink p-6 sm:p-10">
+        <div className="rounded-pops border-2 border-pops-lime bg-pops-ink p-5 sm:p-8 lg:p-10">
           <div className="grid items-center gap-6 lg:grid-cols-2">
             <div>
-              <h3 className="font-display text-3xl font-bold uppercase leading-none text-pops-lime sm:text-5xl">
+              <h3 className="font-display text-2xl font-bold uppercase leading-none text-pops-lime sm:text-3xl lg:text-5xl">
                 get on the list
               </h3>
               <p className="mt-3 font-sans text-pops-cream/70">

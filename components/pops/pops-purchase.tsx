@@ -42,7 +42,7 @@ export function PopsPurchase({ product }: { product: Product }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-3">
-        <span className="font-display text-4xl font-bold text-pops-black">
+        <span className="font-display text-2xl font-bold text-pops-black sm:text-3xl lg:text-4xl">
           {formatPrice(activeVariant?.price, { compact: true })}
         </span>
         {activeVariant?.compareAtPrice && (
