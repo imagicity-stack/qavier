@@ -3,13 +3,22 @@
 import { useMemo, useState } from 'react';
 import { useCart } from '@/components/shared/cart-context';
 import type { Product } from '@/lib/shopify/types';
-import { cn, discountPercent, formatPrice } from '@/lib/utils';
+import { cn, discountPercent, formatPrice, isSizeOption, sortSizes } from '@/lib/utils';
 
 export function PopsPurchase({ product }: { product: Product }) {
   const { addItem } = useCart();
 
+  // Sizes in wearing order, not the order they happen to sit in Shopify.
+  const options = useMemo(
+    () =>
+      product.options.map((o) =>
+        isSizeOption(o.name) ? { ...o, values: sortSizes(o.values) } : o,
+      ),
+    [product.options],
+  );
+
   const [selected, setSelected] = useState<Record<string, string>>(() =>
-    Object.fromEntries(product.options.map((o) => [o.name, o.values[0]])),
+    Object.fromEntries(options.map((o) => [o.name, o.values[0]])),
   );
 
   const activeVariant = useMemo(
@@ -57,7 +66,7 @@ export function PopsPurchase({ product }: { product: Product }) {
         )}
       </div>
 
-      {product.options.map((option) => (
+      {options.map((option) => (
         <div key={option.id}>
           <p className="mb-2 font-display text-sm font-bold uppercase text-pops-black">
             {option.name}: <span className="text-pops-magenta">{selected[option.name]}</span>
