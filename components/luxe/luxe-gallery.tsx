@@ -21,16 +21,27 @@ export function LuxeGallery({ images, title }: { images: Image[]; title: string 
 
   return (
     <div className="flex flex-col gap-4">
-      <ShopImage
-        image={current}
-        universe="luxe"
-        priority
-        fit="contain"
-        sizes="(max-width: 1024px) 100vw, 50vw"
-        className="w-full bg-luxe-ivory"
-        style={{ aspectRatio: String(ratio) }}
-        label={`${title} — View ${active + 1}`}
-      />
+      {/*
+        Capped against the viewport so a tall photo doesn't fill a whole phone
+        screen on its own. Applied as a max-WIDTH derived from the ratio, so the
+        frame keeps the photo's shape and centres rather than letterboxing; at
+        `lg` the value never binds and the column governs.
+      */}
+      <div
+        className="mx-auto w-full [--gal-h:52svh] sm:[--gal-h:68svh] lg:[--gal-h:1200px]"
+        style={{ maxWidth: `calc(var(--gal-h) * ${ratio})` }}
+      >
+        <ShopImage
+          image={current}
+          universe="luxe"
+          priority
+          fit="contain"
+          sizes="(max-width: 1024px) 100vw, 50vw"
+          className="w-full bg-luxe-ivory"
+          style={{ aspectRatio: String(ratio) }}
+          label={`${title} — View ${active + 1}`}
+        />
+      </div>
 
       {gallery.length > 1 && (
         <div className="grid grid-cols-4 gap-3 sm:gap-4">

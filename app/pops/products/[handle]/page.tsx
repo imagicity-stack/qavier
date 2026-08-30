@@ -75,7 +75,9 @@ export default async function Page({ params }: { params: { handle: string } }) {
           <span aria-hidden className="font-display text-xs font-bold text-pops-black/40">
             /
           </span>
-          <span className="rounded-full border-2 border-pops-black bg-pops-lime px-3 py-1 font-display text-xs font-bold uppercase text-pops-black">
+          {/* Truncated so a long name can't push the product below the fold —
+              the full title is the <h1> a few lines down anyway. */}
+          <span className="max-w-[55vw] truncate rounded-full border-2 border-pops-black bg-pops-lime px-3 py-1 font-display text-xs font-bold uppercase text-pops-black sm:max-w-none">
             {product.title}
           </span>
         </nav>
