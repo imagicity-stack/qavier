@@ -47,26 +47,26 @@ export default async function PopsHome() {
   return (
     <div className="overflow-hidden">
       {/* ——————————————————————————— HERO ——————————————————————————— */}
-      <section className="relative flex min-h-[92vh] items-center overflow-hidden bg-gradient-to-br from-pops-magenta via-pops-purple to-pops-blue">
+      <section className="relative flex min-h-[80vh] items-center overflow-hidden sm:min-h-[92vh] bg-gradient-to-br from-pops-magenta via-pops-purple to-pops-blue">
         {/* grain + blobs */}
         <div className="grain pointer-events-none absolute inset-0 opacity-20" />
         <div className="pointer-events-none absolute -left-16 top-24 h-72 w-72 animate-floaty rounded-full bg-pops-lime/70 blur-3xl" />
         <div className="pointer-events-none absolute -right-10 bottom-10 h-80 w-80 animate-floaty rounded-full bg-pops-cyan/60 blur-3xl [animation-delay:1.5s]" />
         <div className="pointer-events-none absolute right-1/3 top-10 h-40 w-40 animate-floaty rounded-full bg-pops-yellow/50 blur-2xl [animation-delay:0.8s]" />
 
-        <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 px-5 pb-16 pt-32 sm:px-8 lg:grid-cols-2 lg:gap-12 lg:pt-28">
+        <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 px-4 pb-12 pt-24 sm:px-8 sm:pb-16 sm:pt-32 lg:grid-cols-2 lg:gap-12 lg:pt-28">
           <div>
             <span className="pops-chip -rotate-2 bg-pops-yellow text-pops-black shadow-pops">
               {products.length > 0
                 ? `✦ ${products.length} ${products.length === 1 ? 'piece' : 'pieces'} live`
                 : '✦ the drop lands soon'}
             </span>
-            <h1 className="mt-5 font-display text-6xl font-bold uppercase leading-[0.9] text-white text-balance drop-shadow-[4px_4px_0_#0E0E12] sm:text-7xl lg:text-8xl">
+            <h1 className="mt-5 font-display text-4xl font-bold uppercase leading-[0.95] text-white text-balance drop-shadow-[3px_3px_0_#0E0E12] sm:text-6xl sm:drop-shadow-[4px_4px_0_#0E0E12] md:text-7xl lg:text-8xl">
               wear it
               <br />
               <span className="text-pops-lime">loud.</span>
             </h1>
-            <p className="mt-6 max-w-md font-sans text-lg text-white/90">
+            <p className="mt-5 max-w-md font-sans text-base text-white/90 sm:mt-6 sm:text-lg">
               loud, limited & a little chaotic. the drop is here and it&apos;s gone before you
               finish scrolling. you&apos;ve been warned 🫠
             </p>
@@ -76,7 +76,7 @@ export default async function PopsHome() {
               </Link>
               <Link
                 href="/pops/drops"
-                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-7 py-3.5 font-display text-base font-bold uppercase text-pops-black shadow-pops transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-5 py-3 font-display text-sm font-bold uppercase text-pops-black sm:px-7 sm:py-3.5 sm:text-base shadow-pops transition-transform duration-150 hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
               >
                 see all drops
               </Link>
@@ -90,7 +90,7 @@ export default async function PopsHome() {
 
           {/* Hero photo zone */}
           <div className="relative">
-            <div className="relative aspect-[4/5] w-full rotate-2 overflow-hidden rounded-pops border-2 border-pops-black shadow-pops-lg">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-pops border-2 border-pops-black shadow-pops-lg sm:rotate-2">
               <PlaceholderFrame
                 universe="pops"
                 label="Campaign — Pics Soon"
@@ -106,10 +106,10 @@ export default async function PopsHome() {
                 style={{ backgroundImage: "url('/images/desktop_pops.png')" }}
               />
             </div>
-            <span className="absolute -left-3 top-6 -rotate-6 rounded-full border-2 border-pops-black bg-pops-lime px-4 py-2 font-display text-sm font-bold uppercase text-pops-black shadow-pops sm:-left-6">
+            <span className="absolute -left-3 top-6 -rotate-6 rounded-full border-2 border-pops-black bg-pops-lime px-3 py-1.5 font-display text-xs font-bold uppercase text-pops-black shadow-pops sm:-left-6 sm:px-4 sm:py-2 sm:text-sm">
               brand new ✦
             </span>
-            <span className="absolute -bottom-4 right-4 rotate-6 rounded-full border-2 border-pops-black bg-pops-magenta px-4 py-2 font-display text-sm font-bold uppercase text-white shadow-pops">
+            <span className="absolute -bottom-4 right-4 rotate-6 rounded-full border-2 border-pops-black bg-pops-magenta px-3 py-1.5 font-display text-xs font-bold uppercase text-white shadow-pops sm:px-4 sm:py-2 sm:text-sm">
               gone fast ⚡
             </span>
           </div>
@@ -122,7 +122,7 @@ export default async function PopsHome() {
           {MARQUEE_WORDS.map((w, i) => (
             <span
               key={i}
-              className="mx-5 font-display text-xl font-bold uppercase tracking-tight text-pops-black sm:text-2xl"
+              className="mx-3 font-display text-sm font-bold uppercase tracking-tight text-pops-black sm:mx-5 sm:text-xl lg:text-2xl"
             >
               {w}
             </span>
@@ -132,12 +132,12 @@ export default async function PopsHome() {
 
       {/* ——————————————————————————— THE DROP (live Shopify products) ——————————— */}
       {featured.length > 0 && (
-        <section className="bg-pops-paper py-16 sm:py-24">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <section className="bg-pops-paper py-10 sm:py-16 lg:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-8">
             <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-4 sm:mb-12">
               <div>
                 <span className="pops-chip bg-pops-lime text-pops-black">⚡ in the drop</span>
-                <h2 className="mt-3 font-display text-5xl font-bold uppercase leading-none text-pops-black sm:text-6xl">
+                <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-black sm:text-5xl lg:text-6xl">
                   shop the drop
                 </h2>
               </div>
@@ -146,7 +146,7 @@ export default async function PopsHome() {
               </Link>
             </Reveal>
 
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
               {featured.map((p, i) => (
                 <PopsProductCard key={p.id} product={p} index={i} priority={i < 4} />
               ))}
@@ -159,11 +159,11 @@ export default async function PopsHome() {
       {/* Built from the categories that actually have stock in Shopify — a
           category with nothing in it simply doesn't appear. */}
       {tiles.length > 0 && (
-        <section className="bg-pops-cream py-16 sm:py-24">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <section className="bg-pops-cream py-10 sm:py-16 lg:py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-8">
             <Reveal className="mb-8 sm:mb-12">
               <span className="pops-chip bg-pops-magenta text-white">⚡ pick your poison</span>
-              <h2 className="mt-3 font-display text-5xl font-bold uppercase leading-none text-pops-black sm:text-6xl">
+              <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-black sm:text-5xl lg:text-6xl">
                 shop by vibe
               </h2>
             </Reveal>
@@ -189,7 +189,7 @@ export default async function PopsHome() {
                       {inCat.length} {inCat.length === 1 ? 'piece' : 'pieces'}
                     </span>
                     <div className="relative z-10">
-                      <h3 className="font-display text-3xl font-bold uppercase leading-none text-pops-black sm:text-4xl">
+                      <h3 className="font-display text-xl font-bold uppercase leading-none text-pops-black sm:text-3xl lg:text-4xl">
                         {cat.label}
                       </h3>
                       <p className="mt-1 font-sans text-xs font-semibold text-pops-black/70">
@@ -207,13 +207,13 @@ export default async function PopsHome() {
       {/* ——————————————————————————— DROPS TEASER ——————————————————————————— */}
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
         <Reveal>
-          <div className="relative overflow-hidden rounded-pops border-2 border-pops-black bg-pops-black p-8 text-pops-cream shadow-pops-lg sm:p-14">
+          <div className="relative overflow-hidden rounded-pops border-2 border-pops-black bg-pops-black p-5 text-pops-cream shadow-pops-lg sm:p-10 lg:p-14">
             <div className="grain pointer-events-none absolute inset-0 opacity-20" />
             <div className="pointer-events-none absolute -right-12 -top-12 h-56 w-56 animate-spinslow rounded-full bg-pops-violet/40 blur-3xl" />
             <div className="relative z-10 grid items-center gap-8 lg:grid-cols-2">
               <div>
                 <span className="pops-chip bg-pops-lime text-pops-black">★ every friday 6pm</span>
-                <h2 className="mt-4 font-display text-5xl font-bold uppercase leading-none text-pops-lime sm:text-6xl">
+                <h2 className="mt-4 font-display text-2xl font-bold uppercase leading-none text-pops-lime sm:text-3xl lg:text-5xl lg:text-6xl">
                   new drops
                   <br />
                   weekly.
@@ -255,11 +255,11 @@ export default async function PopsHome() {
       </section>
 
       {/* ——————————————————————————— THE FEED ——————————————————————————— */}
-      <section id="feed" className="scroll-mt-28 bg-pops-violet py-16 sm:py-24">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+      <section id="feed" className="scroll-mt-28 bg-pops-violet py-10 sm:py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-8">
           <Reveal className="mb-8 text-center sm:mb-12">
             <span className="pops-chip bg-pops-yellow text-pops-black">📸 the feed</span>
-            <h2 className="mt-3 font-display text-5xl font-bold uppercase leading-none text-white sm:text-6xl">
+            <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-white sm:text-5xl lg:text-6xl">
               tag us @qavierpops
             </h2>
             <p className="mt-3 font-sans text-white/80">
@@ -283,25 +283,25 @@ export default async function PopsHome() {
       </section>
 
       {/* ——————————————————————————— CLOSING CTA ——————————————————————————— */}
-      <section className="bg-pops-lime py-20 sm:py-28">
-        <Reveal className="mx-auto max-w-3xl px-5 text-center sm:px-8">
+      <section className="bg-pops-lime py-12 sm:py-20 lg:py-28">
+        <Reveal className="mx-auto max-w-3xl px-4 text-center sm:px-8">
           <span className="pops-chip bg-pops-black text-pops-lime">don&apos;t sleep on it</span>
-          <h2 className="mt-4 font-display text-6xl font-bold uppercase leading-[0.9] text-pops-black text-balance sm:text-7xl lg:text-8xl">
+          <h2 className="mt-4 font-display text-4xl font-bold uppercase leading-[0.95] text-pops-black text-balance sm:text-6xl md:text-7xl lg:text-8xl">
             the drop won&apos;t wait.
           </h2>
-          <p className="mx-auto mt-5 max-w-md font-sans text-lg text-pops-black/70">
+          <p className="mx-auto mt-4 max-w-md font-sans text-base text-pops-black/70 sm:mt-5 sm:text-lg">
             you saw it, you want it, it&apos;s limited. you know what to do.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/pops/shop"
-              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-magenta px-8 py-4 font-display text-lg font-bold uppercase text-white shadow-pops transition-transform hover:-translate-y-0.5 hover:shadow-pops-lg active:translate-y-1 active:shadow-none"
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-magenta px-6 py-3.5 font-display text-base font-bold uppercase text-white sm:px-8 sm:py-4 sm:text-lg shadow-pops transition-transform hover:-translate-y-0.5 hover:shadow-pops-lg active:translate-y-1 active:shadow-none"
             >
               shop everything ⚡
             </Link>
             <Link
               href="/"
-              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-8 py-4 font-display text-base font-bold uppercase text-pops-black transition-transform hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-6 py-3.5 font-display text-sm font-bold uppercase text-pops-black sm:px-8 sm:py-4 sm:text-base transition-transform hover:-translate-y-0.5"
             >
               back to qavier ⟶
             </Link>

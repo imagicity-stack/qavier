@@ -54,15 +54,15 @@ export default async function PopsDrops() {
   return (
     <div className="overflow-hidden">
       {/* ——————————————————————————— HEADER ——————————————————————————— */}
-      <section className="mx-auto max-w-7xl px-5 pt-28 sm:px-8">
+      <section className="mx-auto max-w-7xl px-4 pt-24 sm:px-8 sm:pt-28">
         <Reveal>
           <span className="pops-chip -rotate-1 bg-pops-magenta text-white shadow-pops">
             ⚡ drop culture
           </span>
-          <h1 className="mt-4 font-display text-6xl font-bold uppercase leading-[0.88] text-pops-black text-balance sm:text-7xl lg:text-8xl">
+          <h1 className="mt-4 font-display text-4xl font-bold uppercase leading-[0.95] text-pops-black text-balance sm:text-6xl md:text-7xl lg:text-8xl">
             the drops
           </h1>
-          <p className="mt-4 max-w-xl font-sans text-lg text-pops-black/70">
+          <p className="mt-4 max-w-xl font-sans text-base text-pops-black/70 sm:text-lg">
             new heat every friday 6pm. limited runs, zero restocks, blink and it&apos;s gone. this
             is how we do it 🫠
           </p>
@@ -70,9 +70,9 @@ export default async function PopsDrops() {
       </section>
 
       {/* ——————————————————————————— CURRENT DROP ——————————————————————————— */}
-      <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16">
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8 sm:py-12 lg:py-16">
         <Reveal>
-          <div className="relative overflow-hidden rounded-pops border-2 border-pops-black bg-gradient-to-br from-pops-magenta via-pops-purple to-pops-blue p-6 text-white shadow-pops-lg sm:p-10">
+          <div className="relative overflow-hidden rounded-pops border-2 border-pops-black bg-gradient-to-br from-pops-magenta via-pops-purple to-pops-blue p-5 text-white shadow-pops-lg sm:p-8 lg:p-10">
             <div className="grain pointer-events-none absolute inset-0 opacity-20" />
             <div className="pointer-events-none absolute -right-12 -top-12 h-56 w-56 animate-floaty rounded-full bg-pops-lime/50 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-12 left-1/3 h-48 w-48 animate-floaty rounded-full bg-pops-cyan/50 blur-3xl [animation-delay:1.2s]" />
@@ -83,7 +83,7 @@ export default async function PopsDrops() {
                 {hero ? (
                   <Link
                     href={`/pops/products/${hero.handle}`}
-                    className="group block aspect-[4/5] w-full -rotate-2 overflow-hidden rounded-pops border-2 border-pops-black shadow-pops"
+                    className="group block aspect-[4/5] w-full overflow-hidden rounded-pops border-2 border-pops-black shadow-pops sm:-rotate-2"
                   >
                     <ShopImage
                       image={hero.featuredImage}
@@ -98,11 +98,11 @@ export default async function PopsDrops() {
                   <PlaceholderFrame
                     universe="pops"
                     label="This Week's Drop"
-                    className="aspect-[4/5] w-full -rotate-2 rounded-pops border-2 border-pops-black shadow-pops"
+                    className="aspect-[4/5] w-full rounded-pops border-2 border-pops-black shadow-pops sm:-rotate-2"
                   />
                 )}
                 {products.length > 0 && (
-                  <span className="absolute -right-3 top-6 rotate-6 rounded-full border-2 border-pops-black bg-pops-lime px-4 py-2 font-display text-sm font-bold uppercase text-pops-black shadow-pops">
+                  <span className="absolute -right-3 top-6 rotate-6 rounded-full border-2 border-pops-black bg-pops-lime px-3 py-1.5 font-display text-xs font-bold uppercase text-pops-black shadow-pops sm:px-4 sm:py-2 sm:text-sm">
                     live now ⚡
                   </span>
                 )}
@@ -115,7 +115,7 @@ export default async function PopsDrops() {
                     ? `★ ${products.length} ${products.length === 1 ? 'piece' : 'pieces'} · ${inStock} in stock`
                     : '★ the next drop is loading'}
                 </span>
-                <h2 className="mt-4 font-display text-5xl font-bold uppercase leading-[0.9] text-pops-lime sm:text-6xl">
+                <h2 className="mt-4 font-display text-3xl font-bold uppercase leading-[0.95] text-pops-lime sm:text-5xl lg:text-6xl">
                   {products.length > 0 ? (
                     <>
                       this week&apos;s
@@ -149,7 +149,7 @@ export default async function PopsDrops() {
                   </Link>
                   <a
                     href="#faq"
-                    className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-7 py-3.5 font-display text-base font-bold uppercase text-pops-black shadow-pops transition-transform hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-5 py-3 font-display text-sm font-bold uppercase text-pops-black sm:px-7 sm:py-3.5 sm:text-base shadow-pops transition-transform hover:-translate-y-0.5 active:translate-y-1 active:shadow-none"
                   >
                     how it works
                   </a>
@@ -167,7 +167,7 @@ export default async function PopsDrops() {
             (w, i) => (
               <span
                 key={i}
-                className="mx-5 font-display text-xl font-bold uppercase tracking-tight text-pops-black sm:text-2xl"
+                className="mx-3 font-display text-sm font-bold uppercase tracking-tight text-pops-black sm:mx-5 sm:text-xl lg:text-2xl"
               >
                 {w}
               </span>
@@ -182,7 +182,7 @@ export default async function PopsDrops() {
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
         <Reveal className="mb-8 sm:mb-12">
           <span className="pops-chip bg-pops-violet text-white">✦ the lineup</span>
-          <h2 className="mt-3 font-display text-5xl font-bold uppercase leading-none text-pops-black sm:text-6xl">
+          <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-black sm:text-5xl lg:text-6xl">
             in this drop
           </h2>
           <p className="mt-3 max-w-lg font-sans text-pops-black/70">
@@ -192,7 +192,7 @@ export default async function PopsDrops() {
         </Reveal>
 
         {products.length > 0 ? (
-          <Reveal className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+          <Reveal className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
             {products.slice(0, 12).map((p, i) => (
               <PopsProductCard key={p.id} product={p} index={i} priority={i < 4} />
             ))}
@@ -210,11 +210,11 @@ export default async function PopsDrops() {
       </section>
 
       {/* ——————————————————————————— FAQ ——————————————————————————— */}
-      <section id="faq" className="scroll-mt-28 bg-pops-cream py-16 sm:py-24">
-        <div className="mx-auto max-w-3xl px-5 sm:px-8">
+      <section id="faq" className="scroll-mt-28 bg-pops-cream py-10 sm:py-16 lg:py-24">
+        <div className="mx-auto max-w-3xl px-4 sm:px-8">
           <Reveal className="mb-8 text-center sm:mb-12">
             <span className="pops-chip bg-pops-black text-pops-lime">🤔 the fine print</span>
-            <h2 className="mt-3 font-display text-5xl font-bold uppercase leading-none text-pops-black sm:text-6xl">
+            <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-black sm:text-5xl lg:text-6xl">
               drop faq
             </h2>
             <p className="mt-3 font-sans text-pops-black/70">
@@ -247,15 +247,15 @@ export default async function PopsDrops() {
       </section>
 
       {/* ——————————————————————————— CLOSING CTA ——————————————————————————— */}
-      <section className="bg-pops-magenta py-20 text-center sm:py-28">
-        <Reveal className="mx-auto max-w-2xl px-5 sm:px-8">
+      <section className="bg-pops-magenta py-12 text-center sm:py-20 lg:py-28">
+        <Reveal className="mx-auto max-w-2xl px-4 sm:px-8">
           <span className="pops-chip bg-white text-pops-black">don&apos;t miss the next one</span>
-          <h2 className="mt-4 font-display text-5xl font-bold uppercase leading-[0.9] text-white text-balance sm:text-6xl lg:text-7xl">
+          <h2 className="mt-4 font-display text-3xl font-bold uppercase leading-[0.95] text-white text-balance sm:text-5xl lg:text-7xl">
             set a reminder.
             <br />
             <span className="text-pops-lime">cry later.</span>
           </h2>
-          <p className="mx-auto mt-5 max-w-md font-sans text-lg text-white/85">
+          <p className="mx-auto mt-4 max-w-md font-sans text-base text-white/85 sm:mt-5 sm:text-lg">
             the current drop is live right now. you already know how this ends.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -264,7 +264,7 @@ export default async function PopsDrops() {
             </Link>
             <Link
               href="/pops"
-              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-7 py-3.5 font-display text-base font-bold uppercase text-pops-black transition-transform hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pops-black bg-pops-paper px-5 py-3 font-display text-sm font-bold uppercase text-pops-black sm:px-7 sm:py-3.5 sm:text-base transition-transform hover:-translate-y-0.5"
             >
               back home ⟵
             </Link>
