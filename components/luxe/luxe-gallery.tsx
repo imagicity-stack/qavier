@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ShopImage } from '@/components/shared/shop-image';
 import type { Image } from '@/lib/shopify/types';
-import { cn } from '@/lib/utils';
+import { cn, galleryAspectRatio } from '@/lib/utils';
 
 /**
  * Luxe product gallery — a large main frame with selectable thumbnails.
@@ -15,6 +15,9 @@ export function LuxeGallery({ images, title }: { images: Image[]; title: string 
   const gallery = images.length ? images : [];
   const [active, setActive] = useState(0);
   const current = gallery[active];
+  // Frame shaped by the store's own photography, so nothing has to be cropped.
+  // Taken from the first image so switching views never shifts the layout.
+  const ratio = galleryAspectRatio(gallery[0], 3 / 4);
 
   return (
     <div className="flex flex-col gap-4">
@@ -22,8 +25,10 @@ export function LuxeGallery({ images, title }: { images: Image[]; title: string 
         image={current}
         universe="luxe"
         priority
+        fit="contain"
         sizes="(max-width: 1024px) 100vw, 50vw"
-        className="aspect-[3/4] w-full bg-luxe-ivory"
+        className="w-full bg-luxe-ivory"
+        style={{ aspectRatio: String(ratio) }}
         label={`${title} — View ${active + 1}`}
       />
 
@@ -46,8 +51,9 @@ export function LuxeGallery({ images, title }: { images: Image[]; title: string 
               <ShopImage
                 image={image}
                 universe="luxe"
+                fit="contain"
                 sizes="25vw"
-                className="h-full w-full"
+                className="h-full w-full bg-luxe-ivory"
                 label={`${i + 1}`}
               />
             </button>

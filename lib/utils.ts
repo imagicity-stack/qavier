@@ -41,3 +41,28 @@ export function discountPercent(price?: Money | null, compareAt?: Money | null) 
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+/**
+ * The frame shape for a product gallery, taken from the store's own photography.
+ *
+ * Forcing every photo into one fixed ratio and cropping to fill is what makes a
+ * product page look zoomed in — a square or landscape shot loses its edges in a
+ * portrait frame. Sizing the frame to the first image instead means the common
+ * case (a store whose shots are all one shape) shows the whole garment with no
+ * crop and no letterboxing.
+ *
+ * Clamped so an unusually wide or tall photo can't distort the page, and falls
+ * back to the universe's default when Shopify didn't report dimensions.
+ */
+export function galleryAspectRatio(
+  image: { width?: number; height?: number } | undefined | null,
+  fallback: number,
+): number {
+  const { width, height } = image ?? {};
+  if (!width || !height) return fallback;
+  const ratio = width / height;
+  if (!Number.isFinite(ratio) || ratio <= 0) return fallback;
+  // Range covers the shapes stores actually shoot — 2:3 portrait through 4:3
+  // landscape — so those fit the frame exactly, with no bars and no crop.
+  return Math.min(Math.max(ratio, 0.62), 1.34);
+}
