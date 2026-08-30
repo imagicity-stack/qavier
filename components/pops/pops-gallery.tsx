@@ -3,16 +3,22 @@
 import { useState } from 'react';
 import { ShopImage } from '@/components/shared/shop-image';
 import type { Image } from '@/lib/shopify/types';
-import { cn } from '@/lib/utils';
+import { cn, galleryAspectRatio } from '@/lib/utils';
 
 /**
  * Pops product gallery. A big main image + a row of tappable thumbnails.
  * Works fine even when every image is a branded placeholder (demo mode).
+ *
+ * The frame takes its shape from the store's own photography and the photo is
+ * contained, never cropped — a shopper deciding on a garment needs to see all
+ * of it. The shape is fixed by the FIRST image so switching thumbnails never
+ * shifts the layout.
  */
 export function PopsGallery({ images, title }: { images: Image[]; title: string }) {
   const gallery = images.length ? images : [];
   const [active, setActive] = useState(0);
   const main = gallery[active] ?? gallery[0];
+  const ratio = galleryAspectRatio(gallery[0], 4 / 5);
 
   return (
     <div className="flex flex-col gap-4">
@@ -21,8 +27,10 @@ export function PopsGallery({ images, title }: { images: Image[]; title: string 
           image={main}
           universe="pops"
           priority
+          fit="contain"
           sizes="(max-width: 1024px) 100vw, 50vw"
-          className="aspect-[4/5] w-full rounded-pops border-2 border-pops-black shadow-pops"
+          className="w-full rounded-pops border-2 border-pops-black bg-pops-paper shadow-pops"
+          style={{ aspectRatio: String(ratio) }}
           label={title}
         />
         <span className="absolute left-4 top-4 -rotate-3 rounded-full border-2 border-pops-black bg-pops-lime px-3 py-1 font-display text-xs font-bold uppercase text-pops-black shadow-pops">
@@ -49,8 +57,9 @@ export function PopsGallery({ images, title }: { images: Image[]; title: string 
               <ShopImage
                 image={img}
                 universe="pops"
+                fit="contain"
                 sizes="96px"
-                className="h-full w-full"
+                className="h-full w-full bg-pops-paper"
                 label={`${i + 1}`}
               />
             </button>

@@ -17,6 +17,8 @@ export function ShopImage({
   priority,
   rounded,
   label,
+  fit = 'cover',
+  style,
 }: {
   image?: ShopImageType | null;
   universe: Universe;
@@ -26,19 +28,28 @@ export function ShopImage({
   rounded?: string;
   /** Short caption shown inside the placeholder, e.g. "Lookbook 01". */
   label?: string;
+  /**
+   * How the photo fills its frame. `cover` crops to fill — right for grid
+   * cards, where a uniform shape matters more than seeing every pixel.
+   * `contain` shows the whole photo, letterboxing rather than cropping — use
+   * it wherever a shopper is judging the garment, above all the product page.
+   */
+  fit?: 'cover' | 'contain';
+  /** Inline styles for the frame — used to set an aspect ratio from the photo. */
+  style?: React.CSSProperties;
 }) {
   const isPlaceholder = !image?.url || image.placeholder;
 
   if (!isPlaceholder && image) {
     return (
-      <div className={cn('relative overflow-hidden', rounded, className)}>
+      <div className={cn('relative overflow-hidden', rounded, className)} style={style}>
         <Image
           src={image.url}
           alt={image.altText ?? ''}
           fill
           sizes={sizes ?? '(max-width: 768px) 100vw, 50vw'}
           priority={priority}
-          className="object-cover"
+          className={fit === 'contain' ? 'object-contain' : 'object-cover'}
         />
       </div>
     );
@@ -48,6 +59,7 @@ export function ShopImage({
     <PlaceholderFrame
       universe={universe}
       className={cn(rounded, className)}
+      style={style}
       label={label ?? image?.altText ?? undefined}
     />
   );
@@ -57,10 +69,12 @@ export function PlaceholderFrame({
   universe,
   className,
   label,
+  style,
 }: {
   universe: Universe;
   className?: string;
   label?: string;
+  style?: React.CSSProperties;
 }) {
   if (universe === 'pops') {
     return (
@@ -69,6 +83,7 @@ export function PlaceholderFrame({
           'photo-frame group/ph isolate bg-pops-paper',
           className,
         )}
+        style={style}
       >
         {/* playful checkerboard + blobs */}
         <div
@@ -103,6 +118,7 @@ export function PlaceholderFrame({
         'photo-frame isolate bg-gradient-to-br from-luxe-ivory via-luxe-cream to-luxe-porcelain',
         className,
       )}
+      style={style}
     >
       <div
         className="absolute inset-0 opacity-[0.4]"
