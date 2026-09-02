@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Marquee } from '@/components/shared/marquee';
 import { Logo } from '@/components/logo';
+import { LEGAL_DOCS } from '@/lib/legal';
 
 const COLUMNS = [
   {
@@ -14,9 +15,10 @@ const COLUMNS = [
   {
     title: 'help',
     links: [
-      { label: 'shipping', href: '/pops/drops#faq' },
-      { label: 'returns', href: '/pops/drops#faq' },
-      { label: 'size chart', href: '/pops/drops#faq' },
+      { label: 'shipping', href: '/legal/shipping' },
+      { label: 'returns', href: '/legal/returns' },
+      { label: 'contact', href: '/legal/contact' },
+      { label: 'faq', href: '/pops/drops#faq' },
     ],
   },
   {
@@ -108,7 +110,20 @@ export function PopsFooter() {
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t-2 border-pops-cream/10 pt-6 text-pops-cream/40 sm:flex-row sm:items-center">
+        {/* Every policy, on every page of Pops. */}
+        <div className="mt-10 flex flex-wrap gap-x-5 gap-y-2 border-t-2 border-pops-cream/10 pt-6">
+          {LEGAL_DOCS.map((doc) => (
+            <Link
+              key={doc.slug}
+              href={`/legal/${doc.slug}`}
+              className="font-display text-xs font-bold uppercase text-pops-cream/50 transition-colors hover:text-pops-lime"
+            >
+              {doc.nav}
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-6 flex flex-col items-start justify-between gap-3 pt-2 text-pops-cream/40 sm:flex-row sm:items-center">
           <p className="font-sans text-xs">© {new Date().getFullYear()} Qavier Pops. don't copy us xx</p>
           <div className="flex gap-2">
             {['ig', 'tt', 'yt', 'x'].map((s) => (

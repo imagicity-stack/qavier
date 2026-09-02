@@ -243,6 +243,30 @@ forthcoming" placeholders automatically — no uploads to this repo needed.
 
 ---
 
+## Legal pages
+
+Five policies live at `/legal/<slug>` — **terms, privacy, shipping, returns,
+contact**. They sit at the top level, deliberately outside every world's route
+group, so they stay reachable even when the flagship or Pops is behind its
+coming-soon gate. Both footers and all four holding pages link to them, and
+they're listed in `sitemap.xml`.
+
+The content is one source of truth in `lib/legal.ts`, so there is a single copy
+to edit and no two pages can drift apart. Shipping charges, delivery windows and
+the returns window come from `lib/shipping.ts`, which the checkout reads too —
+the till and the policy page can never quote different numbers.
+
+> ⚠️ **These are working drafts, not legal advice.** Have a lawyer review them
+> before you take real orders — India's Consumer Protection (E-Commerce) Rules
+> and the DPDP Act 2023 both place specific obligations on the seller.
+
+**Before launch, fill in the `BUSINESS` block at the top of `lib/legal.ts`.**
+Every field there renders literally on the page (`[Registered business name]`,
+`[GSTIN]`, `[support@your-domain.com]`, …) so it is obvious what is still
+outstanding — search the live site for `[` to find any you missed.
+
+---
+
 ## The four worlds & launch switches
 
 Every world is a **coming-soon holding page** (each in its own visual style)

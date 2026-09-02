@@ -6,18 +6,10 @@ import { useCart } from '@/components/shared/cart-context';
 import { ShopImage } from '@/components/shared/shop-image';
 import { startCheckout } from '@/lib/actions';
 import { formatPrice } from '@/lib/utils';
+// Shared with the shipping policy page, so the two can never quote
+// different prices or timelines.
+import { SHIPPING_METHODS } from '@/lib/shipping';
 
-interface ShippingMethod {
-  id: string;
-  label: string;
-  detail: string;
-  cost: number;
-}
-
-const SHIPPING_METHODS: ShippingMethod[] = [
-  { id: 'standard', label: 'Standard', detail: '5–7 business days', cost: 100 },
-  { id: 'express', label: 'Express', detail: '2–4 business days', cost: 250 },
-];
 
 export default function LuxeCheckoutPage() {
   const { lines, subtotal, currencyCode, refreshPrices } = useCart();

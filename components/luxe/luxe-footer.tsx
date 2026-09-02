@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
+import { LEGAL_DOCS } from '@/lib/legal';
 
 const COLUMNS = [
   {
@@ -14,8 +15,8 @@ const COLUMNS = [
     title: 'Help',
     links: [
       { label: "FAQ's", href: '/about#care' },
-      { label: 'Shipping & Delivery', href: '/about#care' },
-      { label: 'Returns & Exchanges', href: '/about#care' },
+      { label: 'Shipping & Delivery', href: '/legal/shipping' },
+      { label: 'Returns & Exchanges', href: '/legal/returns' },
       { label: 'Size Guide', href: '/about#care' },
     ],
   },
@@ -25,7 +26,7 @@ const COLUMNS = [
       { label: 'About Us', href: '/about' },
       { label: 'Careers', href: '/about' },
       { label: 'Press', href: '/about' },
-      { label: 'Contact Us', href: '/about#care' },
+      { label: 'Contact Us', href: '/legal/contact' },
     ],
   },
 ];
@@ -115,9 +116,17 @@ export function LuxeFooter() {
           <p className="font-sans text-xs">
             © {new Date().getFullYear()} Qavier. All Rights Reserved.
           </p>
-          <div className="flex flex-wrap items-center gap-6 font-sans text-xs">
-            <Link href="/about#care" className="hover:text-luxe-cream">Terms &amp; Conditions</Link>
-            <Link href="/about#care" className="hover:text-luxe-cream">Privacy Policy</Link>
+          {/* Every policy, on every page of the flagship store. */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-sans text-xs">
+            {LEGAL_DOCS.map((doc) => (
+              <Link
+                key={doc.slug}
+                href={`/legal/${doc.slug}`}
+                className="transition-colors hover:text-luxe-cream"
+              >
+                {doc.title}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
