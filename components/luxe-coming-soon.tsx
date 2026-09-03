@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
+import { LegalLinks } from '@/components/shared/legal-links';
 
 /** Qavier Luxe holding page — dark, editorial, gold-lit. */
 export function LuxeComingSoon() {
@@ -67,6 +68,7 @@ export function LuxeComingSoon() {
         <p className="font-sans text-xs text-luxe-cream/40">
           © {new Date().getFullYear()} Qavier. All rights reserved.
         </p>
+              <LegalLinks tone="dark" className="mt-4" />
       </footer>
     </div>
   );

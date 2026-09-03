@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
+import { LegalLinks } from '@/components/shared/legal-links';
 
 /** Qavier Essentials holding page — warm, minimal, understated. */
 export function EssentialsComingSoon() {
@@ -63,6 +64,7 @@ export function EssentialsComingSoon() {
         <p className="font-sans text-xs text-luxe-charcoal/50">
           © {new Date().getFullYear()} Qavier. All rights reserved.
         </p>
+              <LegalLinks tone="light" className="mt-4" />
       </footer>
     </div>
   );

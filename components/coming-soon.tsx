@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
+import { LegalLinks } from '@/components/shared/legal-links';
 
 /**
  * Reusable "coming soon" holding page.
@@ -91,6 +92,7 @@ export function ComingSoon({
         <p className="font-sans text-xs text-luxe-cream/40">
           © {new Date().getFullYear()} Qavier. All rights reserved.
         </p>
+              <LegalLinks tone="dark" className="mt-4" />
       </footer>
     </div>
   );

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Marquee } from '@/components/shared/marquee';
 import { Logo } from '@/components/logo';
+import { LegalLinks } from '@/components/shared/legal-links';
 
 const TICKER = ['DROPPING SOON', '✦', 'JOIN THE LIST', '✦', 'NO SPAM PINKY PROMISE', '✦', 'STAY TUNED', '✦'];
 
@@ -77,6 +78,7 @@ export function PopsComingSoon() {
         <p className="font-display text-xs font-bold uppercase tracking-widest text-pops-cream/50">
           © {new Date().getFullYear()} qavier pops. don&apos;t copy us xx
         </p>
+              <LegalLinks tone="pops" className="mt-4" />
       </footer>
     </div>
   );

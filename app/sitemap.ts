@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getAllProductRefs } from '@/lib/shopify';
+import { LEGAL_DOCS } from '@/lib/legal';
 import {
   COMING_SOON,
   LUXE_LIVE,
@@ -33,6 +34,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // The hub is always listed. Each world is only advertised once it's live.
   const entries: Entry[] = [{ path: '', priority: 1, changeFrequency: 'weekly' }];
+
+  // Policies live outside every world's gate, so they are always listed.
+  for (const doc of LEGAL_DOCS) {
+    entries.push({
+      path: `/legal/${doc.slug}`,
+      priority: 0.3,
+      changeFrequency: 'yearly',
+    });
+  }
 
   if (!COMING_SOON) {
     entries.push(
