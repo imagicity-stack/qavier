@@ -30,7 +30,7 @@ export function PopsProductCard({
   return (
     <Link
       href={`/pops/products/${product.handle}`}
-      className="group relative block rounded-pops border-2 border-pops-black bg-pops-paper shadow-pops transition-transform duration-200 hover:-translate-y-1.5 hover:shadow-pops-lg"
+      className="group relative block rounded-pops border-2 border-pops-black bg-pops-paper shadow-pops-lime transition-transform duration-200 hover:-translate-y-1.5 hover:shadow-pops-lime-lg"
     >
       <div className="relative aspect-[4/5] overflow-hidden rounded-t-[1.55rem]">
         <ShopImage

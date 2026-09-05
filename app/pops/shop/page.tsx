@@ -69,7 +69,7 @@ export default async function PopsShop({
                 href={slug === 'all' ? '/pops/shop' : `/pops/shop?c=${slug}`}
                 className={cn(
                   'shrink-0 rounded-full border-2 border-pops-black px-4 py-2 font-display text-xs font-bold uppercase transition-transform hover:-translate-y-0.5 sm:px-5 sm:py-2.5 sm:text-sm',
-                  isActive ? 'bg-pops-black text-pops-lime shadow-pops' : 'bg-pops-paper text-pops-black',
+                  isActive ? 'bg-pops-lime text-pops-black' : 'bg-pops-paper text-pops-black',
                 )}
               >
                 {cat.label}
@@ -86,9 +86,9 @@ export default async function PopsShop({
             ))}
           </div>
         ) : (
-          <div className="mt-8 rounded-pops border-2 border-dashed border-pops-black/40 bg-pops-cream p-12 text-center">
-            <p className="font-display text-3xl font-bold uppercase text-pops-black">nothing here yet 🫠</p>
-            <p className="mt-2 font-sans text-pops-black/60">this category is restocking. peep the rest of the drop.</p>
+          <div className="mt-8 rounded-pops border-2 border-dashed border-pops-cream/30 bg-pops-ink p-12 text-center">
+            <p className="font-display text-3xl font-bold uppercase text-pops-cream">nothing here yet 🫠</p>
+            <p className="mt-2 font-sans text-pops-cream/60">this category is restocking. peep the rest of the drop.</p>
             <Link href="/pops/shop" className="pops-btn mt-6">
               shop everything ⚡
             </Link>
@@ -111,12 +111,12 @@ export default async function PopsShop({
       </div>
 
       {/* Tiny closing nudge */}
-      <section className="bg-pops-paper py-10 text-center sm:py-16">
+      <section className="bg-pops-black py-10 text-center sm:py-16">
         <Reveal className="mx-auto max-w-xl px-4 sm:px-5">
-          <h2 className="font-display text-2xl font-bold uppercase leading-none text-pops-black sm:text-4xl lg:text-5xl">
+          <h2 className="font-display text-2xl font-bold uppercase leading-none text-pops-cream sm:text-4xl lg:text-5xl">
             seen enough?
           </h2>
-          <p className="mt-3 font-sans text-pops-black/70">
+          <p className="mt-3 font-sans text-pops-cream/70">
             peep what&apos;s dropping next or take a breather over at qavier.
           </p>
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">

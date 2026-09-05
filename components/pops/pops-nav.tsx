@@ -83,7 +83,7 @@ export function PopsNav() {
             href="/"
             className="hidden rounded-full border-2 border-pops-black px-4 py-2 font-display text-xs font-bold uppercase text-pops-black transition-colors hover:bg-pops-violet hover:text-white sm:inline-block"
           >
-            qavier ⟶
+            qavier — the house ⟶
           </Link>
           <button
             onClick={openCart}

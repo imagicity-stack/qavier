@@ -51,11 +51,11 @@ export function PopsPurchase({ product }: { product: Product }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-3">
-        <span className="font-display text-2xl font-bold text-pops-black sm:text-3xl lg:text-4xl">
+        <span className="font-display text-2xl font-bold text-pops-cream sm:text-3xl lg:text-4xl">
           {formatPrice(activeVariant?.price, { compact: true })}
         </span>
         {activeVariant?.compareAtPrice && (
-          <span className="font-display text-xl font-bold text-pops-black/40 line-through">
+          <span className="font-display text-xl font-bold text-pops-cream/40 line-through">
             {formatPrice(activeVariant.compareAtPrice, { compact: true })}
           </span>
         )}
@@ -68,7 +68,7 @@ export function PopsPurchase({ product }: { product: Product }) {
 
       {options.map((option) => (
         <div key={option.id}>
-          <p className="mb-2 font-display text-sm font-bold uppercase text-pops-black">
+          <p className="mb-2 font-display text-sm font-bold uppercase text-pops-cream">
             {option.name}: <span className="text-pops-magenta">{selected[option.name]}</span>
           </p>
           <div className="flex flex-wrap gap-2.5">
@@ -81,7 +81,7 @@ export function PopsPurchase({ product }: { product: Product }) {
                   className={cn(
                     'rounded-full border-2 border-pops-black px-5 py-2.5 font-display text-sm font-bold uppercase transition-all',
                     isActive
-                      ? 'bg-pops-black text-pops-lime shadow-pops'
+                      ? 'bg-pops-lime text-pops-black'
                       : 'bg-pops-paper text-pops-black hover:bg-pops-yellow',
                   )}
                 >
@@ -106,9 +106,9 @@ export function PopsPurchase({ product }: { product: Product }) {
 
       <div className="grid grid-cols-3 gap-2 text-center">
         {[
-          { t: 'free ship', s: 'over ₹100' },
-          { t: 'easy returns', s: '30 days' },
-          { t: 'pay later', s: 'in 4' },
+          { t: 'fast shipping', s: 'dispatched quick' },
+          { t: 'pod', s: 'print on demand' },
+          { t: 'made in india', s: 'start to finish' },
         ].map((b) => (
           <div key={b.t} className="rounded-2xl border-2 border-pops-black bg-pops-cream px-2 py-3">
             <p className="font-display text-xs font-bold uppercase text-pops-black">{b.t}</p>

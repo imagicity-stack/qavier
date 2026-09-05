@@ -22,7 +22,7 @@ const COLUMNS = [
     ],
   },
   {
-    title: 'qavier',
+    title: 'qavier — the house',
     links: [
       { label: 'home', href: '/' },
       { label: 'shop', href: '/shop' },
@@ -36,7 +36,7 @@ export function PopsFooter() {
       {/* Marquee strip */}
       <div className="border-y-2 border-pops-lime bg-pops-violet py-3 text-pops-black">
         <Marquee>
-          {['FREE SHIPPING OVER ₹100', '✦', 'NEW DROPS EVERY FRIDAY', '✦', 'STUDENT DISCOUNT', '✦', 'JOIN THE CLUB', '✦'].map(
+          {['FAST SHIPPING', '✦', 'NEW DROPS EVERY FRIDAY', '✦', 'PRINT ON DEMAND', '✦', 'MADE IN INDIA', '✦'].map(
             (t, i) => (
               <span
                 key={i}

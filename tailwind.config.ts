@@ -73,6 +73,10 @@ const config: Config = {
         luxe: '0 30px 80px -40px rgba(0,0,0,0.45)',
         pops: '6px 6px 0 0 #0E0E12',
         'pops-lg': '10px 10px 0 0 #0E0E12',
+        // For cards sitting on the dark Pops background, where a black
+        // offset shadow would simply disappear.
+        'pops-lime': '6px 6px 0 0 #C6FF1A',
+        'pops-lime-lg': '10px 10px 0 0 #C6FF1A',
         glow: '0 0 40px -8px rgba(255,46,147,0.55)',
       },
       keyframes: {
