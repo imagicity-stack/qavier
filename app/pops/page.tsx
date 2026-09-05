@@ -22,7 +22,7 @@ const MARQUEE_WORDS = [
   '✦',
   'WEAR IT LOUD',
   '★',
-  'STUDENT DISCOUNT',
+  'MADE IN INDIA',
   '⚡',
 ];
 
@@ -41,7 +41,8 @@ export default async function PopsHome() {
     sortKey: 'CREATED_AT',
     reverse: true,
   });
-  const featured = products.slice(0, 8);
+  // Every piece in the drop is on the home page — no "see more" wall.
+  const featured = products;
   const tiles = popsCategoryTiles(products).slice(0, 4);
 
   return (
@@ -132,12 +133,12 @@ export default async function PopsHome() {
 
       {/* ——————————————————————————— THE DROP (live Shopify products) ——————————— */}
       {featured.length > 0 && (
-        <section className="bg-pops-paper py-10 sm:py-16 lg:py-24">
+        <section className="bg-pops-black py-10 sm:py-16 lg:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-8">
             <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-4 sm:mb-12">
               <div>
                 <span className="pops-chip bg-pops-lime text-pops-black">⚡ in the drop</span>
-                <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-black sm:text-5xl lg:text-6xl">
+                <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-cream sm:text-5xl lg:text-6xl">
                   shop the drop
                 </h2>
               </div>
@@ -159,11 +160,11 @@ export default async function PopsHome() {
       {/* Built from the categories that actually have stock in Shopify — a
           category with nothing in it simply doesn't appear. */}
       {tiles.length > 0 && (
-        <section className="bg-pops-cream py-10 sm:py-16 lg:py-24">
+        <section className="bg-pops-ink py-10 sm:py-16 lg:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-8">
             <Reveal className="mb-8 sm:mb-12">
               <span className="pops-chip bg-pops-magenta text-white">⚡ pick your poison</span>
-              <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-black sm:text-5xl lg:text-6xl">
+              <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-cream sm:text-5xl lg:text-6xl">
                 shop by vibe
               </h2>
             </Reveal>
@@ -207,7 +208,7 @@ export default async function PopsHome() {
       {/* ——————————————————————————— DROPS TEASER ——————————————————————————— */}
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
         <Reveal>
-          <div className="relative overflow-hidden rounded-pops border-2 border-pops-black bg-pops-black p-5 text-pops-cream shadow-pops-lg sm:p-10 lg:p-14">
+          <div className="relative overflow-hidden rounded-pops border-2 border-pops-lime/40 bg-pops-ink p-5 text-pops-cream sm:p-10 lg:p-14">
             <div className="grain pointer-events-none absolute inset-0 opacity-20" />
             <div className="pointer-events-none absolute -right-12 -top-12 h-56 w-56 animate-spinslow rounded-full bg-pops-violet/40 blur-3xl" />
             <div className="relative z-10 grid items-center gap-8 lg:grid-cols-2">
@@ -260,10 +261,11 @@ export default async function PopsHome() {
           <Reveal className="mb-8 text-center sm:mb-12">
             <span className="pops-chip bg-pops-yellow text-pops-black">📸 the feed</span>
             <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-white sm:text-5xl lg:text-6xl">
-              tag us @qavierpops
+              worn by the pops
             </h2>
             <p className="mt-3 font-sans text-white/80">
-              fit pics, hauls, chaos. repost worthy = reposted. show us how you wear it loud.
+              fit pics, hauls, chaos. tag <strong className="font-semibold text-pops-lime">@qavier.in</strong>{' '}
+              — repost worthy = reposted.
             </p>
           </Reveal>
 
@@ -272,7 +274,7 @@ export default async function PopsHome() {
               <PlaceholderFrame
                 key={i}
                 universe="pops"
-                label={i % 2 === 0 ? '@qavierpops' : 'tag us ✦'}
+                label={i % 2 === 0 ? '@qavier.in' : 'tag us ✦'}
                 className={`aspect-square rounded-pops border-2 border-pops-black shadow-pops ${
                   i % 3 === 0 ? '-rotate-1' : 'rotate-1'
                 }`}
@@ -283,13 +285,13 @@ export default async function PopsHome() {
       </section>
 
       {/* ——————————————————————————— CLOSING CTA ——————————————————————————— */}
-      <section className="bg-pops-lime py-12 sm:py-20 lg:py-28">
+      <section className="bg-pops-lime py-10 sm:py-14 lg:py-16">
         <Reveal className="mx-auto max-w-3xl px-4 text-center sm:px-8">
           <span className="pops-chip bg-pops-black text-pops-lime">don&apos;t sleep on it</span>
-          <h2 className="mt-4 font-display text-4xl font-bold uppercase leading-[0.95] text-pops-black text-balance sm:text-6xl md:text-7xl lg:text-8xl">
+          <h2 className="mt-4 font-display text-2xl font-bold uppercase leading-[1] text-pops-black text-balance sm:text-3xl lg:text-4xl">
             the drop won&apos;t wait.
           </h2>
-          <p className="mx-auto mt-4 max-w-md font-sans text-base text-pops-black/70 sm:mt-5 sm:text-lg">
+          <p className="mx-auto mt-3 max-w-md font-sans text-sm text-pops-black/70 sm:text-base">
             you saw it, you want it, it&apos;s limited. you know what to do.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">

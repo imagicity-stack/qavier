@@ -59,10 +59,10 @@ export default async function PopsDrops() {
           <span className="pops-chip -rotate-1 bg-pops-magenta text-white shadow-pops">
             ⚡ drop culture
           </span>
-          <h1 className="mt-4 font-display text-4xl font-bold uppercase leading-[0.95] text-pops-black text-balance sm:text-6xl md:text-7xl lg:text-8xl">
+          <h1 className="mt-4 font-display text-4xl font-bold uppercase leading-[0.95] text-pops-cream text-balance sm:text-6xl md:text-7xl lg:text-8xl">
             the drops
           </h1>
-          <p className="mt-4 max-w-xl font-sans text-base text-pops-black/70 sm:text-lg">
+          <p className="mt-4 max-w-xl font-sans text-base text-pops-cream/70 sm:text-lg">
             new heat every friday 6pm. limited runs, zero restocks, blink and it&apos;s gone. this
             is how we do it 🫠
           </p>
@@ -182,10 +182,10 @@ export default async function PopsDrops() {
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
         <Reveal className="mb-8 sm:mb-12">
           <span className="pops-chip bg-pops-violet text-white">✦ the lineup</span>
-          <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-black sm:text-5xl lg:text-6xl">
+          <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-cream sm:text-5xl lg:text-6xl">
             in this drop
           </h2>
-          <p className="mt-3 max-w-lg font-sans text-pops-black/70">
+          <p className="mt-3 max-w-lg font-sans text-pops-cream/70">
             everything live right now, newest first. catch &apos;em while they last — sold out
             means sold out.
           </p>
@@ -198,11 +198,11 @@ export default async function PopsDrops() {
             ))}
           </Reveal>
         ) : (
-          <Reveal className="rounded-pops border-2 border-dashed border-pops-black/40 bg-pops-cream p-12 text-center">
-            <p className="font-display text-3xl font-bold uppercase text-pops-black">
+          <Reveal className="rounded-pops border-2 border-dashed border-pops-cream/30 bg-pops-ink p-12 text-center">
+            <p className="font-display text-3xl font-bold uppercase text-pops-cream">
               nothing live rn 🫠
             </p>
-            <p className="mt-2 font-sans text-pops-black/60">
+            <p className="mt-2 font-sans text-pops-cream/60">
               the next drop is still in the studio. check back friday 6pm.
             </p>
           </Reveal>
@@ -210,14 +210,14 @@ export default async function PopsDrops() {
       </section>
 
       {/* ——————————————————————————— FAQ ——————————————————————————— */}
-      <section id="faq" className="scroll-mt-28 bg-pops-cream py-10 sm:py-16 lg:py-24">
+      <section id="faq" className="scroll-mt-28 bg-pops-ink py-10 sm:py-16 lg:py-24">
         <div className="mx-auto max-w-3xl px-4 sm:px-8">
           <Reveal className="mb-8 text-center sm:mb-12">
             <span className="pops-chip bg-pops-black text-pops-lime">🤔 the fine print</span>
-            <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-black sm:text-5xl lg:text-6xl">
+            <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-cream sm:text-5xl lg:text-6xl">
               drop faq
             </h2>
-            <p className="mt-3 font-sans text-pops-black/70">
+            <p className="mt-3 font-sans text-pops-cream/70">
               everything you need to know before friday hits.
             </p>
           </Reveal>

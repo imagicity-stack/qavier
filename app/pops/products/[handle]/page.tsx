@@ -55,32 +55,6 @@ export default async function Page({ params }: { params: { handle: string } }) {
   return (
     <div className="overflow-hidden">
       <section className="mx-auto max-w-7xl px-4 pt-24 sm:px-8 sm:pt-28">
-        {/* Breadcrumb chips */}
-        <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2">
-          <Link
-            href="/pops"
-            className="rounded-full border-2 border-pops-black bg-pops-paper px-3 py-1 font-display text-xs font-bold uppercase text-pops-black transition-colors hover:bg-pops-yellow"
-          >
-            home
-          </Link>
-          <span aria-hidden className="font-display text-xs font-bold text-pops-black/40">
-            /
-          </span>
-          <Link
-            href="/pops/shop"
-            className="rounded-full border-2 border-pops-black bg-pops-paper px-3 py-1 font-display text-xs font-bold uppercase text-pops-black transition-colors hover:bg-pops-yellow"
-          >
-            shop all
-          </Link>
-          <span aria-hidden className="font-display text-xs font-bold text-pops-black/40">
-            /
-          </span>
-          {/* Truncated so a long name can't push the product below the fold —
-              the full title is the <h1> a few lines down anyway. */}
-          <span className="max-w-[55vw] truncate rounded-full border-2 border-pops-black bg-pops-lime px-3 py-1 font-display text-xs font-bold uppercase text-pops-black sm:max-w-none">
-            {product.title}
-          </span>
-        </nav>
 
         {/* Main: gallery + info */}
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
@@ -105,11 +79,11 @@ export default async function Page({ params }: { params: { handle: string } }) {
                 )}
                 <span className="pops-chip bg-pops-cyan text-pops-black">in the drop ⚡</span>
               </div>
-              <h1 className="mt-4 font-display text-3xl font-bold uppercase leading-[0.95] text-pops-black text-balance sm:text-5xl lg:text-7xl">
+              <h1 className="mt-4 font-display text-3xl font-bold uppercase leading-[0.95] text-pops-cream text-balance sm:text-5xl lg:text-7xl">
                 {product.title}
               </h1>
               {product.tagline && (
-                <p className="mt-3 font-sans text-lg text-pops-black/70">{product.tagline}</p>
+                <p className="mt-3 font-sans text-lg text-pops-cream/70">{product.tagline}</p>
               )}
             </div>
 
@@ -129,7 +103,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
 
             {/* "the details" list */}
             <div>
-              <h2 className="mb-3 font-display text-sm font-bold uppercase text-pops-black">
+              <h2 className="mb-3 font-display text-sm font-bold uppercase text-pops-cream">
                 the details
               </h2>
               <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -173,7 +147,7 @@ export default async function Page({ params }: { params: { handle: string } }) {
         <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
           <Reveal className="mb-8 sm:mb-12">
             <span className="pops-chip bg-pops-lime text-pops-black">★ don&apos;t stop now</span>
-            <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-black sm:text-5xl lg:text-6xl">
+            <h2 className="mt-3 font-display text-3xl font-bold uppercase leading-none text-pops-cream sm:text-5xl lg:text-6xl">
               you might also slap
             </h2>
           </Reveal>

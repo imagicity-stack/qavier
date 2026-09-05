@@ -26,7 +26,7 @@ export default function PopsLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <CartProvider>
-      <div className="min-h-screen bg-pops-paper font-sans text-pops-black selection:bg-pops-lime">
+      <div className="min-h-screen bg-pops-black font-sans text-pops-cream selection:bg-pops-lime selection:text-pops-black">
         <PopsNav />
         <main>{children}</main>
         <PopsFooter />
