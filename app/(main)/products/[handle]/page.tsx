@@ -6,7 +6,7 @@ import { Reveal } from '@/components/shared/reveal';
 import { LuxeGallery } from '@/components/luxe/luxe-gallery';
 import { LuxePurchase } from '@/components/luxe/luxe-purchase';
 import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
-import { SizeChartTable } from '@/components/qavier/size-chart';
+import { SizeChartTable } from '@/components/shared/size-chart';
 
 // Catalogue pages are regenerated at most this often, so Shopify price and
 // stock edits reach the storefront without a redeploy. The /api/revalidate

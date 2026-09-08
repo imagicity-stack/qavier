@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useCart } from '@/components/shared/cart-context';
+import { SizeChartDialog } from '@/components/shared/size-chart';
 import type { Product } from '@/lib/shopify/types';
 import { cn, discountPercent, formatPrice, isSizeOption, sortSizes } from '@/lib/utils';
 
@@ -68,9 +69,13 @@ export function PopsPurchase({ product }: { product: Product }) {
 
       {options.map((option) => (
         <div key={option.id}>
-          <p className="mb-2 font-display text-sm font-bold uppercase text-pops-cream">
-            {option.name}: <span className="text-pops-magenta">{selected[option.name]}</span>
-          </p>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="font-display text-sm font-bold uppercase text-pops-cream">
+              {option.name}: <span className="text-pops-magenta">{selected[option.name]}</span>
+            </p>
+            {/* Same measurements as the flagship store, in the Pops skin. */}
+            {isSizeOption(option.name) && <SizeChartDialog universe="pops" />}
+          </div>
           <div className="flex flex-wrap gap-2.5">
             {option.values.map((value) => {
               const isActive = selected[option.name] === value;

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PlaceholderFrame } from '@/components/shared/shop-image';
 import { Reveal } from '@/components/shared/reveal';
-import { SizeChartTable } from '@/components/qavier/size-chart';
+import { SizeChartTable } from '@/components/shared/size-chart';
 
 export const metadata: Metadata = {
   title: 'About',
