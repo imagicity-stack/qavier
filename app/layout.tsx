@@ -1,21 +1,21 @@
 import type { Metadata, Viewport } from 'next';
 import { Analytics } from '@/components/shared/analytics';
 import { SITE_URL } from '@/lib/config';
-import { display, sans, serif } from './fonts';
+import { display, sans } from './fonts';
 import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'QAVIER — Timeless Fashion, Modern Elegance',
+    default: 'QAVIER',
     template: '%s · QAVIER',
   },
   description:
-    'Qavier is a contemporary fashion house — considered, timeless pieces made to last. Discover the collection, or step into Qavier Pops for something loud and limited.',
-  keywords: ['Qavier', 'luxury fashion', 'womenswear', 'streetwear', 'Qavier Pops'],
+    'Qavier — considered pieces, made in small runs. Designed and made in India.',
+  keywords: ['Qavier', 'oversized t-shirts', 'streetwear', 'made in India'],
   openGraph: {
-    title: 'QAVIER — Timeless Fashion, Modern Elegance',
-    description: 'Considered, timeless pieces made to last. Plus Qavier Pops — loud, limited, iconic.',
+    title: 'QAVIER',
+    description: 'Considered pieces, made in small runs.',
     url: SITE_URL,
     siteName: 'Qavier',
     type: 'website',
@@ -23,13 +23,13 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'QAVIER',
-    description: 'Timeless fashion, modern elegance — plus Qavier Pops.',
+    description: 'Considered pieces, made in small runs.',
   },
   robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0b0b0c',
+  themeColor: '#111111',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -39,14 +39,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${serif.variable} ${sans.variable} ${display.variable}`}
+      className={`${display.variable} ${sans.variable}`}
       suppressHydrationWarning
     >
       <head>
         {/* Google tag (gtag.js) — first thing in the head, per Google. */}
         <Analytics />
       </head>
-      <body className="bg-luxe-noir text-luxe-cream antialiased">{children}</body>
+      <body className="bg-paper text-ink antialiased">{children}</body>
     </html>
   );
 }

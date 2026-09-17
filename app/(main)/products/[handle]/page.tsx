@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getProduct, getProducts } from '@/lib/shopify';
-import { Reveal } from '@/components/shared/reveal';
-import { LuxeGallery } from '@/components/luxe/luxe-gallery';
-import { LuxePurchase } from '@/components/luxe/luxe-purchase';
-import { LuxeProductCard } from '@/components/luxe/luxe-product-card';
+import { Gallery } from '@/components/store/gallery';
+import { Purchase } from '@/components/store/purchase';
+import { ProductCard } from '@/components/store/product-card';
 import { SizeChartTable } from '@/components/shared/size-chart';
+import { Reveal } from '@/components/shared/reveal';
 
 // Catalogue pages are regenerated at most this often, so Shopify price and
 // stock edits reach the storefront without a redeploy. The /api/revalidate
@@ -19,179 +19,94 @@ export async function generateMetadata({
   params: { handle: string };
 }): Promise<Metadata> {
   const product = await getProduct(params.handle);
-  if (!product || product.universe !== 'luxe') {
-    return { title: 'Not found' };
-  }
+  if (!product) return { title: 'Not found' };
   return {
     title: product.title,
     description: product.tagline ?? product.description.slice(0, 160),
   };
 }
 
-/** Hairline accordion used for the product detail rows. */
-function Accordion({
-  summary,
-  children,
-}: {
-  summary: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <details className="group border-b border-luxe-charcoal/10">
-      <summary className="flex cursor-pointer list-none items-center justify-between py-5 [&::-webkit-details-marker]:hidden">
-        <span className="luxe-label text-luxe-charcoal">{summary}</span>
-        <ChevronIcon className="h-4 w-4 shrink-0 text-luxe-stone transition-transform duration-500 ease-luxe group-open:rotate-180" />
-      </summary>
-      <div className="pb-6 font-sans text-sm leading-relaxed text-luxe-stone">
-        {children}
-      </div>
-    </details>
-  );
-}
-
-export default async function Page({ params }: { params: { handle: string } }) {
+export default async function ProductPage({ params }: { params: { handle: string } }) {
   const product = await getProduct(params.handle);
+  if (!product) notFound();
 
-  if (!product || product.universe !== 'luxe') {
-    notFound();
-  }
-
-  const related = (await getProducts({ section: 'qavier' }))
+  const related = (await getProducts({ first: 8 }))
     .filter((p) => p.handle !== product.handle)
     .slice(0, 4);
 
   return (
     <>
-      <section className="mx-auto max-w-7xl px-6 pb-20 pt-28 sm:px-10 sm:pt-32 lg:pb-28">
+      <section className="mx-auto max-w-[90rem] px-5 pb-20 pt-24 sm:px-8 sm:pt-32">
+        {/* min-w-0: a grid item defaults to min-width:auto, so wide content
+            would stretch a column past the viewport and clip its siblings. */}
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-          {/* —————————————————————————— Gallery —————————————————————————— */}
-          {/* min-w-0: a grid item defaults to min-width:auto, so wide content
-              would stretch this column past the viewport and clip its siblings. */}
           <div className="min-w-0">
-            <LuxeGallery images={product.images} title={product.title} />
+            <Gallery images={product.images} title={product.title} />
           </div>
 
-          {/* —————————————————————————— Info column —————————————————————————— */}
           <div className="min-w-0 lg:sticky lg:top-28 lg:self-start">
-            {/* Breadcrumb */}
-            <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2">
-              <Link
-                href="/qavier"
-                className="luxe-label text-luxe-stone transition-colors duration-500 ease-luxe hover:text-luxe-gold"
-              >
-                Home
-              </Link>
-              <span aria-hidden className="text-luxe-stone/50">
-                /
-              </span>
-              <Link
-                href="/shop"
-                className="luxe-label text-luxe-stone transition-colors duration-500 ease-luxe hover:text-luxe-gold"
-              >
-                Shop
-              </Link>
-              <span aria-hidden className="text-luxe-stone/50">
-                /
-              </span>
-              <span className="luxe-label text-luxe-charcoal">{product.title}</span>
-            </nav>
-
-            {product.badge && (
-              <span className="mt-7 inline-block bg-luxe-noir px-3 py-1 font-sans text-[0.6rem] uppercase tracking-wider2 text-luxe-cream">
-                {product.badge}
-              </span>
-            )}
-
-            <h1 className="mt-5 font-serif text-4xl font-light leading-tight text-luxe-noir sm:text-5xl">
+            <h1 className="font-display text-2xl font-light leading-tight text-ink sm:text-3xl">
               {product.title}
             </h1>
-
             {product.tagline && (
-              <p className="mt-4 font-serif text-xl italic text-luxe-charcoal/70">
-                {product.tagline}
-              </p>
+              <p className="mt-3 text-sm leading-relaxed text-ink/50">{product.tagline}</p>
             )}
 
-            <div className="mt-9">
-              <LuxePurchase product={product} />
+            <div className="mt-7">
+              <Purchase product={product} />
             </div>
 
-            {/* Description */}
-            <div className="mt-12 border-t border-luxe-charcoal/10 pt-8">
-              <p className="font-sans text-base leading-relaxed text-luxe-charcoal/80">
-                {product.description}
+            {/* Product details, straight from Shopify */}
+            {product.descriptionHtml && (
+              <div className="mt-12 border-t border-line pt-8">
+                <h2 className="label">Product details</h2>
+                <div
+                  className="mt-4 text-sm leading-relaxed text-ink/70 [&_a]:underline [&_li]:mt-1.5 [&_p]:mt-3 [&_p:first-child]:mt-0 [&_strong]:text-ink [&_ul]:list-disc [&_ul]:pl-5"
+                  dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+                />
+              </div>
+            )}
+
+            {/* Care */}
+            <div className="mt-10 border-t border-line pt-8">
+              <h2 className="label">Wash care</h2>
+              <p className="mt-4 text-sm leading-relaxed text-ink/70">
+                {product.material ? `${product.material}. ` : ''}
+                Cold machine wash inside out, with like colours. Do not bleach.
+                Hang to dry in shade. Warm iron on the reverse, never on the print.
               </p>
             </div>
 
-            {/* Details accordions */}
-            <div className="mt-10 border-t border-luxe-charcoal/10">
-              <Accordion summary="Details">
-                {product.description}{' '}
-                Designed for an easy, considered fit — true to size, with room to layer.
-              </Accordion>
-              <Accordion summary="Size Chart">
-                <SizeChartTable />
-              </Accordion>
-              <Accordion summary="Fabric & Care">
-                {product.material ? `${product.material}. ` : ''}
-                Specialist dry-clean only. Rest between wears on a broad wooden hanger,
-                away from direct light. Cared for well, this is a piece for the next
-                decade — not the next season.
-              </Accordion>
-              <Accordion summary="Shipping & Returns">
-                Complimentary insured delivery, presented in Qavier archival packaging.
-                Returns accepted within 30 days, unworn and with the authenticity seal
-                intact.
-              </Accordion>
+            {/* Measurements */}
+            <div className="mt-10 border-t border-line pt-8">
+              <h2 className="label">Size chart</h2>
+              <SizeChartTable className="mt-4" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* —————————————————————————— You May Also Like —————————————————————————— */}
       {related.length > 0 && (
-        <section className="mx-auto max-w-7xl px-6 pb-24 sm:px-10 lg:pb-32">
-          <Reveal>
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="luxe-label text-luxe-gold">The Edit</p>
-                <h2 className="mt-4 font-serif text-3xl font-light text-luxe-noir sm:text-4xl">
-                  You May Also Like
-                </h2>
-              </div>
-              <Link
-                href="/shop"
-                className="luxe-label whitespace-nowrap text-luxe-charcoal transition-colors duration-500 ease-luxe hover:text-luxe-gold"
-              >
-                View All →
-              </Link>
-            </div>
-            <div className="luxe-rule mt-8" />
+        <section className="mx-auto max-w-[90rem] px-5 pb-24 sm:px-8 sm:pb-32">
+          <Reveal className="flex items-end justify-between gap-6 border-t border-line pt-14">
+            <h2 className="font-display text-xl font-light text-ink sm:text-2xl">
+              You may also like
+            </h2>
+            <Link
+              href="/shop"
+              className="shrink-0 text-[0.65rem] uppercase tracking-wider2 text-ink/50 underline-offset-4 transition-colors hover:text-ink hover:underline"
+            >
+              View all
+            </Link>
           </Reveal>
 
-          <div className="mt-12 grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
-            {related.map((p, i) => (
-              <Reveal key={p.id} delay={(i % 4) * 0.06}>
-                <LuxeProductCard product={p} />
-              </Reveal>
+          <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 lg:grid-cols-4">
+            {related.map((p) => (
+              <ProductCard key={p.id} product={p} />
             ))}
           </div>
         </section>
       )}
     </>
-  );
-}
-
-function ChevronIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <path
-        d="m6 9 6 6 6-6"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

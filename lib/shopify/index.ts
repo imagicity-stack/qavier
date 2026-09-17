@@ -4,7 +4,7 @@
  * All catalogue data comes straight from Shopify. Until the SHOPIFY_* env vars
  * are set, the product functions return empty results (no demo/placeholder
  * catalogue), so the storefront is production-ready the moment you connect a
- * real store. See the README "Connecting Shopify" and "Sections on Shopify".
+ * real store. See the README "Connecting Shopify".
  */
 import {
   ADD_TO_CART_MUTATION,
@@ -24,8 +24,6 @@ import type {
   Image,
   Money,
   Product,
-  Section,
-  Universe,
 } from './types';
 
 const DOMAIN = process.env.SHOPIFY_STORE_DOMAIN;
@@ -112,10 +110,6 @@ async function shopifyFetch<T>({
 type Edges<T> = { edges: { node: T }[] };
 const flatten = <T,>(c?: Edges<T>): T[] => c?.edges?.map((e) => e.node) ?? [];
 
-function deriveUniverse(tags: string[]): Universe {
-  return tags.map((t) => t.toLowerCase()).includes('pops') ? 'pops' : 'luxe';
-}
-
 function normalizeImage(img: any, alt: string): Image {
   if (!img?.url) {
     return { url: '', altText: alt, placeholder: true, width: 1200, height: 1600 };
@@ -181,7 +175,6 @@ function reshapeProduct(node: any): Product {
     priceRange: node.priceRange,
     compareAtPriceRange: normalizeCompareAtRange(node.compareAtPriceRange),
     tags,
-    universe: deriveUniverse(tags),
     productType: node.productType || undefined,
     material: node.material?.value,
     badge: node.badge?.value,
@@ -193,9 +186,7 @@ function reshapeProduct(node: any): Product {
 // ————————————————————————————————————————————————————————————————
 
 export async function getProducts(options?: {
-  /** Scope to a storefront section (matches the product's Shopify tag). */
-  section?: Section;
-  /** Free-text search (title, tag, type…). Combined with `section`. */
+  /** Free-text search (title, tag, type…). */
   query?: string;
   first?: number;
   /** Shopify sort key — e.g. 'CREATED_AT' for newest-first drops. */
@@ -203,21 +194,19 @@ export async function getProducts(options?: {
   /** Reverse the sort (with CREATED_AT this gives newest first). */
   reverse?: boolean;
 }): Promise<Product[]> {
-  const { section, query, first = 50, sortKey, reverse } = options ?? {};
+  const { query, first = 50, sortKey, reverse } = options ?? {};
 
   if (!isShopifyConfigured) {
     warnNotConfigured();
     return [];
   }
 
-  // Compose a Shopify search query that scopes to the section tag.
-  const searchParts = [query, section ? `tag:${section}` : ''].filter(Boolean);
   try {
     const data = await shopifyFetch<{ products: Edges<any> }>({
       query: GET_PRODUCTS_QUERY,
       variables: {
         first,
-        query: searchParts.join(' ') || undefined,
+        query: query || undefined,
         sortKey,
         reverse,
       },
@@ -274,20 +263,18 @@ export async function getCollection(
     title: c.title,
     description: c.description ?? '',
     image: c.image ? normalizeImage(c.image, c.title) : null,
-    universe: products[0]?.universe ?? 'luxe',
     products,
   };
 }
 
 export interface ProductRef {
   handle: string;
-  universe: Universe;
   /** Shopify's own last-modified timestamp, for <lastmod>. */
   updatedAt?: string;
 }
 
 /**
- * Every product in the store as a handle + universe + updated date, for the
+ * Every product in the store as a handle + updated date, for the
  * sitemap. Unlike `getProducts` this pages through the whole catalogue rather
  * than stopping at the first 50, so large stores are listed in full.
  */
@@ -312,7 +299,6 @@ export async function getAllProductRefs(): Promise<ProductRef[]> {
         if (!node?.handle) continue;
         refs.push({
           handle: node.handle,
-          universe: deriveUniverse(node.tags ?? []),
           updatedAt: node.updatedAt,
         });
       }
@@ -407,7 +393,6 @@ function reshapeCart(node: any): Cart {
             l.merchandise.product.featuredImage,
             l.merchandise.product.title,
           ),
-          universe: deriveUniverse(l.merchandise.product.tags ?? []),
         },
       },
     })),

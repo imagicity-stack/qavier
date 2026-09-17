@@ -23,32 +23,24 @@ export default function LegalPage({ params }: { params: { slug: string } }) {
   if (!doc) notFound();
 
   return (
-    <article className="mx-auto max-w-3xl px-6 py-14 sm:px-10 sm:py-20">
-      <p className="font-sans text-[0.65rem] uppercase tracking-luxe text-luxe-gold">
-        Legal
-      </p>
-      <h1 className="mt-4 font-serif text-3xl font-light leading-tight text-luxe-noir sm:text-4xl">
+    <article className="mx-auto max-w-3xl px-5 py-14 sm:px-8 sm:py-20">
+      <p className="label">Legal</p>
+      <h1 className="mt-4 font-display text-2xl font-light leading-tight text-ink sm:text-3xl">
         {doc.title}
       </h1>
-      <p className="mt-4 max-w-xl font-sans text-sm leading-relaxed text-luxe-charcoal/80 sm:text-base">
-        {doc.summary}
-      </p>
-      <p className="mt-4 font-sans text-xs uppercase tracking-wider2 text-luxe-stone">
+      <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink/60">{doc.summary}</p>
+      <p className="mt-4 text-[0.65rem] uppercase tracking-wider2 text-ink/40">
         Last updated {LEGAL_UPDATED}
       </p>
 
-      <div className="luxe-rule mt-8" />
-
-      <div className="mt-10 flex flex-col gap-9">
+      <div className="mt-10 flex flex-col gap-9 border-t border-line pt-10">
         {doc.sections.map((section) => (
           <section key={section.heading}>
-            <h2 className="font-serif text-xl font-light text-luxe-noir sm:text-2xl">
-              {section.heading}
-            </h2>
+            <h2 className="font-display text-lg font-light text-ink">{section.heading}</h2>
             {section.body?.map((paragraph) => (
               <p
                 key={paragraph.slice(0, 40)}
-                className="mt-3 font-sans text-sm leading-relaxed text-luxe-charcoal/80"
+                className="mt-3 text-sm leading-relaxed text-ink/65"
               >
                 {paragraph}
               </p>
@@ -58,9 +50,9 @@ export default function LegalPage({ params }: { params: { slug: string } }) {
                 {section.list.map((item) => (
                   <li
                     key={item.slice(0, 40)}
-                    className="flex gap-3 font-sans text-sm leading-relaxed text-luxe-charcoal/80"
+                    className="flex gap-3 text-sm leading-relaxed text-ink/65"
                   >
-                    <span aria-hidden className="mt-1 shrink-0 text-luxe-gold">
+                    <span aria-hidden className="mt-1 shrink-0 text-ink/25">
                       —
                     </span>
                     <span>{item}</span>
@@ -72,21 +64,19 @@ export default function LegalPage({ params }: { params: { slug: string } }) {
         ))}
       </div>
 
-      {/* Every policy reaches every other one */}
-      <div className="luxe-rule mt-12" />
-      <p className="mt-8 font-sans text-[0.65rem] uppercase tracking-luxe text-luxe-gold">
-        More policies
-      </p>
-      <div className="mt-4 flex flex-wrap gap-x-7 gap-y-3">
-        {LEGAL_DOCS.filter((d) => d.slug !== doc.slug).map((d) => (
-          <Link
-            key={d.slug}
-            href={`/legal/${d.slug}`}
-            className="font-sans text-sm text-luxe-charcoal underline-offset-4 transition-colors duration-300 hover:text-luxe-gold hover:underline"
-          >
-            {d.title}
-          </Link>
-        ))}
+      <div className="mt-12 border-t border-line pt-8">
+        <p className="label">More policies</p>
+        <div className="mt-4 flex flex-wrap gap-x-7 gap-y-3">
+          {LEGAL_DOCS.filter((d) => d.slug !== doc.slug).map((d) => (
+            <Link
+              key={d.slug}
+              href={`/legal/${d.slug}`}
+              className="text-sm text-ink/60 underline-offset-4 transition-colors hover:text-ink hover:underline"
+            >
+              {d.title}
+            </Link>
+          ))}
+        </div>
       </div>
     </article>
   );

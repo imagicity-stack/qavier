@@ -1,42 +1,19 @@
 /**
  * Site-level switches.
  *
- * The landing page (`/`) is a 2×2 hub with four worlds:
- *
- *   1. Qavier      → the flagship store at /qavier. Always open (no flag).
- *   2. Luxe        → /luxe        — gated by NEXT_PUBLIC_LUXE_STORE
- *   3. Pops        → /pops        — gated by NEXT_PUBLIC_POPS_STORE
- *   4. Essentials  → /essentials  — gated by NEXT_PUBLIC_ESSENTIALS_STORE
- *
- * Each gated world defaults to a "coming soon" holding page. Flip one live —
- * with no code change — by setting its env var to `live` (Vercel → Settings →
- * Environment Variables, or your local .env.local) and redeploying. Any other
- * value (including unset) keeps it in "coming soon".
+ * One store, one door. The old four-world hub is gone, and with it the
+ * per-world launch flags — the only gate left holds the whole shop behind a
+ * coming-soon page.
  */
-function isLive(value: string | undefined): boolean {
-  return value === 'live';
-}
 
-/** Qavier Luxe — the premium line. */
-export const LUXE_LIVE = isLive(process.env.NEXT_PUBLIC_LUXE_STORE);
-/** Qavier Pops — already built; revealed when flipped live. */
-export const POPS_LIVE = isLive(process.env.NEXT_PUBLIC_POPS_STORE);
-/** Qavier Essentials — the everyday basics line. */
-export const ESSENTIALS_LIVE = isLive(process.env.NEXT_PUBLIC_ESSENTIALS_STORE);
-
-// ── Legacy: whole-Qavier-store holding switch (the flagship is now always
-//    open via the hub, so this defaults to live). Kept for the /qavier gate.
-const STORE_LIVE_FALLBACK = true;
-
-export const STORE_LIVE: boolean =
-  process.env.NEXT_PUBLIC_QAVIER_STORE === 'live'
-    ? true
-    : process.env.NEXT_PUBLIC_QAVIER_STORE === 'coming-soon'
-      ? false
-      : STORE_LIVE_FALLBACK;
-
-/** When true, the flagship store shows the "coming soon" holding page. */
-export const COMING_SOON = !STORE_LIVE;
+/**
+ * Set NEXT_PUBLIC_QAVIER_STORE=coming-soon to hold the store behind its
+ * holding page. Anything else (including unset) opens it.
+ *
+ * NB: this is the same variable that used to gate the flagship world, so a
+ * deployment that still has it set to `coming-soon` will hold the ENTIRE site.
+ */
+export const COMING_SOON = process.env.NEXT_PUBLIC_QAVIER_STORE === 'coming-soon';
 
 /**
  * Canonical site URL — used for metadata, robots.txt and the sitemap.
