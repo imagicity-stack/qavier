@@ -10,8 +10,7 @@ import { formatPrice } from '@/lib/utils';
 // different prices or timelines.
 import { SHIPPING_METHODS } from '@/lib/shipping';
 
-
-export default function LuxeCheckoutPage() {
+export default function CheckoutPage() {
   const { lines, subtotal, currencyCode, refreshPrices } = useCart();
 
   // The summary must match what Shopify will charge, so re-price on entry.
@@ -21,9 +20,7 @@ export default function LuxeCheckoutPage() {
 
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [shippingId, setShippingId] = useState<string>('standard');
-
-  // Contact + address form state.
+  const [shippingId, setShippingId] = useState('standard');
   const [form, setForm] = useState({
     email: '',
     fullName: '',
@@ -36,8 +33,7 @@ export default function LuxeCheckoutPage() {
   });
 
   const currency = currencyCode || 'INR';
-  const shipping =
-    SHIPPING_METHODS.find((m) => m.id === shippingId) ?? SHIPPING_METHODS[0];
+  const shipping = SHIPPING_METHODS.find((m) => m.id === shippingId) ?? SHIPPING_METHODS[0];
   const total = subtotal + shipping.cost;
   const empty = lines.length === 0;
 
@@ -55,13 +51,11 @@ export default function LuxeCheckoutPage() {
       const result = await startCheckout(
         lines.map((l) => ({ merchandiseId: l.variantId, quantity: l.quantity })),
       );
-
       if (result.checkoutUrl) {
         // Hand off to Shopify's hosted, secure checkout.
         window.location.href = result.checkoutUrl;
         return;
       }
-
       setError(result.error ?? 'Checkout failed. Please try again.');
     } catch {
       setError('Something went wrong. Please try again.');
@@ -72,273 +66,157 @@ export default function LuxeCheckoutPage() {
 
   if (empty) {
     return (
-      <div className="min-h-screen bg-luxe-cream px-6 pb-24 pt-28 text-luxe-noir sm:px-10 sm:pt-32">
-        <div className="mx-auto flex max-w-2xl flex-col items-center gap-8 py-24 text-center">
-          <span className="luxe-label">Checkout</span>
-          <h1 className="font-serif text-4xl font-light italic text-luxe-charcoal sm:text-5xl">
-            Your bag is empty
-          </h1>
-          <p className="max-w-md font-sans text-sm leading-relaxed text-luxe-stone">
-            There is nothing to check out just yet. Explore the collection and
-            add a piece to begin.
-          </p>
-          <Link href="/shop" className="luxe-btn">
-            Continue Shopping
-          </Link>
-        </div>
-      </div>
+      <section className="mx-auto flex max-w-2xl flex-col items-center gap-7 px-5 pb-24 pt-32 text-center sm:px-8 sm:pt-40">
+        <p className="label">Checkout</p>
+        <h1 className="font-display text-3xl font-light text-ink">Your bag is empty</h1>
+        <p className="max-w-sm text-sm leading-relaxed text-ink/50">
+          There is nothing to check out just yet.
+        </p>
+        <Link href="/shop" className="btn">
+          Continue shopping
+        </Link>
+      </section>
     );
   }
 
   return (
-    <div className="min-h-screen bg-luxe-cream px-6 pb-24 pt-28 text-luxe-noir sm:px-10 sm:pt-32">
-      <div className="mx-auto max-w-6xl">
-        <header className="mb-12">
-          <span className="luxe-label">Qavier</span>
-          <h1 className="mt-3 font-serif text-5xl font-light leading-none sm:text-6xl">
-            Checkout
-          </h1>
-        </header>
+    <section className="mx-auto max-w-[70rem] px-5 pb-24 pt-28 sm:px-8 sm:pt-36">
+      <header className="mb-10">
+        <p className="label">Checkout</p>
+        <h1 className="mt-4 font-display text-3xl font-light text-ink sm:text-4xl">
+          Your details
+        </h1>
+      </header>
 
-        <form
-          onSubmit={handlePlaceOrder}
-          className="grid gap-12 lg:grid-cols-[1fr_380px] lg:gap-16"
-        >
-          {/* ——— Left: form ——— */}
-          <div className="space-y-12">
-            {/* Contact */}
-            <fieldset>
-              <legend className="luxe-label mb-5 block">
-                Contact Information
-              </legend>
-              <Field
-                id="email"
-                label="Email address"
-                type="email"
-                autoComplete="email"
-                value={form.email}
-                onChange={(v) => update('email', v)}
-                required
-              />
-            </fieldset>
+      <form
+        onSubmit={handlePlaceOrder}
+        className="grid gap-12 lg:grid-cols-[1fr_22rem] lg:gap-16"
+      >
+        <div className="flex flex-col gap-10">
+          <fieldset>
+            <legend className="label mb-5">Contact</legend>
+            <Field
+              id="email"
+              label="Email address"
+              type="email"
+              autoComplete="email"
+              value={form.email}
+              onChange={(v) => update('email', v)}
+              required
+            />
+          </fieldset>
 
-            <div className="luxe-rule" />
-
-            {/* Shipping address */}
-            <fieldset>
-              <legend className="luxe-label mb-5 block">Shipping Address</legend>
-              <div className="grid gap-5">
-                <Field
-                  id="fullName"
-                  label="Full name"
-                  autoComplete="name"
-                  value={form.fullName}
-                  onChange={(v) => update('fullName', v)}
-                  required
-                />
-                <Field
-                  id="address"
-                  label="Address"
-                  autoComplete="address-line1"
-                  value={form.address}
-                  onChange={(v) => update('address', v)}
-                  required
-                />
-                <Field
-                  id="apartment"
-                  label="Apartment, suite, etc."
-                  optional
-                  autoComplete="address-line2"
-                  value={form.apartment}
-                  onChange={(v) => update('apartment', v)}
-                />
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <Field
-                    id="city"
-                    label="City"
-                    autoComplete="address-level2"
-                    value={form.city}
-                    onChange={(v) => update('city', v)}
-                    required
-                  />
-                  <Field
-                    id="state"
-                    label="State"
-                    autoComplete="address-level1"
-                    value={form.state}
-                    onChange={(v) => update('state', v)}
-                    required
-                  />
-                </div>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <Field
-                    id="pin"
-                    label="PIN code"
-                    inputMode="numeric"
-                    autoComplete="postal-code"
-                    value={form.pin}
-                    onChange={(v) => update('pin', v)}
-                    required
-                  />
-                  <Field
-                    id="phone"
-                    label="Phone"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    value={form.phone}
-                    onChange={(v) => update('phone', v)}
-                    required
-                  />
-                </div>
+          <fieldset className="border-t border-line pt-10">
+            <legend className="label mb-5">Shipping address</legend>
+            <div className="grid gap-4">
+              <Field id="fullName" label="Full name" autoComplete="name" value={form.fullName} onChange={(v) => update('fullName', v)} required />
+              <Field id="address" label="Address" autoComplete="address-line1" value={form.address} onChange={(v) => update('address', v)} required />
+              <Field id="apartment" label="Apartment, suite, etc." optional autoComplete="address-line2" value={form.apartment} onChange={(v) => update('apartment', v)} />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field id="city" label="City" autoComplete="address-level2" value={form.city} onChange={(v) => update('city', v)} required />
+                <Field id="state" label="State" autoComplete="address-level1" value={form.state} onChange={(v) => update('state', v)} required />
               </div>
-            </fieldset>
-
-            <div className="luxe-rule" />
-
-            {/* Shipping method */}
-            <fieldset>
-              <legend className="luxe-label mb-5 block">Shipping Method</legend>
-              <div className="grid gap-4">
-                {SHIPPING_METHODS.map((method) => {
-                  const selected = shippingId === method.id;
-                  return (
-                    <label
-                      key={method.id}
-                      className={`flex cursor-pointer items-center justify-between border px-5 py-4 transition-colors duration-300 ${
-                        selected
-                          ? 'border-luxe-noir bg-luxe-porcelain'
-                          : 'border-luxe-charcoal/25 hover:border-luxe-charcoal/50'
-                      }`}
-                    >
-                      <span className="flex items-center gap-4">
-                        <input
-                          type="radio"
-                          name="shipping-method"
-                          value={method.id}
-                          checked={selected}
-                          onChange={() => setShippingId(method.id)}
-                          className="h-4 w-4 accent-luxe-noir"
-                        />
-                        <span className="flex flex-col">
-                          <span className="font-sans text-sm text-luxe-noir">
-                            {method.label}
-                          </span>
-                          <span className="font-sans text-xs text-luxe-stone">
-                            {method.detail}
-                          </span>
-                        </span>
-                      </span>
-                      <span className="font-sans text-sm tabular-nums">
-                        {formatPrice({
-                          amount: method.cost.toFixed(2),
-                          currencyCode: currency,
-                        })}
-                      </span>
-                    </label>
-                  );
-                })}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field id="pin" label="PIN code" inputMode="numeric" autoComplete="postal-code" value={form.pin} onChange={(v) => update('pin', v)} required />
+                <Field id="phone" label="Phone" type="tel" inputMode="tel" autoComplete="tel" value={form.phone} onChange={(v) => update('phone', v)} required />
               </div>
-            </fieldset>
-          </div>
+            </div>
+          </fieldset>
 
-          {/* ——— Right: order summary ——— */}
-          <aside className="lg:sticky lg:top-32 lg:h-fit">
-            <div className="border border-luxe-charcoal/20 bg-luxe-porcelain px-7 py-8">
-              <h2 className="luxe-label mb-6">Order Summary</h2>
-
-              <ul className="space-y-5">
-                {lines.map((line) => (
-                  <li key={line.variantId} className="flex items-start gap-4">
-                    <div className="relative h-20 w-16 shrink-0 overflow-hidden">
-                      <ShopImage
-                        image={line.image}
-                        universe="luxe"
-                        className="h-full w-full"
-                        sizes="64px"
+          <fieldset className="border-t border-line pt-10">
+            <legend className="label mb-5">Shipping method</legend>
+            <div className="grid gap-3">
+              {SHIPPING_METHODS.map((method) => {
+                const selected = shippingId === method.id;
+                return (
+                  <label
+                    key={method.id}
+                    className={`flex cursor-pointer items-center justify-between border px-5 py-4 transition-colors ${
+                      selected ? 'border-ink' : 'border-line hover:border-ink/40'
+                    }`}
+                  >
+                    <span className="flex items-center gap-4">
+                      <input
+                        type="radio"
+                        name="shipping-method"
+                        value={method.id}
+                        checked={selected}
+                        onChange={() => setShippingId(method.id)}
+                        className="h-3.5 w-3.5 accent-ink"
                       />
-                    </div>
-                    <div className="flex flex-1 flex-col">
-                      <span className="font-serif text-base leading-tight">
-                        {line.productTitle}
+                      <span className="flex flex-col">
+                        <span className="text-sm text-ink">{method.label}</span>
+                        <span className="text-xs text-ink/45">{method.detail}</span>
                       </span>
-                      <span className="mt-0.5 font-sans text-xs text-luxe-stone">
-                        {line.variantTitle} · Qty {line.quantity}
-                      </span>
-                    </div>
-                    <span className="shrink-0 font-sans text-sm tabular-nums">
-                      {formatPrice({
-                        amount: (
-                          Number(line.price.amount) * line.quantity
-                        ).toFixed(2),
-                        currencyCode: line.price.currencyCode,
-                      })}
                     </span>
-                  </li>
-                ))}
-              </ul>
+                    <span className="text-sm tabular-nums text-ink/70">
+                      {formatPrice({ amount: method.cost.toFixed(2), currencyCode: currency })}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+        </div>
 
-              <div className="luxe-rule my-6" />
+        <aside className="lg:sticky lg:top-32 lg:h-fit">
+          <p className="label">Order summary</p>
 
-              <dl className="space-y-4 font-sans text-sm">
-                <div className="flex items-center justify-between">
-                  <dt className="text-luxe-charcoal/80">Subtotal</dt>
-                  <dd className="tabular-nums">
-                    {formatPrice({
-                      amount: subtotal.toFixed(2),
-                      currencyCode: currency,
-                    })}
-                  </dd>
+          <ul className="mt-5 divide-y divide-line border-y border-line">
+            {lines.map((line) => (
+              <li key={line.variantId} className="flex items-start gap-4 py-4">
+                <div className="relative h-20 w-16 shrink-0 overflow-hidden bg-shell">
+                  <ShopImage image={line.image} className="h-full w-full" sizes="64px" label={line.productTitle} />
                 </div>
-                <div className="flex items-center justify-between">
-                  <dt className="text-luxe-charcoal/80">
-                    Shipping{' '}
-                    <span className="text-luxe-stone">({shipping.label})</span>
-                  </dt>
-                  <dd className="tabular-nums">
-                    {formatPrice({
-                      amount: shipping.cost.toFixed(2),
-                      currencyCode: currency,
-                    })}
-                  </dd>
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <span className="text-sm leading-snug text-ink">{line.productTitle}</span>
+                  <span className="mt-0.5 text-xs text-ink/45">
+                    {line.variantTitle} · Qty {line.quantity}
+                  </span>
                 </div>
-              </dl>
-
-              <div className="luxe-rule my-6" />
-
-              <div className="flex items-baseline justify-between">
-                <span className="luxe-label !text-luxe-noir">Total</span>
-                <span className="font-serif text-3xl font-light tabular-nums">
+                <span className="shrink-0 text-sm tabular-nums text-ink/70">
                   {formatPrice({
-                    amount: total.toFixed(2),
-                    currencyCode: currency,
+                    amount: (Number(line.price.amount) * line.quantity).toFixed(2),
+                    currencyCode: line.price.currencyCode,
                   })}
                 </span>
-              </div>
+              </li>
+            ))}
+          </ul>
 
-              {error && (
-                <p className="mt-6 border border-luxe-champagne/50 bg-luxe-ivory px-4 py-3 text-center font-sans text-xs text-luxe-charcoal">
-                  {error}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={placing}
-                className={`luxe-btn mt-8 w-full ${placing ? 'opacity-60' : ''}`}
-              >
-                {placing ? 'Placing Order…' : 'Continue to Payment'}
-              </button>
-
-              <p className="mt-4 text-center font-sans text-[0.68rem] leading-relaxed text-luxe-stone">
-                You&rsquo;ll complete payment securely on Shopify. Taxes are
-                calculated at checkout.
-              </p>
+          <dl className="mt-5 flex flex-col gap-3 text-sm">
+            <div className="flex items-center justify-between">
+              <dt className="text-ink/60">Subtotal</dt>
+              <dd className="tabular-nums">
+                {formatPrice({ amount: subtotal.toFixed(2), currencyCode: currency })}
+              </dd>
             </div>
-          </aside>
-        </form>
-      </div>
-    </div>
+            <div className="flex items-center justify-between">
+              <dt className="text-ink/60">Shipping</dt>
+              <dd className="tabular-nums">
+                {formatPrice({ amount: shipping.cost.toFixed(2), currencyCode: currency })}
+              </dd>
+            </div>
+          </dl>
+
+          <div className="mt-5 flex items-baseline justify-between border-t border-line pt-5">
+            <span className="label text-ink">Total</span>
+            <span className="text-lg tabular-nums text-ink">
+              {formatPrice({ amount: total.toFixed(2), currencyCode: currency })}
+            </span>
+          </div>
+
+          {error && <p className="mt-5 text-xs text-ink/60">{error}</p>}
+
+          <button type="submit" disabled={placing} className={`btn mt-7 w-full ${placing ? 'opacity-60' : ''}`}>
+            {placing ? 'One moment…' : 'Continue to payment'}
+          </button>
+          <p className="mt-4 text-center text-[0.68rem] leading-relaxed text-ink/40">
+            You’ll complete payment securely on Shopify.
+          </p>
+        </aside>
+      </form>
+    </section>
   );
 }
 
@@ -365,16 +243,9 @@ function Field({
 }) {
   return (
     <div className="flex flex-col">
-      <label
-        htmlFor={id}
-        className="mb-2 font-sans text-xs uppercase tracking-wider2 text-luxe-stone"
-      >
+      <label htmlFor={id} className="label mb-2">
         {label}
-        {optional ? (
-          <span className="ml-1 normal-case tracking-normal text-luxe-stone/70">
-            (optional)
-          </span>
-        ) : null}
+        {optional ? <span className="ml-1 normal-case tracking-normal">(optional)</span> : null}
       </label>
       <input
         id={id}
@@ -385,7 +256,7 @@ function Field({
         required={required}
         autoComplete={autoComplete}
         inputMode={inputMode}
-        className="border border-luxe-charcoal/25 bg-transparent px-4 py-3 font-sans text-sm text-luxe-noir transition-colors duration-300 placeholder:text-luxe-stone/60 focus:border-luxe-noir focus:outline-none"
+        className="field"
       />
     </div>
   );

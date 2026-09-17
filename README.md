@@ -1,23 +1,16 @@
 # QAVIER
 
-A contemporary fashion house, built as one Next.js app. The landing page (`/`)
-is a **2×2 hub** of four worlds:
+A single-portal storefront, built as one Next.js app. An intro animation opens
+onto a full-bleed hero, then the collection: `/` → `/shop` → `/products/<handle>`
+→ cart → Shopify's hosted checkout.
 
-- **Qavier** — the flagship store (`/qavier` + `/shop`, `/cart`, …). Editorial,
-  serif, generous whitespace.
-- **Luxe** — the premium line (`/luxe`).
-- **Pops** — a loud, limited Gen-Z capsule (`/pops`). Neobrutalist, chunky type,
-  marquees, stickers.
-- **Essentials** — everyday basics (`/essentials`). Warm and minimal.
+The design is deliberately spare — near-black ink on paper, one hairline rule,
+two typefaces, and photography doing the work.
 
-Qavier is always open; Luxe, Pops and Essentials are individually switchable
-between a **coming-soon** holding page and their live store (see
-[The four worlds](#the-four-worlds--launch-switches)).
-
-> **All catalogue data comes from Shopify.** There is no demo/placeholder
-> catalogue — product grids are simply empty until you connect a store, so the
-> site is production-ready the moment Shopify is wired up. Every photo slot
-> renders a branded "imagery forthcoming" frame until real images arrive.
+> **All catalogue data comes from Shopify.** There is no demo catalogue — the
+> grid is simply empty until you connect a store, so the site is production-ready
+> the moment Shopify is wired up. Every photo slot renders a quiet
+> "imagery forthcoming" frame until real images arrive.
 
 ---
 
@@ -27,7 +20,7 @@ between a **coming-soon** holding page and their live store (see
 |---|---|
 | Framework | Next.js 14 (App Router, Server Components) |
 | Language | TypeScript |
-| Styling | Tailwind CSS (two namespaced design systems: `luxe-*` / `pops-*`) |
+| Styling | Tailwind CSS |
 | Motion | Framer Motion |
 | Commerce | Shopify Storefront API (GraphQL) |
 | Deploy | Vercel |
@@ -41,9 +34,9 @@ npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. Until Shopify is connected the storefronts render
-with empty product areas — everything else (hub, navigation, coming-soon pages)
-works. Add the Shopify env vars below to populate the catalogue.
+Open <http://localhost:3000>. Until Shopify is connected the store renders with
+an empty grid — everything else works. Add the Shopify env vars below to
+populate the catalogue.
 
 ```bash
 npm run dev        # local dev server
@@ -141,81 +134,20 @@ Shopify checkout they're handed off to.
 
 ---
 
-## Sections on Shopify — routing a product to the right world
-
-This is the important part: **how a product ends up in Qavier, Luxe, Pops or
-Essentials.** It's driven entirely by fields you set in the Shopify product
-editor — no code, no redeploy.
-
-### Which world → a product **tag**
-
-Add the matching **tag** to a product and it appears in that world's store:
-
-| World | Route | Add this tag | Template / cart |
-|---|---|---|---|
-| Qavier (flagship) | `/qavier`, `/shop` | `qavier` | Editorial |
-| Luxe | `/luxe` | `luxe` | Editorial |
-| Pops | `/pops` | `pops` | **Pops** (neobrutalist, slide-over cart) |
-| Essentials | `/essentials` | `essentials` | Editorial |
-
-- A product can carry **several** section tags to appear in more than one world
-  (e.g. tag a hero tee `qavier` **and** `essentials`).
-- The **`pops` tag is special**: besides placing the product in Pops, it renders
-  that product with the Pops visual template and slide-over cart. Everything
-  without a `pops` tag uses the editorial template.
-- Tags are case-insensitive.
-
-### Category (shop filter) → the product **Type** field
+### Category filter → the product **Type** field
 
 Set the product's **Product type** (Shopify's built-in field) to a category like
-`Tees`, `Hoodies`, `Outerwear`. The flagship **Shop** filters and the
-**Collections** page build their category lists automatically from the product
-types present — nothing is hard-coded.
-
-### Merchandising within a world → extra **tags**
-
-| Goal | Add this tag | Surfaces at |
-|---|---|---|
-| New Arrivals | `new` | header nav → `/shop?q=new` |
-| Bestsellers | `bestseller` | header nav → `/shop?q=bestseller` |
-
-Any tag is also searchable from the header **search bar**. Add whatever
-merchandising tags you like.
-
-**Pops facets.** Everything in the Pops world — the home-page grid and category
-tiles, the shop chips, the drops page — is built from products tagged `pops`.
-Nothing is authored in code, so a category with no products simply doesn't
-appear. Tag a Pops product further to place it:
-
-| Facet | Add this tag (or set product Type) | Surfaces at |
-|---|---|---|
-| Tops | `tops`, `upper`, `upperwear`, `topwear`, `tees`, `t-shirts`, `shirts`, `hoodies` | home tiles + `/pops/shop?c=tops` |
-| Bottoms | `bottoms`, `bottomwear`, `lowers`, `cargos`, `pants`, `trousers`, `jeans`, `skirts`, `shorts` | `/pops/shop?c=bottoms` |
-| Outerwear | `outerwear`, `jackets`, `puffers`, `bombers`, `coats` | `/pops/shop?c=outerwear` |
-| Footwear | `footwear`, `shoes`, `sneakers`, `boots` | `/pops/shop?c=footwear` |
-| New arrivals | `new`, `new-arrivals` | `/pops/shop?c=new` |
-| Trending | `drop` or `bestseller` | `/pops/shop?c=trending` |
-| Best sellers | `bestseller`, `best-sellers` | `/pops/shop?c=bestsellers` |
-| Sale | `sale`, `on-sale`, `clearance` | `/pops/shop?c=sale` |
-| Women / Men | `women`, `men` (or `womens`/`mens`) | `/pops/shop?c=women` · `?c=men` |
-
-Each row lists **synonyms** — any one of them works, so you don't have to retag
-a store that already says `bottomwear` or `upper`. Matching ignores case, spaces
-and underscores (`Upper Wear`, `upper_wear` and `upperwear` are the same thing),
-and reads the Shopify product **Type** as well as tags — so setting Type to
-`Bottomwear` is enough on its own.
-
-`women`/`men` show the full line until those tags exist, so the menu links are
-never dead. The vocabulary lives in the `ALIASES` map in
-`lib/pops-categories.ts` — add a word there to support it.
+`T-Shirts`, `Hoodies`, `Outerwear`. The Shop page builds its filter row
+automatically from the types actually present, so a category with nothing in it
+never appears. Every product in the store is listed — there are no section tags
+to maintain any more.
 
 ### Size & colour filters → product **Options**
 
 Add product **Options** named exactly **`Size`** and **`Color`** (with their
 values, e.g. `S / M / L`, `Noir / Sand / Chocolate`). The shop's size buttons
-and colour swatches populate from these automatically. Swatch colours are mapped
-by name in `components/luxe/luxe-shop.tsx` / `components/home/tee-card.tsx` — add
-any custom colour names there.
+buttons populate from these automatically. Sizes are re-ordered into wearing
+order (XS → 2XL) whatever order Shopify lists them in.
 
 ### Editorial extras → **metafields** (namespace `custom`)
 
@@ -232,24 +164,13 @@ Optional, all under the `custom` namespace (Settings → Custom data → Product
 Product images come straight from the Shopify CDN and replace the "imagery
 forthcoming" placeholders automatically — no uploads to this repo needed.
 
-### Worked example — a Pops product
-
-1. Create the product in Shopify.
-2. **Tags:** `pops`, `new` (drops it into Pops + New Arrivals).
-3. **Product type:** `Tees`.
-4. **Options:** `Size` = S/M/L/XL, `Color` = Lime/Black.
-5. **Metafields:** `tagline` = "shrunken fit, maximum chaos", `badge` = `NEW`.
-6. Set `NEXT_PUBLIC_POPS_STORE=live` (below) and it's shoppable at `/pops`.
-
----
-
 ## Legal pages
 
 Five policies live at `/legal/<slug>` — **terms, privacy, shipping, returns,
-contact**. They sit at the top level, deliberately outside every world's route
-group, so they stay reachable even when the flagship or Pops is behind its
-coming-soon gate. Both footers and all four holding pages link to them, and
-they're listed in `sitemap.xml`.
+contact**. They sit at the top level, deliberately outside the store's route
+group, so they stay reachable even when the shop is behind its coming-soon
+gate. The footer and the holding page link to them, and they're listed in
+`sitemap.xml`.
 
 The content is one source of truth in `lib/legal.ts`, so there is a single copy
 to edit and no two pages can drift apart. Shipping charges, delivery windows and
@@ -264,35 +185,6 @@ the till and the policy page can never quote different numbers.
 Every field there renders literally on the page (`[Registered business name]`,
 `[GSTIN]`, `[support@your-domain.com]`, …) so it is obvious what is still
 outstanding — search the live site for `[` to find any you missed.
-
----
-
-## The four worlds & launch switches
-
-Every world is a **coming-soon holding page** (each in its own visual style)
-until its switch is flipped — including the Qavier flagship, which defaults to
-open but can be held back the same way. No code change either way:
-
-- **On Vercel:** Project → Settings → Environment Variables → set the world's var
-  to `live`, then redeploy:
-  - `NEXT_PUBLIC_POPS_STORE=live`
-  - `NEXT_PUBLIC_LUXE_STORE=live`
-  - `NEXT_PUBLIC_ESSENTIALS_STORE=live`
-  - `NEXT_PUBLIC_QAVIER_STORE=coming-soon` holds the flagship back (it's open
-    unless set to this).
-- **Locally:** add the same to `.env.local`.
-
-These are `NEXT_PUBLIC_*` vars, so they're baked in at build time — a change
-takes effect on the next deploy, not on a running server.
-
-The hub reflects whatever the switches say: a world that isn't live shows a
-Coming Soon chip instead of an Enter link. Hub order is fixed in
-`components/hub.tsx` — currently Pops, Qavier, Luxe, Essentials.
-
-Set a var back to `coming-soon` (or unset it) to put the holding page back up.
-While a world is coming-soon its routes are `noindex` and kept out of the
-sitemap. Going live + connecting Shopify is all it takes to start selling that
-world.
 
 ---
 
@@ -311,56 +203,39 @@ world.
 
 ```
 app/
-  layout.tsx            → root layout, fonts, metadata
-  page.tsx              → the 2×2 landing hub (+ intro splash)
-  globals.css           → Tailwind + shared component primitives
-  (main)/               → the Qavier flagship store (editorial, page-based cart)
-    layout.tsx · qavier/ · shop/ · collection/ · products/[handle]/
-    about/ · journal/ · cart/ · checkout/ · order-confirmed/
-  luxe/ · essentials/   → gated worlds (coming-soon page or live store)
-  pops/                 → Qavier Pops capsule (neobrutalist, slide-over cart)
+  layout.tsx            → root layout, fonts, analytics
+  (main)/               → the store
+    layout.tsx · page.tsx (home) · shop/ · products/[handle]/
+    cart/ · checkout/ · order-confirmed/ · about/
+  legal/                → policies, outside the store's gate
+  api/revalidate/       → Shopify webhook → cache flush
 components/
-  hub.tsx · intro-splash.tsx      → landing hub + intro animation
-  *-coming-soon.tsx               → per-world holding pages
-  luxe-landing.tsx · essentials-store.tsx
-  shared/   → ShopImage, cart context + drawer, Reveal, Marquee
-  luxe/     → flagship nav (search), footer, product card, purchase panel
-  qavier/   → size chart (flagship store only — Pops/Luxe/Essentials excluded)
-  pops/     → nav, footer, product card, purchase panel
-  home/     → tee-card (home/essentials product card)
+  intro-splash.tsx · logo.tsx · coming-soon.tsx
+  store/    → nav, footer, hero, product card, gallery, purchase, shop grid
+  shared/   → cart context + drawer, ShopImage, size chart, Reveal, analytics
 lib/
-  config.ts → world/launch switches (LUXE_LIVE, POPS_LIVE, …)
-  shopify/  → Storefront API client, GraphQL queries, types
-  utils.ts  → cn(), formatPrice(), discountPercent()
-  actions.ts→ checkout server action
+  config.ts   → store gate, site URL, analytics id
+  shopify/    → Storefront API client, GraphQL queries, types
+  legal.ts · shipping.ts · utils.ts · actions.ts
 ```
 
 ### Design tokens
 
-Both palettes live in `tailwind.config.ts` as namespaced tokens
-(`luxe-champagne`, `pops-magenta`, …) plus shared keyframes/animations, so
-components never hard-code hex values. Fonts are wired through `next/font` in
-`app/fonts.ts`.
+Five colours in `tailwind.config.ts` — `ink`, `paper`, `shell`, `line` — plus
+Manrope (`font-display`) and Jost (`font-sans`). Shared primitives (`.label`,
+`.btn`, `.btn-ghost`, `.field`) live in `app/globals.css`.
 
 ---
 
 ## Notes
 
 - Fully responsive and mobile-first; respects `prefers-reduced-motion`.
+- The intro animation plays once per browser session.
+- The hero reads `public/images/hero.jpg` and `hero-mobile.jpg`. Until those
+  exist a dark gradient stands in and the wordmark still reads.
 - The cart persists in `localStorage`; checkout hands off to Shopify's hosted
   checkout (requires the `SHOPIFY_*` env vars).
 - With no Shopify credentials, product functions return empty results — the
-  storefront renders, product grids are just empty.
-- `sitemap.xml` and `robots.txt` are generated from `app/sitemap.ts` and
-  `app/robots.ts`. The sitemap lists the hub, every live world and all their
-  products (paginated, so it isn't capped at the first 50), dated with
-  Shopify's own `updatedAt`, and refreshes hourly. Worlds still behind their
-  coming-soon flag are left out until they open. Set `NEXT_PUBLIC_SITE_URL` to
-  your real domain — every URL in the sitemap is built from it.
+  storefront renders, the grid is just empty.
 - Google Analytics 4 (gtag.js) is rendered into `<head>` from the root layout,
-  so every page carries the tag exactly once — never add a second one to an
-  individual page. It runs in production builds only; point it at another
-  property with `NEXT_PUBLIC_GA_MEASUREMENT_ID`, or set that to empty to
-  switch it off.
-  Client-side navigations are counted by GA4 enhanced measurement (browser
-  history events), so no manual `page_view` is sent.
+  so every page carries the tag exactly once. Production builds only.

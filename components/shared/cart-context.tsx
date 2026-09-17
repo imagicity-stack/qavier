@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import type { Image, Money, Universe } from '@/lib/shopify/types';
+import type { Image, Money } from '@/lib/shopify/types';
 import { refreshCartPrices, startCheckout } from '@/lib/actions';
 
 export interface LocalCartLine {
@@ -19,7 +19,6 @@ export interface LocalCartLine {
   variantTitle: string;
   price: Money;
   image: Image;
-  universe: Universe;
   quantity: number;
 }
 
@@ -33,13 +32,19 @@ interface CartContextValue {
   checkingOut: boolean;
   openCart: () => void;
   closeCart: () => void;
-  addItem: (line: Omit<LocalCartLine, 'quantity'>, quantity?: number) => void;
+  addItem: (
+    line: Omit<LocalCartLine, 'quantity'>,
+    quantity?: number,
+    /** `silent` adds without opening the bag — used by Buy it now. */
+    options?: { silent?: boolean },
+  ) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
   removeItem: (variantId: string) => void;
   clear: () => void;
   /** Re-read every line's price from Shopify (cart/checkout entry points). */
   refreshPrices: () => Promise<void>;
-  checkout: () => Promise<void>;
+  /** Starts a Shopify checkout for the bag, or for the lines passed in. */
+  checkout: (lines?: { merchandiseId: string; quantity: number }[]) => Promise<void>;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -118,7 +123,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [lines, hydrated]);
 
   const addItem = useCallback(
-    (line: Omit<LocalCartLine, 'quantity'>, quantity = 1) => {
+    (
+      line: Omit<LocalCartLine, 'quantity'>,
+      quantity = 1,
+      options?: { silent?: boolean },
+    ) => {
       setLines((prev) => {
         const existing = prev.find((l) => l.variantId === line.variantId);
         if (existing) {
@@ -130,7 +139,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
         return [...prev, { ...line, quantity }];
       });
-      setIsOpen(true);
+      if (!options?.silent) setIsOpen(true);
     },
     [],
   );
@@ -152,14 +161,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Stable identity — callers put this in effect dependency arrays.
   const refreshPrices = useCallback(() => syncPrices(), [syncPrices]);
 
-  const checkout = useCallback(async () => {
-    if (!lines.length) return;
+  const checkout = useCallback(
+    async (only?: { merchandiseId: string; quantity: number }[]) => {
+    const payload =
+      only ?? lines.map((l) => ({ merchandiseId: l.variantId, quantity: l.quantity }));
+    if (!payload.length) return;
     setCheckingOut(true);
     setCheckoutError(null);
     try {
-      const result = await startCheckout(
-        lines.map((l) => ({ merchandiseId: l.variantId, quantity: l.quantity })),
-      );
+      const result = await startCheckout(payload);
       if (result.checkoutUrl) {
         window.location.href = result.checkoutUrl;
         return;
@@ -168,7 +178,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setCheckingOut(false);
     }
-  }, [lines]);
+  },
+    [lines],
+  );
 
   const totalQuantity = useMemo(
     () => lines.reduce((sum, l) => sum + l.quantity, 0),

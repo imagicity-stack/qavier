@@ -3,25 +3,22 @@ import { Logo } from '@/components/logo';
 import { LEGAL_DOCS } from '@/lib/legal';
 
 /**
- * Legal pages sit at the top level, deliberately outside every world's route
- * group. The flagship and Pops route groups each hide behind a coming-soon
- * gate, and policies must stay reachable whatever those switches say — payment
- * providers check for them, and a shopper mid-purchase needs them.
- *
- * Kept in the house style rather than either world's skin, so one canonical
- * copy serves the whole site.
+ * Legal pages sit at the top level, deliberately outside the store's route
+ * group: the shop can be held behind a coming-soon gate, and policies must
+ * stay reachable whatever that switch says — payment providers check for
+ * them, and a shopper mid-purchase needs them.
  */
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-luxe-cream font-sans text-luxe-noir">
-      <header className="border-b border-luxe-charcoal/10">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5 sm:px-10">
-          <Link href="/" aria-label="Qavier home">
-            <Logo className="h-5 w-auto text-luxe-noir" />
+    <div className="flex min-h-[100dvh] flex-col bg-paper text-ink">
+      <header className="border-b border-line">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-5 sm:px-8">
+          <Link href="/" aria-label="Qavier — home">
+            <Logo className="h-4 w-auto text-ink" />
           </Link>
           <Link
             href="/"
-            className="font-sans text-[0.7rem] uppercase tracking-wider2 text-luxe-stone transition-colors hover:text-luxe-noir"
+            className="text-[0.65rem] uppercase tracking-wider2 text-ink/45 transition-colors hover:text-ink"
           >
             ← Back to store
           </Link>
@@ -30,9 +27,9 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
 
       <main className="flex-1">{children}</main>
 
-      <footer className="border-t border-luxe-charcoal/10">
-        <div className="mx-auto flex max-w-3xl flex-col gap-4 px-6 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-10">
-          <p className="font-sans text-xs text-luxe-stone">
+      <footer className="border-t border-line">
+        <div className="mx-auto flex max-w-3xl flex-col gap-4 px-5 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <p className="text-xs text-ink/40">
             © {new Date().getFullYear()} Qavier. All rights reserved.
           </p>
           <nav aria-label="Legal" className="flex flex-wrap gap-x-5 gap-y-2">
@@ -40,7 +37,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
               <Link
                 key={doc.slug}
                 href={`/legal/${doc.slug}`}
-                className="font-sans text-xs text-luxe-stone transition-colors hover:text-luxe-noir"
+                className="text-xs text-ink/45 transition-colors hover:text-ink"
               >
                 {doc.nav}
               </Link>

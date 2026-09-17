@@ -2,57 +2,24 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Order Confirmed',
-  description:
-    'Thank you for your order from Qavier. We have received it and will notify you when it ships.',
+  title: 'Order confirmed',
+  robots: { index: false, follow: false },
 };
 
-export default function OrderConfirmedPage({
-  searchParams,
-}: {
-  searchParams: { order?: string };
-}) {
-  const orderId = searchParams.order ?? 'QAVIER-00000';
-
+export default function OrderConfirmedPage() {
   return (
-    <div className="flex min-h-[80vh] flex-col items-center justify-center bg-luxe-cream px-6 pb-24 pt-28 text-center text-luxe-noir sm:pt-32">
-      {/* Seal */}
-      <div className="grid h-20 w-20 place-items-center rounded-full border border-luxe-champagne/60 bg-luxe-porcelain">
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          className="h-8 w-8 text-luxe-gold"
-          aria-hidden
-        >
-          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.3" />
-          <path
-            d="M8 12.5l2.5 2.5L16 9.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-
-      <span className="luxe-label mt-8">Order Received</span>
-
-      <h1 className="mt-4 font-serif text-5xl font-light leading-[1.05] sm:text-6xl">
-        Thank You
-        <span className="block italic text-luxe-charcoal">for your order!</span>
+    <section className="mx-auto flex max-w-xl flex-col items-center gap-6 px-5 pb-24 pt-32 text-center sm:px-8 sm:pt-40">
+      <p className="label">Thank you</p>
+      <h1 className="font-display text-3xl font-light text-ink sm:text-4xl">
+        Your order is confirmed
       </h1>
-
-      <p className="mt-6 max-w-md font-sans text-sm leading-relaxed text-luxe-stone">
-        We&rsquo;ve received your order and will notify you when it has shipped.
+      <p className="max-w-sm text-sm leading-relaxed text-ink/55">
+        A confirmation is on its way to your inbox, with tracking to follow once
+        your parcel leaves us.
       </p>
-
-      <div className="luxe-rule my-10 max-w-xs" />
-
-      <p className="luxe-label !text-luxe-noir">Order #{orderId}</p>
-
-      <Link href="/shop" className="luxe-btn mt-10">
-        Continue Shopping
+      <Link href="/shop" className="btn mt-4">
+        Continue shopping
       </Link>
-    </div>
+    </section>
   );
 }
