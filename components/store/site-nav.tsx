@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useCart } from '@/components/shared/cart-context';
 import { Logo } from '@/components/logo';
+import { LEGAL_DOCS } from '@/lib/legal';
 import { cn } from '@/lib/utils';
 
 const LINKS = [
@@ -43,6 +45,15 @@ export function SiteNav() {
     return () => {
       document.body.style.overflow = '';
     };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [menuOpen]);
 
   // Close everything on navigation.
@@ -146,33 +157,69 @@ export function SiteNav() {
         </div>
       )}
 
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-[60] bg-paper text-ink sm:hidden">
-          <div className="flex h-16 items-center justify-between px-5">
-            <Logo className="h-4 w-auto" />
-            <button
-              type="button"
+      {/* Mobile menu — slides in from the left, mirroring the bag on the right */}
+      <AnimatePresence>
+        {menuOpen && (
+          <div className="sm:hidden">
+            <motion.div
+              className="fixed inset-0 z-[60] bg-ink/30"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setMenuOpen(false)}
-              aria-label="Close menu"
-              className="p-1"
+            />
+            <motion.aside
+              role="dialog"
+              aria-modal="true"
+              aria-label="Menu"
+              className="fixed left-0 top-0 z-[70] flex h-[100dvh] w-[84%] max-w-xs flex-col border-r border-line bg-paper text-ink"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'tween', duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
-              <CloseIcon className="h-5 w-5" />
-            </button>
+              <div className="flex h-16 items-center justify-between border-b border-line px-5">
+                <Logo className="h-4 w-auto" />
+                <button
+                  type="button"
+                  onClick={() => setMenuOpen(false)}
+                  aria-label="Close menu"
+                  className="p-1 text-ink/40 transition-colors hover:text-ink"
+                >
+                  <CloseIcon className="h-5 w-5" />
+                </button>
+              </div>
+
+              <nav className="flex flex-col px-5">
+                {LINKS.map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className="border-b border-line py-5 font-display text-xl font-light"
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </nav>
+
+              <div className="mt-auto px-5 pb-8">
+                <p className="label">Help</p>
+                <div className="mt-4 flex flex-col gap-3">
+                  {LEGAL_DOCS.map((doc) => (
+                    <Link
+                      key={doc.slug}
+                      href={`/legal/${doc.slug}`}
+                      className="text-sm text-ink/55 transition-colors hover:text-ink"
+                    >
+                      {doc.nav}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </motion.aside>
           </div>
-          <nav className="flex flex-col px-5 pt-6">
-            {LINKS.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="border-b border-line py-5 font-display text-2xl font-light"
-              >
-                {l.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </header>
   );
 }
