@@ -88,7 +88,7 @@ export function SiteNav() {
 
         {/* Wordmark */}
         <Link href="/" aria-label="Qavier — home" className="sm:mr-auto">
-          <Logo className="h-4 w-auto sm:h-5" />
+          <Logo priority className="h-9 sm:h-11" invert={overlay} />
         </Link>
 
         {/* Centre links, desktop only */}
@@ -179,7 +179,7 @@ export function SiteNav() {
               transition={{ type: 'tween', duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="flex h-16 items-center justify-between border-b border-line px-5">
-                <Logo className="h-4 w-auto" />
+                <Logo className="h-9" />
                 <button
                   type="button"
                   onClick={() => setMenuOpen(false)}
