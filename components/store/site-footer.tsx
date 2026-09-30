@@ -14,7 +14,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-[90rem] px-5 py-14 sm:px-8 sm:py-20">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.4fr] lg:gap-10">
           <div>
-            <Logo className="h-4 w-auto text-ink" />
+            <Logo className="h-12" />
             <p className="mt-5 max-w-[22rem] text-sm leading-relaxed text-ink/50">
               Considered pieces, made in small runs. Designed in India.
             </p>

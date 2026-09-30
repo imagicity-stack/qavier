@@ -14,7 +14,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
       <header className="border-b border-line">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-5 sm:px-8">
           <Link href="/" aria-label="Qavier — home">
-            <Logo className="h-4 w-auto text-ink" />
+            <Logo className="h-9" />
           </Link>
           <Link
             href="/"

@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { LOGO_LETTERS, LOGO_VIEWBOX } from './logo-data';
+import { LOGO_HEIGHT, LOGO_SPLIT, LOGO_SRC, LOGO_WIDTH } from './logo';
 
 /**
- * First-load intro. The wordmark assembles letter by letter, then lifts away to
- * reveal the store. Shown once per browser session; skipped for reduced motion.
+ * First-load intro: the diamond settles, then the wordmark rises under it,
+ * then the whole thing lifts away to reveal the store.
+ *
+ * Both halves are the same artwork, clipped — so there is one logo file and the
+ * two pieces can never drift out of alignment. Shown once per browser session;
+ * skipped for reduced motion.
  */
 export function IntroSplash() {
   const [visible, setVisible] = useState(true);
@@ -22,7 +26,7 @@ export function IntroSplash() {
       return;
     }
     sessionStorage.setItem('qavier-intro-seen', '1');
-    const t = window.setTimeout(() => setVisible(false), 2400);
+    const t = window.setTimeout(() => setVisible(false), 2600);
     return () => window.clearTimeout(t);
   }, []);
 
@@ -33,45 +37,48 @@ export function IntroSplash() {
     };
   }, [visible]);
 
+  const ease = [0.22, 1, 0.36, 1] as const;
+
   return (
     <AnimatePresence>
       {visible && (
         <motion.div
-          className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-ink px-8"
+          className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#0C231B] px-8"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.7, ease: [0.65, 0, 0.35, 1] } }}
         >
-          <svg
-            viewBox={LOGO_VIEWBOX}
-            className="w-[76%] max-w-lg text-paper"
-            fill="currentColor"
-            role="img"
-            aria-label="Qavier"
+          <div
+            className="relative w-[62%] max-w-[16rem]"
+            style={{ aspectRatio: `${LOGO_WIDTH} / ${LOGO_HEIGHT}` }}
           >
-            {LOGO_LETTERS.map((letter, i) => (
-              <motion.g
-                key={letter.key}
-                style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  delay: 0.15 + i * 0.09,
-                  duration: 0.6,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              >
-                {letter.paths.map((d, j) => (
-                  <path key={j} d={d} />
-                ))}
-              </motion.g>
-            ))}
-          </svg>
+            {/* The diamond — settles into place */}
+            <motion.img
+              src={LOGO_SRC}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 h-full w-full object-contain invert"
+              style={{ clipPath: `inset(0 0 ${(1 - LOGO_SPLIT) * 100}% 0)` }}
+              initial={{ opacity: 0, scale: 0.86 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, ease }}
+            />
+            {/* The wordmark — rises under it */}
+            <motion.img
+              src={LOGO_SRC}
+              alt="Qavier"
+              className="absolute inset-0 h-full w-full object-contain invert"
+              style={{ clipPath: `inset(${LOGO_SPLIT * 100}% 0 0 0)` }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.75, duration: 0.8, ease }}
+            />
+          </div>
 
           <motion.p
-            className="mt-7 text-[0.6rem] uppercase tracking-luxe text-paper/50 sm:text-[0.65rem]"
+            className="mt-8 text-[0.6rem] uppercase tracking-luxe text-paper/45 sm:text-[0.65rem]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.25, duration: 0.7 }}
+            transition={{ delay: 1.45, duration: 0.8 }}
           >
             Where Simplicity Becomes Luxury
           </motion.p>

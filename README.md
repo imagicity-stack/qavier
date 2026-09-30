@@ -231,8 +231,11 @@ Manrope (`font-display`) and Jost (`font-sans`). Shared primitives (`.label`,
 
 - Fully responsive and mobile-first; respects `prefers-reduced-motion`.
 - The intro animation plays once per browser session.
-- The hero reads `public/images/hero.jpg` and `hero-mobile.jpg`. Until those
-  exist a dark gradient stands in and the wordmark still reads.
+- The hero artwork is `public/images/hero.webp` — swap that file to change it.
+- The logo is `public/images/logo.png`, black on transparency; `<Logo invert />`
+  flips it white for dark backgrounds rather than keeping a second file in sync.
+  The intro animation clips the same file into its diamond and wordmark halves,
+  so the two can never drift apart.
 - The cart persists in `localStorage`; checkout hands off to Shopify's hosted
   checkout (requires the `SHOPIFY_*` env vars).
 - With no Shopify credentials, product functions return empty results — the
