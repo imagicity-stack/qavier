@@ -67,12 +67,26 @@ export interface Product {
   badge?: string;
 }
 
-export interface Collection {
+/**
+ * A collection without its products — what the nav menu, the collections
+ * index and the home-page tiles need. Kept separate from `Collection` so
+ * listing twenty collections doesn't drag twenty product sets with it.
+ */
+export interface CollectionSummary {
   id: string;
   handle: string;
   title: string;
   description: string;
+  /**
+   * The collection image from Shopify, or the first product's photo when no
+   * collection image is set — so a tile is never empty just because nobody
+   * uploaded banner art.
+   */
   image: Image | null;
+}
+
+export interface Collection extends CollectionSummary {
+  descriptionHtml: string;
   products: Product[];
 }
 

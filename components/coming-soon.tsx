@@ -7,7 +7,7 @@ export function ComingSoon() {
     <div className="flex min-h-[100dvh] flex-col bg-ink px-6 text-paper">
       <main className="flex flex-1 flex-col items-center justify-center text-center">
         <Logo invert priority className="h-16 sm:h-20" />
-        <p className="mt-7 text-[0.65rem] uppercase tracking-luxe text-paper/50">
+        <p className="mt-7 font-display text-[0.65rem] font-bold uppercase tracking-luxe text-mint-300">
           Opening soon
         </p>
         <p className="mt-6 max-w-sm text-sm leading-relaxed text-paper/60">

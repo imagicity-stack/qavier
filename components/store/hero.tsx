@@ -1,19 +1,19 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Logo } from '@/components/logo';
 
 /**
- * Full-bleed opening frame: brand artwork, lockup, season line.
+ * The opening banner.
  *
- * The artwork is a real <Image> rather than a CSS background so Next can serve
- * it sized and in a modern format — it is the largest thing on the page and the
- * first thing a shopper sees, so it carries `priority`.
+ * The header above it is solid and sticky, so this is a banner rather than a
+ * full-screen takeover — a shopper should see the first products without
+ * scrolling a whole viewport. The copy sits bottom-left on desktop and
+ * centred on phones, where a side-weighted block fights the narrow column.
  *
  * Swap the picture by replacing `public/images/hero.webp`.
  */
-export function Hero() {
+export function Hero({ exploreHref = '/shop' }: { exploreHref?: string }) {
   return (
-    <section className="relative flex min-h-[88svh] items-center justify-center overflow-hidden bg-[#0C231B] sm:min-h-[92svh]">
+    <section className="relative isolate flex min-h-[66svh] items-end overflow-hidden bg-ink sm:min-h-[76svh]">
       <Image
         src="/images/hero.webp"
         alt=""
@@ -22,21 +22,31 @@ export function Hero() {
         sizes="100vw"
         className="object-cover object-center"
       />
-      {/* Just enough scrim to hold the lockup legible over the lighter swirls. */}
-      <div className="absolute inset-0 bg-[#0C231B]/35" />
+      {/* Gradient rather than a flat wash: keeps the artwork bright at the top
+          and still gives the copy something solid to sit on. */}
+      <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/35 to-ink/10" />
 
-      <div className="relative mx-auto w-full max-w-[90rem] px-5 py-24 sm:px-8">
-        <div className="flex flex-col items-center text-center">
-          <Logo invert priority className="h-20 sm:h-28" />
-          <p className="mt-7 text-[0.65rem] uppercase tracking-luxe text-paper/75 sm:text-xs">
+      <div className="relative mx-auto w-full max-w-[90rem] px-5 pb-12 pt-16 sm:px-8 sm:pb-16 sm:pt-24">
+        <div className="max-w-2xl text-center sm:text-left">
+          <p className="font-display text-[0.65rem] font-bold uppercase tracking-luxe text-mint-300">
             Spring Summer ’26
           </p>
-          <Link
-            href="/shop"
-            className="mt-9 inline-flex items-center justify-center border border-paper/50 px-11 py-4 text-[0.7rem] uppercase tracking-wider2 text-paper transition-colors duration-300 hover:bg-paper hover:text-ink"
-          >
-            Explore
-          </Link>
+          <h1 className="mt-4 font-display text-[2rem] font-extrabold uppercase leading-[0.98] tracking-[-0.02em] text-paper text-balance sm:text-5xl lg:text-6xl">
+            Where simplicity
+            <br className="hidden sm:block" /> becomes luxury
+          </h1>
+          <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-paper/75 sm:mx-0">
+            Considered pieces, cut in small runs and finished by hand. Designed
+            and made in India.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3 sm:justify-start">
+            <Link href={exploreHref} className="btn">
+              Explore
+            </Link>
+            <Link href="/collections" className="btn-outline-light">
+              Collections
+            </Link>
+          </div>
         </div>
       </div>
     </section>

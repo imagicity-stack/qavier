@@ -1,11 +1,19 @@
 # QAVIER
 
-A single-portal storefront, built as one Next.js app. An intro animation opens
-onto a full-bleed hero, then the collection: `/` → `/shop` → `/products/<handle>`
-→ cart → Shopify's hosted checkout.
+A collections-driven storefront, built as one Next.js app. An intro animation
+opens onto the hero, then the shop: `/` → `/collections` →
+`/collections/<handle>` → `/products/<handle>` → cart → Shopify's hosted
+checkout.
 
-The design is deliberately spare — near-black ink on paper, one hairline rule,
-two typefaces, and photography doing the work.
+The design is bold and mint: a heavy uppercase display face, mint green on
+deep-forest ink, rounded surfaces, and photography doing the work. Mint carries
+every call to action; the one colour outside the family is `sale`, reserved for
+markdowns so a price cut reads as a price cut at a glance.
+
+**Navigation is built from your Shopify collections.** The mega-menu, the
+mobile drawer, the collections index and the footer's Shop column all read the
+same list — add a collection in Shopify and it appears in all four, with no
+code change. See [Collections → the menu](#collections--the-menu).
 
 > **All catalogue data comes from Shopify.** There is no demo catalogue — the
 > grid is simply empty until you connect a store, so the site is production-ready
@@ -134,6 +142,34 @@ Shopify checkout they're handed off to.
 
 ---
 
+### Collections → the menu
+
+Create collections in Shopify (**Products → Collections**) and they drive the
+whole navigation. Each one gets a page at `/collections/<handle>`, a tile on
+`/collections`, a row in the mega-menu and a link in the footer.
+
+The menu sorts them into columns by keyword, so it reads as a menu rather than
+one long alphabetical list:
+
+| Column | A collection lands here when its handle or title contains |
+|---|---|
+| **Clothing** | `tee`, `shirt`, `polo`, `hood`, `sweat`, `jacket`, `bottom`, `short`, `jogger`, `denim`, `knit`, … |
+| **Featured** | `new`, `best`, `arrival`, `essential`, `signature`, `core`, `drop`, `season` |
+| **Collections** | anything else — capsules, collabs, one-offs |
+
+Three handles are special-cased into top-level entries instead:
+
+- anything matching `new` → the **New In** link
+- anything matching `best`/`popular` → **Best sellers** in the Shop panel
+- anything matching `sale`/`outlet`/`clearance` → the red **Sale** link, and it
+  is kept out of the columns so it isn't listed twice
+
+Give a collection an **image** in Shopify for its tile and page banner. Without
+one it borrows its first product's photo, so a tile is never blank.
+
+Collections are listed alphabetically — the Storefront API doesn't expose the
+admin's manual collection order. The keyword buckets live in `lib/nav.ts`.
+
 ### Category filter → the product **Type** field
 
 Set the product's **Product type** (Shopify's built-in field) to a category like
@@ -205,25 +241,35 @@ outstanding — search the live site for `[` to find any you missed.
 app/
   layout.tsx            → root layout, fonts, analytics
   (main)/               → the store
-    layout.tsx · page.tsx (home) · shop/ · products/[handle]/
-    cart/ · checkout/ · order-confirmed/ · about/
+    layout.tsx          → announcement bar + nav + footer; builds the menu
+    page.tsx (home) · shop/ · collections/ · collections/[handle]/
+    products/[handle]/ · cart/ · checkout/ · order-confirmed/ · about/
   legal/                → policies, outside the store's gate
   api/revalidate/       → Shopify webhook → cache flush
 components/
   intro-splash.tsx · logo.tsx · coming-soon.tsx
-  store/    → nav, footer, hero, product card, gallery, purchase, shop grid
+  store/    → announcement bar, nav (mega-menu), hero, value props,
+              section head, product card, product rail, collection tiles,
+              promo split, newsletter, shop grid, gallery, purchase, footer
   shared/   → cart context + drawer, ShopImage, size chart, Reveal, analytics
 lib/
   config.ts   → store gate, site URL, analytics id
+  nav.ts      → the menu, built from Shopify collections
+  swatch.ts   → colour names → swatch dots
   shopify/    → Storefront API client, GraphQL queries, types
   legal.ts · shipping.ts · utils.ts · actions.ts
 ```
 
 ### Design tokens
 
-Five colours in `tailwind.config.ts` — `ink`, `paper`, `shell`, `line` — plus
-Manrope (`font-display`) and Jost (`font-sans`). Shared primitives (`.label`,
-`.btn`, `.btn-ghost`, `.field`) live in `app/globals.css`.
+In `tailwind.config.ts`: `ink` (deep forest), `paper`, `shell` (pale mint
+wash), `line`, a full `mint` 50–900 ramp, and `sale` for markdowns. Type is
+Archivo (`font-display`) and Plus Jakarta Sans (`font-sans`), both loaded as
+variable fonts so the heavy caps cost no extra requests.
+
+Shared primitives live in `app/globals.css`: `.label`, `.h-page`, `.h-section`,
+`.btn` (mint), `.btn-dark`, `.btn-ghost`, `.btn-outline-light`, `.chip`,
+`.badge`, `.field`, `.photo-frame`.
 
 ---
 
@@ -231,6 +277,15 @@ Manrope (`font-display`) and Jost (`font-sans`). Shared primitives (`.label`,
 
 - Fully responsive and mobile-first; respects `prefers-reduced-motion`.
 - The intro animation plays once per browser session.
+- The header is solid and sticky on every page, so pages sit in normal flow
+  underneath it — there is no top-padding offset to keep in sync.
+- ⚠️ **The newsletter forms have no backend.** The band above the footer and
+  the field on the holding page post nowhere. Point their `action` at your
+  email provider (Shopify customer form, Klaviyo, Mailchimp) before launch, or
+  remove them — a field that silently swallows an address is worse than none.
+- Announcement-bar copy, the product-page reassurance list and the value-prop
+  strip all read `lib/shipping.ts`, so the promise on the home page is the
+  promise at the till.
 - The hero artwork is `public/images/hero.webp` — swap that file to change it.
 - The logo is `public/images/logo.png`, black on transparency; `<Logo invert />`
   flips it white for dark backgrounds rather than keeping a second file in sync.
