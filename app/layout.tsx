@@ -29,7 +29,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#111111',
+  // Matches the mint announcement bar, which is the top of every page.
+  themeColor: '#16B378',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,

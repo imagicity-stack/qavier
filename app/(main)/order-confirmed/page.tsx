@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function OrderConfirmedPage() {
   return (
-    <section className="mx-auto flex max-w-xl flex-col items-center gap-6 px-5 pb-24 pt-32 text-center sm:px-8 sm:pt-40">
+    <section className="mx-auto flex max-w-xl flex-col items-center gap-6 px-5 pb-24 pt-16 text-center sm:px-8 sm:pt-24">
       <p className="label">Thank you</p>
       <h1 className="font-display text-3xl font-light text-ink sm:text-4xl">
         Your order is confirmed

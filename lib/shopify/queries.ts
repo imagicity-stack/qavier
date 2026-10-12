@@ -206,16 +206,22 @@ export const GET_PRODUCT_BY_HANDLE_QUERY = /* GraphQL */ `
 `;
 
 export const GET_COLLECTION_QUERY = /* GraphQL */ `
-  query getCollection($handle: String!, $first: Int!) {
+  query getCollection(
+    $handle: String!
+    $first: Int!
+    $sortKey: ProductCollectionSortKeys
+    $reverse: Boolean
+  ) {
     collection(handle: $handle) {
       id
       handle
       title
       description
+      descriptionHtml
       image {
         ...ImageFields
       }
-      products(first: $first) {
+      products(first: $first, sortKey: $sortKey, reverse: $reverse) {
         edges {
           node {
             ...ProductCard
@@ -225,6 +231,56 @@ export const GET_COLLECTION_QUERY = /* GraphQL */ `
     }
   }
   ${PRODUCT_CARD_FRAGMENT}
+`;
+
+// The collection list that drives the nav mega-menu, the collections index and
+// the home page rails. Deliberately light: no product cards, just enough to
+// build a tile. `products(first: 1)` is there only to borrow a photo when the
+// collection has no image of its own set in Shopify.
+export const GET_COLLECTIONS_QUERY = /* GraphQL */ `
+  query getCollections($first: Int!) {
+    collections(first: $first, sortKey: TITLE) {
+      edges {
+        node {
+          id
+          handle
+          title
+          description
+          image {
+            ...ImageFields
+          }
+          products(first: 1) {
+            edges {
+              node {
+                featuredImage {
+                  ...ImageFields
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  ${IMAGE_FRAGMENT}
+`;
+
+// Sitemap feed for collection pages — scalars only, cursor-paginated.
+export const GET_COLLECTION_SITEMAP_QUERY = /* GraphQL */ `
+  query getCollectionSitemap($first: Int!, $after: String) {
+    collections(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          handle
+          updatedAt
+        }
+      }
+    }
+  }
 `;
 
 export const CREATE_CART_MUTATION = /* GraphQL */ `

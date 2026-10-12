@@ -11,6 +11,8 @@ import {
   CREATE_CART_MUTATION,
   GET_CART_QUERY,
   GET_COLLECTION_QUERY,
+  GET_COLLECTION_SITEMAP_QUERY,
+  GET_COLLECTIONS_QUERY,
   GET_PRODUCTS_QUERY,
   GET_PRODUCT_BY_HANDLE_QUERY,
   GET_PRODUCT_SITEMAP_QUERY,
@@ -21,6 +23,7 @@ import {
 import type {
   Cart,
   Collection,
+  CollectionSummary,
   Image,
   Money,
   Product,
@@ -240,31 +243,89 @@ export async function getProduct(handle: string): Promise<Product | undefined> {
   }
 }
 
+/** Sort keys Shopify accepts for the products inside a collection. */
+export type CollectionSortKey =
+  | 'BEST_SELLING'
+  | 'COLLECTION_DEFAULT'
+  | 'CREATED'
+  | 'MANUAL'
+  | 'PRICE'
+  | 'TITLE';
+
 export async function getCollection(
   handle: string,
-  first = 50,
+  options?: { first?: number; sortKey?: CollectionSortKey; reverse?: boolean },
 ): Promise<Collection | undefined> {
   if (!isShopifyConfigured) {
     warnNotConfigured();
     return undefined;
   }
 
-  const data = await shopifyFetch<{ collection: any }>({
-    query: GET_COLLECTION_QUERY,
-    variables: { handle, first },
-    tags: ['collections', `collection:${handle}`],
-  });
-  const c = data.collection;
-  if (!c) return undefined;
-  const products = flatten<any>(c.products).map(reshapeProduct);
-  return {
-    id: c.id,
-    handle: c.handle,
-    title: c.title,
-    description: c.description ?? '',
-    image: c.image ? normalizeImage(c.image, c.title) : null,
-    products,
-  };
+  const { first = 100, sortKey, reverse } = options ?? {};
+
+  try {
+    const data = await shopifyFetch<{ collection: any }>({
+      query: GET_COLLECTION_QUERY,
+      variables: { handle, first, sortKey, reverse },
+      tags: ['collections', `collection:${handle}`],
+    });
+    const c = data.collection;
+    if (!c) return undefined;
+    return {
+      id: c.id,
+      handle: c.handle,
+      title: c.title,
+      description: c.description ?? '',
+      descriptionHtml: c.descriptionHtml ?? '',
+      image: c.image ? normalizeImage(c.image, c.title) : null,
+      products: flatten<any>(c.products).map(reshapeProduct),
+    };
+  } catch (err) {
+    // A failed collection read renders a "nothing here" page rather than a
+    // 500 — the rest of the store is unaffected by one bad handle.
+    // eslint-disable-next-line no-console
+    console.error(`[qavier] getCollection(${handle}) failed:`, err);
+    return undefined;
+  }
+}
+
+/**
+ * Every collection in the store, alphabetically, without their products.
+ *
+ * This is the spine of the site's navigation: the mega-menu, the collections
+ * index and the home-page tiles all read it, so adding a collection in Shopify
+ * puts it in the menu with no code change. Alphabetical because the Storefront
+ * API doesn't expose the admin's manual collection order.
+ */
+export async function getCollections(first = 40): Promise<CollectionSummary[]> {
+  if (!isShopifyConfigured) {
+    warnNotConfigured();
+    return [];
+  }
+
+  try {
+    const data = await shopifyFetch<{ collections: Edges<any> }>({
+      query: GET_COLLECTIONS_QUERY,
+      variables: { first },
+      tags: ['collections'],
+    });
+
+    return flatten<any>(data.collections).map((c) => {
+      const borrowed = flatten<any>(c.products)[0]?.featuredImage;
+      const image = c.image ?? borrowed;
+      return {
+        id: c.id,
+        handle: c.handle,
+        title: c.title,
+        description: c.description ?? '',
+        image: image ? normalizeImage(image, c.title) : null,
+      };
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[qavier] getCollections failed:', err);
+    return [];
+  }
 }
 
 export interface ProductRef {
@@ -309,6 +370,46 @@ export async function getAllProductRefs(): Promise<ProductRef[]> {
       // Return what we have — a partial sitemap beats no sitemap.
       // eslint-disable-next-line no-console
       console.error('[qavier] getAllProductRefs failed:', err);
+      break;
+    }
+  }
+
+  return refs;
+}
+
+/**
+ * Every collection as a handle + updated date, for the sitemap. Paginated like
+ * the product feed so a store with more collections than one page still gets
+ * all of its collection pages listed.
+ */
+export async function getAllCollectionRefs(): Promise<ProductRef[]> {
+  if (!isShopifyConfigured) {
+    warnNotConfigured();
+    return [];
+  }
+
+  const refs: ProductRef[] = [];
+  let after: string | null = null;
+  // Bounded so a pagination bug can never spin: 250 × 8 = 2,000 collections.
+  for (let page = 0; page < 8; page += 1) {
+    try {
+      const data: { collections: Edges<any> & { pageInfo: any } } = await shopifyFetch({
+        query: GET_COLLECTION_SITEMAP_QUERY,
+        variables: { first: 250, after },
+        tags: ['collections'],
+      });
+
+      for (const node of flatten<any>(data.collections)) {
+        if (!node?.handle) continue;
+        refs.push({ handle: node.handle, updatedAt: node.updatedAt });
+      }
+
+      if (!data.collections.pageInfo?.hasNextPage) break;
+      after = data.collections.pageInfo.endCursor;
+    } catch (err) {
+      // Partial sitemap beats no sitemap.
+      // eslint-disable-next-line no-console
+      console.error('[qavier] getAllCollectionRefs failed:', err);
       break;
     }
   }

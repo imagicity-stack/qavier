@@ -17,6 +17,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Keyboard focus is mint and unmissable; mouse clicks stay clean. */
+:focus-visible {
+  outline: 2px solid theme('colors.mint.600');
+  outline-offset: 2px;
+}
+
 /* Respect users who prefer reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -30,39 +36,106 @@ body {
 }
 
 @layer components {
-  /* The small caps label used for eyebrows, meta and nav. */
+  /* ——— Type ——————————————————————————————————————————————————— */
+
+  /* Small caps label used for eyebrows, meta and column headings. */
   .label {
-    @apply font-sans text-[0.65rem] uppercase tracking-wider2 text-ink/50;
+    @apply font-display text-[0.65rem] font-bold uppercase tracking-wider2 text-ink/55;
   }
 
-  /* Solid button — the primary action. */
+  /* Section heading — heavy, tight, in caps. The house voice. */
+  .h-section {
+    @apply font-display text-2xl font-extrabold uppercase leading-[1.05] tracking-[-0.01em]
+           text-ink sm:text-3xl lg:text-[2.25rem];
+  }
+
+  /* Page heading — one step up from a section. */
+  .h-page {
+    @apply font-display text-3xl font-extrabold uppercase leading-[1.03] tracking-[-0.015em]
+           text-ink sm:text-4xl lg:text-5xl;
+  }
+
+  /* ——— Buttons ———————————————————————————————————————————————— */
+
+  /* Primary — mint fill. The one thing on screen you're meant to press. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 border border-ink bg-ink px-8 py-4
-           font-sans text-[0.7rem] uppercase tracking-wider2 text-paper
-           transition-colors duration-300 hover:bg-transparent hover:text-ink;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-mint-600 px-8 py-3.5
+           font-display text-[0.7rem] font-bold uppercase tracking-wider2 text-paper
+           transition-colors duration-200 hover:bg-mint-700 disabled:pointer-events-none;
   }
 
-  /* Outlined button — the secondary action. */
+  /* Dark — for use on mint or photography, where mint-on-mint would vanish. */
+  .btn-dark {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-ink px-8 py-3.5
+           font-display text-[0.7rem] font-bold uppercase tracking-wider2 text-paper
+           transition-colors duration-200 hover:bg-mint-800 disabled:pointer-events-none;
+  }
+
+  /* Outlined — the secondary action. */
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 border border-ink/25 px-8 py-4
-           font-sans text-[0.7rem] uppercase tracking-wider2 text-ink
-           transition-colors duration-300 hover:border-ink;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink/20 px-8 py-3.5
+           font-display text-[0.7rem] font-bold uppercase tracking-wider2 text-ink
+           transition-colors duration-200 hover:border-ink hover:bg-ink hover:text-paper
+           disabled:pointer-events-none;
+  }
+
+  /* Outlined, reversed — on photography and dark bands. */
+  .btn-outline-light {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-paper/60 px-8 py-3.5
+           font-display text-[0.7rem] font-bold uppercase tracking-wider2 text-paper
+           transition-colors duration-200 hover:bg-paper hover:text-ink;
+  }
+
+  /* ——— Controls ——————————————————————————————————————————————— */
+
+  /* Filter pill, as used on the shop and collection grids. */
+  .chip {
+    @apply shrink-0 whitespace-nowrap rounded-full border px-4 py-2
+           font-display text-[0.65rem] font-bold uppercase tracking-wider2
+           transition-colors duration-200;
+  }
+
+  .chip-on {
+    @apply border-ink bg-ink text-paper;
+  }
+
+  .chip-off {
+    @apply border-line text-ink/60 hover:border-ink/40 hover:text-ink;
+  }
+
+  .field {
+    @apply w-full rounded-full border border-line bg-paper px-5 py-3 font-sans text-sm text-ink
+           transition-colors placeholder:text-ink/35 focus:border-mint-500 focus:outline-none;
+  }
+
+  /* ——— Surfaces ——————————————————————————————————————————————— */
+
+  /* Corner flag on a product card. */
+  .badge {
+    @apply rounded-full px-2.5 py-1 font-display text-[0.6rem] font-bold uppercase
+           tracking-wider2;
   }
 
   /* Branded stand-in for photography that hasn't landed yet. */
   .photo-frame {
     @apply relative flex items-center justify-center overflow-hidden bg-shell;
   }
-
-  /* Field styling shared by the checkout and newsletter inputs. */
-  .field {
-    @apply w-full border border-line bg-transparent px-4 py-3 font-sans text-sm text-ink
-           transition-colors placeholder:text-ink/35 focus:border-ink focus:outline-none;
-  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Horizontal rails scroll by drag/swipe; the bar itself is noise.
+     (Used by every product rail and the filter rows — it was referenced
+     before it existed, so those rows were showing a scrollbar.) */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }

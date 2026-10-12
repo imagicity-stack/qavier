@@ -28,10 +28,10 @@ const PILLARS = [
 export default function AboutPage() {
   return (
     <>
-      <section className="mx-auto max-w-3xl px-5 pb-16 pt-28 text-center sm:px-8 sm:pt-36">
+      <section className="mx-auto max-w-3xl px-5 pb-16 pt-14 text-center sm:px-8 sm:pt-20">
         <Reveal>
           <p className="label">About</p>
-          <h1 className="mt-5 font-display text-3xl font-light leading-tight text-ink text-balance sm:text-4xl">
+          <h1 className="h-page mt-4 text-balance">
             A quiet house, making fewer and better things.
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-ink/60">
@@ -63,7 +63,7 @@ export default function AboutPage() {
         <div className="mx-auto max-w-2xl px-5 py-20 sm:px-8 sm:py-24">
           <Reveal>
             <p className="label">Size guide</p>
-            <h2 className="mt-4 font-display text-2xl font-light text-ink">
+            <h2 className="h-section mt-3">
               Garment measurements
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink/55">

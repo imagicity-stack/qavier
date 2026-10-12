@@ -43,7 +43,7 @@ export function IntroSplash() {
     <AnimatePresence>
       {visible && (
         <motion.div
-          className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#0C231B] px-8"
+          className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-ink px-8"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.7, ease: [0.65, 0, 0.35, 1] } }}
         >
@@ -75,7 +75,7 @@ export function IntroSplash() {
           </div>
 
           <motion.p
-            className="mt-8 text-[0.6rem] uppercase tracking-luxe text-paper/45 sm:text-[0.65rem]"
+            className="mt-8 font-display text-[0.6rem] font-bold uppercase tracking-luxe text-mint-300 sm:text-[0.65rem]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.45, duration: 0.8 }}

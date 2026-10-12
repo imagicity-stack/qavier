@@ -26,7 +26,7 @@ export default function CartPage() {
 
   if (lines.length === 0) {
     return (
-      <section className="mx-auto flex max-w-2xl flex-col items-center gap-7 px-5 pb-24 pt-32 text-center sm:px-8 sm:pt-40">
+      <section className="mx-auto flex max-w-2xl flex-col items-center gap-7 px-5 pb-24 pt-16 text-center sm:px-8 sm:pt-24">
         <p className="label">Bag</p>
         <h1 className="font-display text-3xl font-light text-ink">Your bag is empty</h1>
         <p className="max-w-sm text-sm leading-relaxed text-ink/50">
@@ -40,7 +40,7 @@ export default function CartPage() {
   }
 
   return (
-    <section className="mx-auto max-w-[70rem] px-5 pb-24 pt-28 sm:px-8 sm:pt-36">
+    <section className="mx-auto max-w-[70rem] px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
       <header className="mb-10">
         <p className="label">Bag</p>
         <h1 className="mt-4 font-display text-3xl font-light text-ink sm:text-4xl">

@@ -106,10 +106,10 @@ export function Purchase({ product }: { product: Product }) {
                   type="button"
                   onClick={() => setSelected((s) => ({ ...s, [option.name]: value }))}
                   className={cn(
-                    'min-w-[3.25rem] border px-4 py-2.5 text-sm transition-colors duration-200',
+                    'min-w-[3.25rem] rounded-full border px-4 py-2.5 text-sm transition-colors duration-200',
                     isActive
                       ? 'border-ink bg-ink text-paper'
-                      : 'border-line text-ink hover:border-ink',
+                      : 'border-line text-ink hover:border-mint-500 hover:text-mint-700',
                   )}
                 >
                   {value}
@@ -125,7 +125,7 @@ export function Purchase({ product }: { product: Product }) {
           type="button"
           onClick={handleAdd}
           disabled={soldOut}
-          className={cn('btn-ghost w-full', soldOut && 'cursor-not-allowed opacity-40')}
+          className={cn('btn w-full', soldOut && 'cursor-not-allowed opacity-40')}
         >
           {soldOut ? 'Sold out' : 'Add to bag'}
         </button>
@@ -134,7 +134,7 @@ export function Purchase({ product }: { product: Product }) {
           onClick={handleBuyNow}
           disabled={soldOut || buying || checkingOut}
           className={cn(
-            'btn w-full',
+            'btn-dark w-full',
             (soldOut || buying || checkingOut) && 'cursor-not-allowed opacity-60',
           )}
         >
