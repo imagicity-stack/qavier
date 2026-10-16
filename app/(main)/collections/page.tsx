@@ -42,8 +42,7 @@ export default async function CollectionsPage() {
       ) : (
         <div className="px-5 py-20 text-center">
           <p className="text-[0.95rem] text-mute">
-            No collections yet. Create one in Shopify and it appears here, in the menu and in
-            the footer automatically.
+            New collections are on their way — browse everything in the meantime.
           </p>
           <Link href="/shop" className="btn-dark mt-8">
             Shop All

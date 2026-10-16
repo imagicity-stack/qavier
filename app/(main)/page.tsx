@@ -42,6 +42,13 @@ const QAVIER_CAMPAIGN: Image = {
   height: 992,
 };
 
+const LINEN_CAMPAIGN: Image = {
+  url: '/images/homescreen.png',
+  altText: 'Qavier campaign',
+  width: 1672,
+  height: 941,
+};
+
 const FABRIC: Image = {
   url: '/images/hero.webp',
   altText: 'Qavier fabric',
@@ -82,15 +89,15 @@ export default async function HomePage() {
             cta: 'Shop Men',
             href: hrefFor('men'),
             image: QAVIER_CAMPAIGN,
-            position: '14% center',
+            position: '0% center',
           },
           {
             title: 'Shop Women',
             body: 'Polos, tees and easy sweats.',
             cta: 'Shop Women',
             href: hrefFor('women'),
-            image: QAVIER_CAMPAIGN,
-            position: '52% center',
+            image: LINEN_CAMPAIGN,
+            position: '25% center',
           },
         ]
       : [
@@ -100,16 +107,27 @@ export default async function HomePage() {
             cta: 'Shop New',
             href: hrefFor('new-arrivals'),
             image: QAVIER_CAMPAIGN,
-            position: '14% center',
+            position: '0% center',
           },
-          {
-            title: 'Best Sellers',
-            body: 'The pieces our customers come back for.',
-            cta: 'Shop Best Sellers',
-            href: hrefFor('best-sellers'),
-            image: QAVIER_CAMPAIGN,
-            position: '52% center',
-          },
+          // Without a Best Sellers collection there is nowhere honest to send
+          // "Shop Best Sellers", so the second panel opens the whole shop.
+          byHandle.has('best-sellers')
+            ? {
+                title: 'Best Sellers',
+                body: 'The pieces our customers come back for.',
+                cta: 'Shop Best Sellers',
+                href: collectionHref('best-sellers'),
+                image: LINEN_CAMPAIGN,
+                position: '25% center',
+              }
+            : {
+                title: 'Shop All',
+                body: 'Everything in the store, newest first.',
+                cta: 'Shop All',
+                href: '/shop',
+                image: LINEN_CAMPAIGN,
+                position: '25% center',
+              },
         ];
 
   return (

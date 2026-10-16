@@ -41,8 +41,23 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   // Product types only matter when the store has no Men / Women / Kids
   // departments and the menu falls back to a Shop department built from them.
   const hasDepartments = collections.some((c) => ['men', 'women', 'kids'].includes(c.handle));
-  const productTypes = hasDepartments ? [] : await getProductTypes();
+  let productTypes: string[] = [];
+  if (!hasDepartments) {
+    productTypes = await getProductTypes();
+    // If Shopify's type list can't be read, the newest products still say
+    // which types exist — a thinner menu beats a Shop column of one link.
+    if (!productTypes.length) {
+      const sample = await getProducts({ sortKey: 'CREATED_AT', reverse: true, first: 100 });
+      productTypes = sample.flatMap((p) => (p.productType ? [p.productType] : []));
+    }
+  }
   const nav = buildNav(collections, productTypes);
+  // The Shop department's type links, for the footer when it has no
+  // collections of its own to list.
+  const typeLinks =
+    nav
+      .find((i) => i.label === 'Shop' && i.href === '/shop')
+      ?.groups?.[0]?.links.filter((l) => l.href !== '/shop') ?? [];
 
   // The four products on the right of each department's mega-menu.
   const handles = Array.from(new Set(nav.flatMap((item) => (item.featured ? [item.featured] : []))));
@@ -64,7 +79,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         <AnnouncementBar />
         <SiteNav items={nav} featured={featured} trending={trending} accountHref={ACCOUNT_URL} />
         <main className="flex-1">{children}</main>
-        <SiteFooter collections={collections} accountHref={ACCOUNT_URL} />
+        <SiteFooter collections={collections} typeLinks={typeLinks} accountHref={ACCOUNT_URL} />
         <CartDrawer />
       </div>
     </CartProvider>

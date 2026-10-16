@@ -11,20 +11,27 @@ const SEEN_KEY = 'qavier-intro-seen';
  * intro this session — or asked for less motion — never sees a frame of it.
  * Storage can throw (blocked site data, private modes); then the intro plays.
  */
-const PRE_PAINT = `try{if(sessionStorage.getItem('${SEEN_KEY}')||matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.setAttribute('data-intro-seen','')}catch(e){}`;
+const PRE_PAINT = `try{var r=matchMedia('(prefers-reduced-motion: reduce)').matches,s=false;try{s=!!sessionStorage.getItem('${SEEN_KEY}')}catch(e){}if(r||s)document.documentElement.setAttribute('data-intro-seen','')}catch(e){}`;
 
 /** Server and client both start visible; the browser only learns otherwise after load. */
 const useBrowserLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
+/**
+ * Also remembered in memory, so a visitor whose storage is blocked still sees
+ * the intro once per page load rather than on every return to the home page.
+ */
+let seenInMemory = false;
+
 function alreadySeen(): boolean {
   try {
-    return Boolean(sessionStorage.getItem(SEEN_KEY));
+    return seenInMemory || Boolean(sessionStorage.getItem(SEEN_KEY));
   } catch {
-    return false;
+    return seenInMemory;
   }
 }
 
 function markSeen() {
+  seenInMemory = true;
   try {
     sessionStorage.setItem(SEEN_KEY, '1');
   } catch {

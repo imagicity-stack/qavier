@@ -34,17 +34,21 @@ const SOCIALS = [{ label: 'Instagram', href: 'https://instagram.com/qavier.in', 
 
 export function SiteFooter({
   collections = [],
+  typeLinks = [],
   accountHref,
 }: {
   collections?: CollectionSummary[];
+  /** Product-type links from the menu's Shop department, used when the store has no collections to list. */
+  typeLinks?: { label: string; href: string }[];
   accountHref: string;
 }) {
   const known = new Set(collections.map((c) => c.handle));
+  const fromCollections = SHOP.filter((l) => known.has(l.handle)).map((l) => ({
+    label: l.label,
+    href: collectionHref(l.handle),
+  }));
   const shop = [
-    ...SHOP.filter((l) => known.has(l.handle)).map((l) => ({
-      label: l.label,
-      href: collectionHref(l.handle),
-    })),
+    ...(fromCollections.length ? fromCollections : typeLinks.slice(0, 10)),
     { label: 'Shop All', href: '/shop' },
   ];
 
@@ -66,7 +70,7 @@ export function SiteFooter({
   const discover = [
     { label: 'Privacy Policy', href: '/legal/privacy' },
     { label: 'Terms Of Use', href: '/legal/terms' },
-    { label: 'All Collections', href: '/collections' },
+    ...(collections.length ? [{ label: 'All Collections', href: '/collections' }] : []),
   ];
 
   return (

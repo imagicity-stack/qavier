@@ -31,6 +31,8 @@ export interface NavTile {
   title: string;
   href: string;
   image: Image | null;
+  /** CSS object-position for the crop, to keep the subject in frame. */
+  position?: string;
 }
 
 export interface NavItem {
@@ -201,12 +203,14 @@ export const MENU: MenuItem[] = [
 const GENDER_DEPARTMENTS = ['men', 'women', 'kids'];
 
 /** Art for menu tiles that point at a page rather than a collection. */
-const PAGE_ART: Record<string, Image> = {
+const PAGE_ART: Record<string, Image & { position?: string }> = {
   '/about': {
     url: '/images/desktop_qavier.png',
     altText: 'Qavier campaign',
     width: 1586,
     height: 992,
+    // The photo carries the wordmark on its right; crop to the people.
+    position: '22% center',
   },
 };
 
@@ -227,16 +231,6 @@ const SHARED_HANDLES = (() => {
   return new Set(Array.from(seen).filter(([, n]) => n > 1).map(([h]) => h));
 })();
 
-/** Every collection handle the menu refers to. */
-export const MENU_HANDLES = new Set(
-  MENU.flatMap((item) => [
-    item.to,
-    ...(item.groups ?? []).flatMap((g) => g.links.map((l) => l.to)),
-    ...(item.tiles ?? []).map((t) => t.to),
-    ...(item.featured ? [item.featured] : []),
-  ]).filter((to) => !to.startsWith('/')),
-);
-
 /**
  * The header's departments, filtered down to what the store can show.
  *
@@ -248,8 +242,11 @@ export function buildNav(collections: CollectionSummary[], productTypes: string[
   const byHandle = new Map(collections.map((c) => [c.handle, c]));
 
   /** A menu link's href, or null when its collection doesn't exist. */
-  const resolve = (to: string) =>
-    to.startsWith('/') ? to : byHandle.has(to) ? collectionHref(to) : null;
+  const resolve = (to: string) => {
+    // The collections index is only worth a link when it has something on it.
+    if (to === '/collections') return collections.length ? to : null;
+    return to.startsWith('/') ? to : byHandle.has(to) ? collectionHref(to) : null;
+  };
 
   const items: NavItem[] = [];
 
@@ -267,7 +264,15 @@ export function buildNav(collections: CollectionSummary[], productTypes: string[
     const tiles: NavTile[] = (entry.tiles ?? []).flatMap((t) => {
       const href = resolve(t.to);
       if (!href) return [];
-      return [{ title: t.label, href, image: byHandle.get(t.to)?.image ?? PAGE_ART[t.to] ?? null }];
+      const art = PAGE_ART[t.to];
+      return [
+        {
+          title: t.label,
+          href,
+          image: byHandle.get(t.to)?.image ?? art ?? null,
+          position: byHandle.has(t.to) ? undefined : art?.position,
+        },
+      ];
     });
 
     // A department opens on its own collection, or failing that on the first
@@ -286,16 +291,6 @@ export function buildNav(collections: CollectionSummary[], productTypes: string[
       featured: entry.featured && byHandle.has(entry.featured) ? entry.featured : undefined,
       tiles: tiles.length ? tiles : undefined,
       accent: entry.accent,
-    });
-  }
-
-  // Collections the tree doesn't know about, in Discover's second column.
-  const extras = collections.filter((c) => !MENU_HANDLES.has(c.handle));
-  const discover = items.find((i) => i.label === 'Discover');
-  if (extras.length && discover?.groups) {
-    discover.groups.push({
-      heading: 'Collections',
-      links: extras.map((c) => ({ label: c.title, href: collectionHref(c.handle) })),
     });
   }
 
@@ -328,10 +323,34 @@ export function buildNav(collections: CollectionSummary[], productTypes: string[
   }
 
   // New Arrivals is a fixture of the bar; without the collection it is the
-  // whole catalogue, newest first — which is what /shop already shows.
+  // whole catalogue, newest first — which is what /shop already shows. (The
+  // query keeps it from lighting up alongside Shop on /shop.)
   if (!items.some((i) => i.label === 'New Arrivals')) {
     const at = items.findIndex((i) => i.label === 'Gifts' || i.accent || i.label === 'Discover');
-    items.splice(at === -1 ? items.length : at, 0, { label: 'New Arrivals', href: '/shop' });
+    items.splice(at === -1 ? items.length : at, 0, {
+      label: 'New Arrivals',
+      href: '/shop?sort=newest',
+    });
+  }
+
+  // Every collection the menu doesn't already link — ones the tree doesn't
+  // name, and shared ones (Accessories, Best Sellers) left without a
+  // department — goes in Discover's Collections column, so nothing live is
+  // unreachable.
+  const linked = new Set(
+    items.flatMap((i) => [
+      i.href,
+      ...(i.groups ?? []).flatMap((g) => g.links.map((l) => l.href)),
+      ...(i.tiles ?? []).map((t) => t.href),
+    ]),
+  );
+  const extras = collections.filter((c) => !linked.has(collectionHref(c.handle)));
+  const discover = items.find((i) => i.label === 'Discover');
+  if (extras.length && discover?.groups) {
+    discover.groups.push({
+      heading: 'Collections',
+      links: extras.map((c) => ({ label: c.title, href: collectionHref(c.handle) })),
+    });
   }
 
   return items;

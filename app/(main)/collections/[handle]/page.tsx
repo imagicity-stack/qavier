@@ -78,7 +78,12 @@ export default async function CollectionPage({ params }: { params: { handle: str
 function railFor(handle: string, collections: CollectionSummary[]): CategoryTile[] {
   const live = collections.filter((c) => c.hasProducts);
   const byHandle = new Map(live.map((c) => [c.handle, c]));
-  const match = departmentFor(handle, buildNav(live));
+  // The page's own collection counts as live for finding its department, so
+  // an empty Kids' Swimwear still gets the Kids row rather than a generic one.
+  const match = departmentFor(
+    handle,
+    buildNav(collections.filter((c) => c.hasProducts || c.handle === handle)),
+  );
 
   let entries: { title: string; handle: string }[];
   if (match) {

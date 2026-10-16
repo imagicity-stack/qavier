@@ -97,6 +97,8 @@ async function run() {
         if (APPLY && publications.length) {
           await publish(existing.id, publications);
           console.log(`  = ${name} already exists — published to the channels above`);
+        } else if (publications.length) {
+          console.log(`  = ${name} already exists — would be published to the channels above`);
         } else {
           console.log(`  = ${name} already exists — left as is`);
         }
@@ -173,6 +175,9 @@ async function createCollection(def) {
         },
       },
     },
+    // A create that Shopify may have run must not be sent twice — a retry
+    // after a dropped reply would make a duplicate ("men-1").
+    { idempotent: false },
   );
   const { collection, userErrors } = data.collectionCreate;
   if (userErrors?.length) throw new Error(userErrors.map((e) => e.message).join('; '));
@@ -216,7 +221,7 @@ async function choosePublications() {
  * server errors (5xx) are retried with backoff, honouring Retry-After.
  * Permission and authentication problems stop the whole run.
  */
-async function admin(query, variables = {}) {
+async function admin(query, variables = {}, { idempotent = true } = {}) {
   const ATTEMPTS = 5;
   let lastProblem = '';
 
@@ -230,12 +235,18 @@ async function admin(query, variables = {}) {
       });
     } catch (err) {
       lastProblem = `network error: ${err.message}`;
+      if (!idempotent) throw new Error(`${lastProblem} — it may have been created anyway; run again to check`);
       if (attempt < ATTEMPTS) await backoff(attempt);
       continue;
     }
 
     if (res.status === 429 || res.status >= 500) {
       lastProblem = `HTTP ${res.status}`;
+      // 429 means Shopify did not run the request, so it is always safe to
+      // repeat; a 5xx may arrive after the work was done.
+      if (res.status >= 500 && !idempotent) {
+        throw new Error(`${lastProblem} — it may have been created anyway; run again to check`);
+      }
       if (attempt < ATTEMPTS) await backoff(attempt, res.headers.get('retry-after'));
       continue;
     }
@@ -308,7 +319,7 @@ function loadEnvFile(file) {
     const m = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/.exec(line);
     if (!m) continue;
     const raw = m[2];
-    const quoted = /^(['"])(.*)\1$/.exec(raw);
+    const quoted = /^(['"])(.*?)\1(?:\s+#.*)?$/.exec(raw);
     const value = quoted ? quoted[2] : raw.replace(/\s+#.*$/, '');
     if (process.env[m[1]] === undefined) process.env[m[1]] = value;
   }

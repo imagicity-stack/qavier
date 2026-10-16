@@ -261,6 +261,7 @@ function MegaPanel({ item, products }: { item: NavItem; products?: Product[] }) 
                 <ShopImage
                   image={tile.image}
                   sizes="30vw"
+                  position={tile.position}
                   className="absolute inset-0 h-full w-full transition-transform duration-700 ease-soft group-hover:scale-[1.03]"
                   label={tile.title}
                 />

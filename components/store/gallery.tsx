@@ -44,7 +44,8 @@ export function Gallery({ images, title }: { images: Image[]; title: string }) {
               <ShopImage
                 image={img}
                 priority={i === 0}
-                sizes="100vw"
+                // Hidden at lg and up: ask for the smallest file there.
+                sizes="(min-width: 1024px) 1px, 100vw"
                 className="aspect-[3/4] w-full"
                 label={title}
               />
@@ -78,7 +79,8 @@ export function Gallery({ images, title }: { images: Image[]; title: string }) {
             key={i}
             image={img}
             priority={i < 2}
-            sizes="30vw"
+            // Hidden below lg, where the carousel shows instead.
+            sizes="(max-width: 1023px) 1px, 30vw"
             className={cn('aspect-[3/4] w-full', images.length === 1 && 'col-span-2')}
             label={title}
           />

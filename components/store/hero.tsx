@@ -23,7 +23,9 @@ export function Hero({
         alt=""
         fill
         priority
-        sizes="100vw"
+        // On phones a landscape photo fills a portrait screen, so it needs
+        // roughly three screens' width to stay sharp.
+        sizes="(max-width: 768px) 300vw, 100vw"
         className="object-cover object-[64%_center] sm:object-center"
       />
       {/* A wash from the bottom-left corner, where the copy sits, so it reads
