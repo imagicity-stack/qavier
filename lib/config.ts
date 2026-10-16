@@ -43,3 +43,11 @@ export const SITE_URL = resolveSiteUrl();
  */
 export const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? 'G-PSJ1WV8V5X';
+
+/**
+ * Where the header's account icon goes: Shopify's hosted customer account
+ * when the store is connected, otherwise the store's own account page, which
+ * points shoppers at order help until accounts open.
+ */
+const SHOP_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN?.replace(/^https?:\/\//, '').replace(/\/$/, '');
+export const ACCOUNT_URL = SHOP_DOMAIN ? `https://${SHOP_DOMAIN}/account` : '/account';

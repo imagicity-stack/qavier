@@ -1,139 +1,142 @@
 import Link from 'next/link';
-import { getCollections, getProducts } from '@/lib/shopify';
-import { IntroSplash } from '@/components/intro-splash';
+import { getCollection, getCollections, getProducts } from '@/lib/shopify';
 import { Hero } from '@/components/store/hero';
+import { CategoryRail, type CategoryTile } from '@/components/store/category-rail';
+import { ProductTabs } from '@/components/store/product-rail';
+import { SplitBanners, WideBanner } from '@/components/store/editorial';
 import { ValueProps } from '@/components/store/value-props';
-import { SectionHead } from '@/components/store/section-head';
-import { ProductRail } from '@/components/store/product-rail';
-import { ProductCard } from '@/components/store/product-card';
-import { CollectionTiles } from '@/components/store/collection-tiles';
-import { PromoSplit } from '@/components/store/promo-split';
-import { Newsletter } from '@/components/store/newsletter';
-import { Reveal } from '@/components/shared/reveal';
-import { collectionHref, findCollection } from '@/lib/nav';
+import { collectionHref } from '@/lib/nav';
+import type { CollectionSummary, Image } from '@/lib/shopify/types';
 
 // Catalogue pages are regenerated at most this often, so Shopify price and
 // stock edits reach the storefront without a redeploy. The /api/revalidate
 // webhook flushes them immediately when Shopify pushes a change.
 export const revalidate = 60;
 
+/** The "Shop by Category" row, in this order, where the collection exists. */
+const CATEGORIES: { title: string; handle: string }[] = [
+  { title: 'New Arrivals', handle: 'new-arrivals' },
+  { title: 'Polos', handle: 'mens-polos' },
+  { title: 'Tees', handle: 'mens-t-shirts' },
+  { title: 'Sweatshirts & Hoodies', handle: 'mens-sweatshirts-hoodies' },
+  { title: 'Outerwear', handle: 'mens-outerwear' },
+  { title: 'Bottoms', handle: 'mens-pants' },
+  { title: 'Shorts', handle: 'mens-shorts' },
+  { title: 'Accessories', handle: 'accessories' },
+  { title: 'Kids', handle: 'kids' },
+];
+
+const campaign = (url: string, altText: string): Image => ({
+  url,
+  altText,
+  width: 1586,
+  height: 992,
+});
+
 export default async function HomePage() {
-  const [newest, bestSelling, collections] = await Promise.all([
+  const [newest, bestSelling, collections, golf, kids] = await Promise.all([
     getProducts({ sortKey: 'CREATED_AT', reverse: true, first: 12 }),
     getProducts({ sortKey: 'BEST_SELLING', first: 12 }),
     getCollections(),
+    getCollection('golf', { first: 12, sortKey: 'BEST_SELLING' }),
+    getCollection('kids', { first: 12, sortKey: 'BEST_SELLING' }),
   ]);
 
-  const newIn = findCollection(collections, ['new-arrival', 'new-in', 'new']);
-  const newInHref = newIn ? collectionHref(newIn.handle) : '/shop';
+  const byHandle = new Map(collections.map((c) => [c.handle, c]));
+  const hrefFor = (handle: string, fallback = '/shop') =>
+    byHandle.has(handle) ? collectionHref(handle) : fallback;
 
-  // Borrow a photograph for the editorial block: a collection's own art if
-  // there is any, else the newest piece's second shot.
-  const promoImage =
-    collections.find((c) => c.image)?.image ??
-    newest[0]?.images?.[1] ??
-    newest[0]?.featuredImage ??
-    null;
-
-  // Best-sellers duplicating the "new in" rail wholesale looks like a bug, so
-  // only run that band when it has something of its own to say.
-  const newestIds = new Set(newest.slice(0, 8).map((p) => p.id));
-  const alsoLoved = bestSelling.filter((p) => !newestIds.has(p.id));
+  const tiles: CategoryTile[] = CATEGORIES.flatMap(({ title, handle }) => {
+    const c: CollectionSummary | undefined = byHandle.get(handle);
+    // The New Arrivals collection carries campaign art; a tile wants a
+    // product, so take the first piece's photo instead.
+    const image = handle === 'new-arrivals' ? newest[0]?.featuredImage ?? null : c?.image ?? null;
+    return c ? [{ title, href: collectionHref(handle), image }] : [];
+  });
 
   return (
     <>
-      <IntroSplash />
-      <Hero />
-      <ValueProps />
+      <Hero href={hrefFor('new-arrivals')} />
 
-      {/* ————————————————————————— New in ————————————————————————— */}
-      {newest.length > 0 && (
-        <section className="mx-auto max-w-[90rem] px-5 py-14 sm:px-8 sm:py-20">
-          <Reveal>
-            <SectionHead eyebrow="Just landed" title="New in" href={newInHref} />
-          </Reveal>
-          <div className="mt-8 sm:mt-10">
-            <ProductRail products={newest} />
-          </div>
+      {tiles.length > 0 && (
+        <section className="pt-12 sm:pt-16 lg:px-10">
+          <h2 className="h-section mb-8 text-center">Shop by Category</h2>
+          <CategoryRail tiles={tiles} />
         </section>
       )}
 
-      {/* ———————————————————— Shop by collection ———————————————————— */}
-      {collections.length > 0 && (
-        <section className="border-t border-line bg-shell">
-          <div className="mx-auto max-w-[90rem] px-5 py-14 sm:px-8 sm:py-20">
-            <Reveal>
-              <SectionHead
-                eyebrow="The wardrobe"
-                title="Shop by collection"
-                href="/collections"
-                linkLabel="All collections"
-              />
-            </Reveal>
-            <div className="mt-8 sm:mt-10">
-              <CollectionTiles collections={collections.slice(0, 8)} />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ————————————————————————— Editorial ————————————————————————— */}
-      <PromoSplit
-        eyebrow="Made slowly"
-        title="Cut in small runs"
-        body="Every design is cut in a limited quantity, printed by hand and finished one at a time. When a run is gone, it is gone — there are no restocks and nothing is overproduced."
-        href="/about"
-        cta="About the house"
-        image={promoImage}
+      <ProductTabs
+        title="Just Landed"
+        tabs={[
+          { label: 'New Arrivals', href: hrefFor('new-arrivals'), products: newest },
+          { label: 'Best Sellers', href: hrefFor('best-sellers'), products: bestSelling },
+        ]}
       />
 
-      {/* ————————————————————————— Best sellers ————————————————————————— */}
-      {alsoLoved.length > 0 && (
-        <section className="mx-auto max-w-[90rem] px-5 py-14 sm:px-8 sm:py-20">
-          <Reveal>
-            <SectionHead eyebrow="Tried and tested" title="Best sellers" href="/shop" />
-          </Reveal>
-          <div className="mt-8 sm:mt-10">
-            <ProductRail products={alsoLoved} />
-          </div>
-        </section>
+      {(byHandle.has('men') || byHandle.has('women')) && (
+        <SplitBanners
+          items={[
+            {
+              title: 'Shop Men',
+              body: 'Polos, tees and the layers that go over them.',
+              cta: 'Shop Men',
+              href: hrefFor('men'),
+              image: campaign('/images/desktop_qavier.png', 'Qavier menswear campaign'),
+              position: '28% center',
+            },
+            {
+              title: 'Shop Women',
+              body: 'Cropped polos, baby tees and easy sweats.',
+              cta: 'Shop Women',
+              href: hrefFor('women'),
+              image: campaign('/images/desktop_essentials.png', 'Qavier womenswear campaign'),
+              position: '50% center',
+            },
+          ]}
+        />
       )}
 
-      {/* ————————————————————————— The full grid ————————————————————————— */}
-      {newest.length > 4 && (
-        <section className="border-t border-line">
-          <div className="mx-auto max-w-[90rem] px-5 py-14 sm:px-8 sm:py-20">
-            <Reveal>
-              <SectionHead
-                eyebrow="Everything"
-                title="The collection"
-                href="/shop"
-                linkLabel="Shop all"
-              />
-            </Reveal>
-            <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-8 sm:mt-10 sm:gap-x-5 sm:gap-y-12 lg:grid-cols-4">
-              {newest.slice(0, 8).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
-        </section>
+      {golf && golf.products.length > 0 && (
+        <ProductTabs
+          title="The Golf Shop"
+          tabs={[{ label: 'Golf', href: collectionHref('golf'), products: golf.products }]}
+        />
+      )}
+
+      <WideBanner
+        item={{
+          title: 'Colour, Turned Up',
+          body: 'Bright layers for long weekends.',
+          cta: 'Shop the Edit',
+          href: hrefFor('new-arrivals'),
+          image: campaign('/images/desktop_pops.png', 'Qavier colour campaign'),
+          position: '35% center',
+        }}
+      />
+
+      {kids && kids.products.length > 0 && (
+        <ProductTabs
+          title="For the Kids"
+          tabs={[{ label: 'Kids', href: collectionHref('kids'), products: kids.products }]}
+        />
       )}
 
       {newest.length === 0 && (
-        <section className="mx-auto max-w-xl px-5 py-24 text-center sm:px-8">
+        <section className="mx-auto max-w-xl px-5 py-24 text-center">
           <h2 className="h-section">The first pieces land soon</h2>
-          <p className="mt-5 text-sm leading-relaxed text-ink/55">
-            Connect the store to Shopify and the collection fills itself — the
-            grid, the menu and the collection pages all read from it.
+          <p className="mt-4 text-sm leading-relaxed text-mute">
+            Connect the store to Shopify and the collection fills itself — the grid, the menu
+            and the collection pages all read from it.
           </p>
-          <Link href="/about" className="btn mt-9">
-            About the house
+          <Link href="/about" className="btn mt-8">
+            About Qavier
           </Link>
         </section>
       )}
 
-      <Newsletter />
+      <div className="mt-4">
+        <ValueProps />
+      </div>
     </>
   );
 }

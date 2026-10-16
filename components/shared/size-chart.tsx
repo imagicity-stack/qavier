@@ -132,16 +132,16 @@ export function SizeChartDialog({ className }: { className?: string }) {
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          'text-[0.65rem] uppercase tracking-wider2 text-ink/50 underline underline-offset-4 transition-colors hover:text-ink',
+          'text-[0.85rem] text-ink underline underline-offset-4 transition-opacity hover:opacity-60',
           className,
         )}
       >
-        Size chart
+        Size Guide
       </button>
 
       {open && (
         <div
-          className="fixed inset-0 z-[150] flex items-end justify-center bg-ink/40 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+          className="fixed inset-0 z-[150] flex items-end justify-center bg-ink/40 p-0 sm:items-center sm:p-6"
           onClick={close}
         >
           <div
@@ -154,7 +154,7 @@ export function SizeChartDialog({ className }: { className?: string }) {
             <div className="flex items-start justify-between gap-6">
               <h2
                 id="size-chart-title"
-                className="text-sm uppercase tracking-wider2 text-ink"
+                className="font-serif text-[1.4rem] text-ink"
               >
                 {SIZE_CHART_TITLE}
               </h2>

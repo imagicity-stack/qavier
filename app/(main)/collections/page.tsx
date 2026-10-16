@@ -1,60 +1,52 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getCollections } from '@/lib/shopify';
-import { CollectionTiles } from '@/components/store/collection-tiles';
-import { Reveal } from '@/components/shared/reveal';
-import { groupCollections } from '@/lib/nav';
+import { ShopImage } from '@/components/shared/shop-image';
+import { collectionHref } from '@/lib/nav';
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Collections',
-  description:
-    'Every Qavier collection — capsules, essentials and seasonal drops, cut in small runs.',
+  description: 'Every Qavier collection — polos, tees, layers, golf and accessories.',
 };
 
 export default async function CollectionsPage() {
   const collections = await getCollections();
-  // Same bucketing the mega-menu uses, so a collection sits under the same
-  // heading in the menu and on this page.
-  const groups = groupCollections(collections);
 
   return (
-    <div className="mx-auto max-w-[90rem] px-5 py-12 sm:px-8 sm:py-16">
-      <Reveal>
-        <p className="label">The wardrobe</p>
-        <h1 className="h-page mt-3">Collections</h1>
-        <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink/55">
-          {collections.length > 0
-            ? 'Every capsule in the house, from the core essentials to the seasonal drops.'
-            : 'Collections appear here as they are published in Shopify.'}
-        </p>
-      </Reveal>
+    <div className="pb-16">
+      <header className="px-4 pb-9 pt-9 text-center sm:px-6 sm:pt-11">
+        <h1 className="h-page">All Collections</h1>
+      </header>
 
-      {groups.length > 0 ? (
-        <div className="mt-12 flex flex-col gap-14 sm:mt-16 sm:gap-20">
-          {groups.map((group, i) => (
-            <section key={group.heading}>
-              <h2 className="h-section border-b border-line pb-4">{group.heading}</h2>
-              <div className="mt-8">
-                <CollectionTiles
-                  priority={i === 0}
-                  collections={collections.filter((c) =>
-                    group.links.some((l) => l.href.endsWith(`/${c.handle}`)),
-                  )}
+      {collections.length > 0 ? (
+        <div className="grid grid-cols-2 gap-x-2.5 gap-y-9 px-2.5 sm:grid-cols-3 sm:px-4 lg:grid-cols-4 lg:px-6">
+          {collections.map((c, i) => (
+            <Link key={c.id} href={collectionHref(c.handle)} className="group block">
+              <div className="relative aspect-square overflow-hidden bg-shell">
+                <ShopImage
+                  image={c.image}
+                  priority={i < 4}
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="absolute inset-0 h-full w-full transition-transform duration-700 ease-soft group-hover:scale-[1.03]"
+                  label={c.title}
                 />
               </div>
-            </section>
+              <div className="mt-4 text-center">
+                <span className="label inline-block border-b-2 border-ink pb-1.5">{c.title}</span>
+              </div>
+            </Link>
           ))}
         </div>
       ) : (
-        <div className="py-20 text-center">
-          <p className="text-sm text-ink/50">
-            No collections yet. Create one in Shopify and it appears here, in the
-            menu and in the footer automatically.
+        <div className="px-5 py-20 text-center">
+          <p className="text-[0.95rem] text-mute">
+            No collections yet. Create one in Shopify and it appears here, in the menu and in
+            the footer automatically.
           </p>
-          <Link href="/shop" className="btn mt-8">
-            Shop all pieces
+          <Link href="/shop" className="btn-dark mt-8">
+            Shop All
           </Link>
         </div>
       )}

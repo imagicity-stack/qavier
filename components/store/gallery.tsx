@@ -1,67 +1,89 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ShopImage } from '@/components/shared/shop-image';
 import type { Image } from '@/lib/shopify/types';
-import { cn, galleryAspectRatio } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 /**
- * Product gallery: one large frame with thumbnails beneath.
+ * Product gallery.
  *
- * The frame takes its shape from the store's own photography and the photo is
- * contained, never cropped — a shopper judging a garment needs to see all of
- * it. Shape comes from the first image, so switching thumbnails never shifts
- * the layout, and the height is capped against the viewport so a tall photo
- * can't swallow a phone screen on its own.
+ * Desktop: every shot at once, two to a row, so the page scrolls through the
+ * photographs while the purchase panel stays put beside them.
+ * Phones: a full-width swipe carousel with a dot per shot.
  */
 export function Gallery({ images, title }: { images: Image[]; title: string }) {
-  const gallery = images.length ? images : [];
-  const [active, setActive] = useState(0);
-  const main = gallery[active] ?? gallery[0];
-  const ratio = galleryAspectRatio(gallery[0], 4 / 5);
+  const rail = useRef<HTMLDivElement>(null);
+  const [index, setIndex] = useState(0);
+
+  // Back to the first frame whenever the set changes (a new colourway).
+  useEffect(() => {
+    setIndex(0);
+    rail.current?.scrollTo({ left: 0 });
+  }, [images]);
+
+  const onScroll = () => {
+    const el = rail.current;
+    if (!el) return;
+    setIndex(Math.round(el.scrollLeft / el.clientWidth));
+  };
+
+  if (!images.length) return null;
 
   return (
-    <div className="flex min-w-0 flex-col gap-3">
-      <div
-        className="mx-auto w-full bg-shell [--gal-h:56svh] sm:[--gal-h:70svh] lg:[--gal-h:1200px]"
-        style={{ maxWidth: `calc(var(--gal-h) * ${ratio})` }}
-      >
-        <ShopImage
-          image={main}
-          priority
-          fit="contain"
-          sizes="(max-width: 1024px) 100vw, 50vw"
-          className="w-full"
-          style={{ aspectRatio: String(ratio) }}
-          label={title}
-        />
-      </div>
-
-      {gallery.length > 1 && (
-        <div className="scrollbar-none flex w-full min-w-0 gap-2 overflow-x-auto pb-1">
-          {gallery.map((img, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => setActive(i)}
-              aria-label={`View image ${i + 1} of ${gallery.length}`}
-              aria-pressed={i === active}
-              className={cn(
-                'relative aspect-[4/5] w-16 shrink-0 overflow-hidden bg-shell transition-opacity sm:w-20',
-                i === active ? 'ring-1 ring-ink' : 'opacity-60 hover:opacity-100',
-              )}
-            >
+    <>
+      {/* Phones */}
+      <div className="relative lg:hidden">
+        <div
+          ref={rail}
+          onScroll={onScroll}
+          className="scrollbar-none flex snap-x snap-mandatory overflow-x-auto"
+        >
+          {images.map((img, i) => (
+            <div key={i} className="w-full shrink-0 snap-start">
               <ShopImage
                 image={img}
-                fit="contain"
-                sizes="80px"
-                className="h-full w-full"
-                label={`${i + 1}`}
+                priority={i === 0}
+                sizes="100vw"
+                className="aspect-[3/4] w-full"
+                label={title}
               />
-            </button>
+            </div>
           ))}
         </div>
-      )}
-    </div>
+        {images.length > 1 && (
+          <div className="absolute inset-x-0 bottom-4 flex justify-center gap-1.5">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Show image ${i + 1} of ${images.length}`}
+                onClick={() =>
+                  rail.current?.scrollTo({ left: i * rail.current.clientWidth, behavior: 'smooth' })
+                }
+                className={cn(
+                  'h-2 w-2 rounded-full border border-ink transition-colors',
+                  i === index ? 'bg-ink' : 'bg-paper',
+                )}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop */}
+      <div className="hidden grid-cols-2 gap-1.5 lg:grid">
+        {images.map((img, i) => (
+          <ShopImage
+            key={i}
+            image={img}
+            priority={i < 2}
+            sizes="30vw"
+            className={cn('aspect-[3/4] w-full', images.length === 1 && 'col-span-2')}
+            label={title}
+          />
+        ))}
+      </div>
+    </>
   );
 }

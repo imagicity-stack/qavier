@@ -8,8 +8,8 @@ import { ShopGrid } from '@/components/store/shop-grid';
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: 'Shop',
-  description: 'The full Qavier collection — considered pieces, made in small runs.',
+  title: 'Shop All',
+  description: 'The full Qavier collection — polos, tees, layers and accessories.',
 };
 
 export default async function ShopPage({
@@ -18,23 +18,19 @@ export default async function ShopPage({
   searchParams: { q?: string | string[]; category?: string | string[] };
 }) {
   const query = typeof searchParams.q === 'string' ? searchParams.q : undefined;
-  const category =
-    typeof searchParams.category === 'string' ? searchParams.category : 'all';
+  const category = typeof searchParams.category === 'string' ? searchParams.category : 'all';
 
   const products = await getProducts({ query, sortKey: 'CREATED_AT', reverse: true });
 
   return (
-    <section className="mx-auto max-w-[90rem] px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
-      <header className="mb-8 sm:mb-10">
-        <p className="label">{query ? 'Search results' : 'Everything'}</p>
-        <h1 className="h-page mt-3">{query ? `“${query}”` : 'Shop all'}</h1>
-        <p className="mt-3 text-sm text-ink/45">
-          {products.length} {products.length === 1 ? 'piece' : 'pieces'}
-        </p>
+    <>
+      <header className="px-4 pb-9 pt-9 text-center sm:px-6 sm:pt-11">
+        {query && <p className="text-[0.85rem] text-mute">Search results for</p>}
+        <h1 className="h-page mt-1">{query ? `“${query}”` : 'Shop All'}</h1>
       </header>
 
       {/* Re-key on the search term so a new search resets the filters. */}
       <ShopGrid key={query ?? 'all'} products={products} initialCategory={category} />
-    </section>
+    </>
   );
 }

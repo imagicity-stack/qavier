@@ -21,6 +21,35 @@ export interface Image {
   height?: number;
   /** When true the UI renders a branded "photo coming soon" frame. */
   placeholder?: boolean;
+  /**
+   * Demo catalogue only: a flat garment illustration to draw while the
+   * photograph for this slot doesn't exist yet. Ignored once `url` is set.
+   */
+  art?: GarmentArt;
+}
+
+export type GarmentKind =
+  | 'polo'
+  | 'tee'
+  | 'hoodie'
+  | 'crewneck'
+  | 'quarterzip'
+  | 'jacket'
+  | 'gilet'
+  | 'pants'
+  | 'shorts'
+  | 'skirt'
+  | 'cap'
+  | 'bucket'
+  | 'socks'
+  | 'tote'
+  | 'belt';
+
+export interface GarmentArt {
+  kind: GarmentKind;
+  /** Fill colour, as a CSS colour. */
+  color: string;
+  view: 'front' | 'back';
 }
 
 export interface ProductOption {

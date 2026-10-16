@@ -25,7 +25,7 @@ export default function LegalPage({ params }: { params: { slug: string } }) {
   return (
     <article className="mx-auto max-w-3xl px-5 py-14 sm:px-8 sm:py-20">
       <p className="label">Legal</p>
-      <h1 className="mt-4 font-display text-2xl font-light leading-tight text-ink sm:text-3xl">
+      <h1 className="mt-4 font-serif text-2xl font-normal leading-tight text-ink sm:text-3xl">
         {doc.title}
       </h1>
       <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink/60">{doc.summary}</p>
@@ -36,7 +36,7 @@ export default function LegalPage({ params }: { params: { slug: string } }) {
       <div className="mt-10 flex flex-col gap-9 border-t border-line pt-10">
         {doc.sections.map((section) => (
           <section key={section.heading}>
-            <h2 className="font-display text-lg font-light text-ink">{section.heading}</h2>
+            <h2 className="font-serif text-lg font-normal text-ink">{section.heading}</h2>
             {section.body?.map((paragraph) => (
               <p
                 key={paragraph.slice(0, 40)}

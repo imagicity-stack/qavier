@@ -4,12 +4,10 @@ import { LegalLinks } from '@/components/shared/legal-links';
 /** Holding page for the whole store, behind NEXT_PUBLIC_QAVIER_STORE. */
 export function ComingSoon() {
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-ink px-6 text-paper">
+    <div className="flex min-h-[100dvh] flex-col bg-forest px-6 text-paper">
       <main className="flex flex-1 flex-col items-center justify-center text-center">
         <Logo invert priority className="h-16 sm:h-20" />
-        <p className="mt-7 font-display text-[0.65rem] font-bold uppercase tracking-luxe text-mint-300">
-          Opening soon
-        </p>
+        <p className="mt-7 font-serif text-2xl text-paper">Opening soon</p>
         <p className="mt-6 max-w-sm text-sm leading-relaxed text-paper/60">
           Considered pieces, made in small runs. The first collection lands shortly.
         </p>

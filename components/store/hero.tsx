@@ -2,52 +2,42 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 /**
- * The opening banner.
+ * The opening banner: a full-bleed campaign photograph filling the first
+ * screen, with a serif headline, one line of copy and a mint pill in the
+ * lower left.
  *
- * The header above it is solid and sticky, so this is a banner rather than a
- * full-screen takeover — a shopper should see the first products without
- * scrolling a whole viewport. The copy sits bottom-left on desktop and
- * centred on phones, where a side-weighted block fights the narrow column.
- *
- * Swap the picture by replacing `public/images/hero.webp`.
+ * Swap the picture by replacing `public/images/homescreen.png` (or point
+ * `src` at another file).
  */
-export function Hero({ exploreHref = '/shop' }: { exploreHref?: string }) {
+export function Hero({
+  href = '/shop',
+  src = '/images/homescreen.png',
+}: {
+  href?: string;
+  src?: string;
+}) {
   return (
-    <section className="relative isolate flex min-h-[66svh] items-end overflow-hidden bg-ink sm:min-h-[76svh]">
+    <section className="relative isolate flex h-[calc(100svh-6.4rem)] min-h-[34rem] items-end overflow-hidden bg-shell lg:h-[calc(100svh-6.9rem)]">
       <Image
-        src="/images/hero.webp"
+        src={src}
         alt=""
         fill
         priority
         sizes="100vw"
-        className="object-cover object-center"
+        className="object-cover object-[64%_center] sm:object-center"
       />
-      {/* Gradient rather than a flat wash: keeps the artwork bright at the top
-          and still gives the copy something solid to sit on. */}
-      <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/35 to-ink/10" />
+      {/* A wash from the bottom-left corner, where the copy sits, so it reads
+          on any photograph without dimming the faces. */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent sm:bg-gradient-to-tr sm:from-black/55 sm:via-transparent" />
 
-      <div className="relative mx-auto w-full max-w-[90rem] px-5 pb-12 pt-16 sm:px-8 sm:pb-16 sm:pt-24">
-        <div className="max-w-2xl text-center sm:text-left">
-          <p className="font-display text-[0.65rem] font-bold uppercase tracking-luxe text-mint-300">
-            Spring Summer ’26
-          </p>
-          <h1 className="mt-4 font-display text-[2rem] font-extrabold uppercase leading-[0.98] tracking-[-0.02em] text-paper text-balance sm:text-5xl lg:text-6xl">
-            Where simplicity
-            <br className="hidden sm:block" /> becomes luxury
-          </h1>
-          <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-paper/75 sm:mx-0">
-            Considered pieces, cut in small runs and finished by hand. Designed
-            and made in India.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3 sm:justify-start">
-            <Link href={exploreHref} className="btn">
-              Explore
-            </Link>
-            <Link href="/collections" className="btn-outline-light">
-              Collections
-            </Link>
-          </div>
-        </div>
+      <div className="relative w-full px-5 pb-14 sm:px-10 sm:pb-16 lg:px-16 lg:pb-20">
+        <h1 className="font-serif text-[2.6rem] font-normal leading-[1.05] text-paper sm:text-[3.6rem]">
+          Made for Easy Days
+        </h1>
+        <p className="mt-3 text-[0.9rem] font-medium text-paper">Light layers. Clean lines.</p>
+        <Link href={href} className="btn mt-7">
+          Shop New Arrivals
+        </Link>
       </div>
     </section>
   );

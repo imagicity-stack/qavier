@@ -1,13 +1,15 @@
 import Image from 'next/image';
+import { GarmentArt } from '@/components/shared/garment-art';
 import type { Image as ShopImageType } from '@/lib/shopify/types';
 import { cn } from '@/lib/utils';
 
 /**
  * Renders product/editorial imagery.
  *
- * • If a real `url` exists (i.e. Shopify is connected) → optimized next/image.
- * • Otherwise → a branded, on-theme "photo coming soon" frame so the layout is
- *   fully composed and you can drop photography in later with zero rework.
+ * • If a real `url` exists → optimized next/image.
+ * • Else, if the slot carries garment art (demo catalogue) → the illustration.
+ * • Otherwise → a quiet "imagery forthcoming" frame, so the layout is fully
+ *   composed and photography drops in later with zero rework.
  */
 export function ShopImage({
   image,
@@ -17,6 +19,7 @@ export function ShopImage({
   rounded,
   label,
   fit = 'cover',
+  position,
   style,
 }: {
   image?: ShopImageType | null;
@@ -29,10 +32,11 @@ export function ShopImage({
   /**
    * How the photo fills its frame. `cover` crops to fill — right for grid
    * cards, where a uniform shape matters more than seeing every pixel.
-   * `contain` shows the whole photo, letterboxing rather than cropping — use
-   * it wherever a shopper is judging the garment, above all the product page.
+   * `contain` shows the whole photo, letterboxing rather than cropping.
    */
   fit?: 'cover' | 'contain';
+  /** CSS object-position for a cropped photo, e.g. "30% center". */
+  position?: string;
   /** Inline styles for the frame — used to set an aspect ratio from the photo. */
   style?: React.CSSProperties;
 }) {
@@ -48,6 +52,19 @@ export function ShopImage({
           sizes={sizes ?? '(max-width: 768px) 100vw, 50vw'}
           priority={priority}
           className={fit === 'contain' ? 'object-contain' : 'object-cover'}
+          style={position ? { objectPosition: position } : undefined}
+        />
+      </div>
+    );
+  }
+
+  if (image?.art) {
+    return (
+      <div className={cn('photo-frame', rounded, className)} style={style}>
+        <GarmentArt
+          art={image.art}
+          title={image.altText ?? label}
+          className="absolute inset-0 m-auto max-h-full max-w-full p-[8%]"
         />
       </div>
     );
@@ -71,17 +88,15 @@ export function PlaceholderFrame({
   label?: string;
   style?: React.CSSProperties;
 }) {
-  // A quiet, branded stand-in until real photography lands.
+  // A quiet stand-in until real photography lands.
   return (
     <div className={cn('photo-frame', className)} style={style}>
       <div className="relative z-10 flex flex-col items-center gap-3 px-4 text-center">
         <CameraIcon className="h-5 w-5 text-ink/25" />
-        <span className="text-[0.6rem] uppercase tracking-wider2 text-ink/35">
+        <span className="text-[0.6rem] uppercase tracking-wider2 text-mute">
           Imagery forthcoming
         </span>
-        {label ? (
-          <span className="max-w-[14rem] text-xs text-ink/30">{label}</span>
-        ) : null}
+        {label ? <span className="max-w-[14rem] text-xs text-mute/80">{label}</span> : null}
       </div>
     </div>
   );

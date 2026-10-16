@@ -1,24 +1,29 @@
 # QAVIER
 
-A collections-driven storefront, built as one Next.js app. An intro animation
-opens onto the hero, then the shop: `/` → `/collections` →
-`/collections/<handle>` → `/products/<handle>` → cart → Shopify's hosted
+A collections-driven storefront, built as one Next.js app: `/` →
+`/collections/<handle>` → `/products/<handle>` → bag → Shopify's hosted
 checkout.
 
-The design is bold and mint: a heavy uppercase display face, mint green on
-deep-forest ink, rounded surfaces, and photography doing the work. Mint carries
-every call to action; the one colour outside the family is `sale`, reserved for
-markdowns so a price cut reads as a price cut at a glance.
+The layout follows a classic premium-apparel storefront: a slim accent
+announcement bar, a white header with departments on the left, the wordmark
+centred and search / account / bag on the right, full-width mega-menus with
+link columns and featured products, a full-bleed hero, category tile rails,
+four-up product grids with a Filters drawer, a two-up product gallery with a
+sticky purchase panel, and a deep-forest footer. Type is a serif for titles and
+product names, a clean sans for everything else, and small wide caps for
+column headings. Qavier mint carries the primary buttons and promo badges;
+`sale` red is reserved for markdowns.
 
-**Navigation is built from your Shopify collections.** The mega-menu, the
-mobile drawer, the collections index and the footer's Shop column all read the
-same list — add a collection in Shopify and it appears in all four, with no
-code change. See [Collections → the menu](#collections--the-menu).
+**The menu is a fixed department tree** — Men, Women, Kids, New Arrivals,
+Gifts, Sale, Discover — whose links point at Shopify collections by handle.
+Links whose collection doesn't exist yet are hidden, so the menu never offers
+an empty page. See [Collections → the menu](#collections--the-menu).
 
-> **All catalogue data comes from Shopify.** There is no demo catalogue — the
-> grid is simply empty until you connect a store, so the site is production-ready
-> the moment Shopify is wired up. Every photo slot renders a quiet
-> "imagery forthcoming" frame until real images arrive.
+> **Live data comes from Shopify.** Until Shopify is connected, previews and
+> local builds serve a **demo catalogue** (`lib/demo`) so every page can be seen
+> fully composed. It is never served on a Vercel *production* deployment —
+> there the grid stays empty until Shopify is wired up. Set `QAVIER_DEMO=on`
+> to force it on (or `off` to force it off) anywhere.
 
 ---
 
@@ -144,31 +149,27 @@ Shopify checkout they're handed off to.
 
 ### Collections → the menu
 
-Create collections in Shopify (**Products → Collections**) and they drive the
-whole navigation. Each one gets a page at `/collections/<handle>`, a tile on
-`/collections`, a row in the mega-menu and a link in the footer.
+The header menu, the footer's Shop column, the home page's category row and the
+tiles above each collection grid all point at collections **by handle**. Create
+these collections in Shopify (**Products → Collections**, using exactly these
+handles) and each one appears in the menu as soon as it exists:
 
-The menu sorts them into columns by keyword, so it reads as a menu rather than
-one long alphabetical list:
-
-| Column | A collection lands here when its handle or title contains |
+| Department | Collection handles |
 |---|---|
-| **Clothing** | `tee`, `shirt`, `polo`, `hood`, `sweat`, `jacket`, `bottom`, `short`, `jogger`, `denim`, `knit`, … |
-| **Featured** | `new`, `best`, `arrival`, `essential`, `signature`, `core`, `drop`, `season` |
-| **Collections** | anything else — capsules, collabs, one-offs |
+| **Men** | `men`, `mens-polos`, `mens-t-shirts`, `mens-sweatshirts-hoodies`, `mens-pants`, `mens-shorts`, `mens-swimwear`, `mens-outerwear` |
+| **Women** | `women`, `womens-polos`, `womens-t-shirts`, `womens-sweatshirts-hoodies`, `womens-bottoms` |
+| **Kids** | `kids`, `kids-polos`, `kids-t-shirts`, `kids-sweatshirts-hoodies`, `kids-pants`, `matching-sets` |
+| **Accessories** (in the Men/Women menus) | `accessories`, `hats`, `bags`, `socks`, `belts` |
+| **Featured** | `new-arrivals`, `best-sellers`, `golf`, `gifts`, `gifts-under-1500`, `sale` |
 
-Three handles are special-cased into top-level entries instead:
+- A department's mega-menu shows its first four products on the right — Men
+  reads the `men` collection, and so on.
+- A collection whose handle isn't in the tree still appears, under an extra
+  **Collections** menu item, so nothing you create is unreachable.
+- Give a collection an **image** in Shopify for its tile. Without one it
+  borrows its first product's photo.
 
-- anything matching `new` → the **New In** link
-- anything matching `best`/`popular` → **Best sellers** in the Shop panel
-- anything matching `sale`/`outlet`/`clearance` → the red **Sale** link, and it
-  is kept out of the columns so it isn't listed twice
-
-Give a collection an **image** in Shopify for its tile and page banner. Without
-one it borrows its first product's photo, so a tile is never blank.
-
-Collections are listed alphabetically — the Storefront API doesn't expose the
-admin's manual collection order. The keyword buckets live in `lib/nav.ts`.
+The tree itself lives in `MENU` in `lib/nav.ts`.
 
 ### Category filter → the product **Type** field
 
@@ -244,17 +245,21 @@ app/
     layout.tsx          → announcement bar + nav + footer; builds the menu
     page.tsx (home) · shop/ · collections/ · collections/[handle]/
     products/[handle]/ · cart/ · checkout/ · order-confirmed/ · about/
+    account/ · pages/faq/ · pages/size-guide/
   legal/                → policies, outside the store's gate
   api/revalidate/       → Shopify webhook → cache flush
 components/
-  intro-splash.tsx · logo.tsx · coming-soon.tsx
-  store/    → announcement bar, nav (mega-menu), hero, value props,
-              section head, product card, product rail, collection tiles,
-              promo split, newsletter, shop grid, gallery, purchase, footer
-  shared/   → cart context + drawer, ShopImage, size chart, Reveal, analytics
+  logo.tsx (Logo + Wordmark) · coming-soon.tsx
+  store/    → announcement bar, nav (mega-menu, search, mobile drawer), hero,
+              category rail, product card, product rail + tabs, editorial
+              banners, value props, shop grid (filters, sort), gallery,
+              purchase (product view), footer
+  shared/   → cart context + drawer, ShopImage, garment art, size chart,
+              Reveal, analytics
 lib/
-  config.ts   → store gate, site URL, analytics id
-  nav.ts      → the menu, built from Shopify collections
+  config.ts   → store gate, site URL, analytics id, account URL
+  nav.ts      → the department menu, checked against Shopify collections
+  demo/       → the demo catalogue for previews before Shopify is connected
   swatch.ts   → colour names → swatch dots
   shopify/    → Storefront API client, GraphQL queries, types
   legal.ts · shipping.ts · utils.ts · actions.ts
@@ -262,38 +267,48 @@ lib/
 
 ### Design tokens
 
-In `tailwind.config.ts`: `ink` (deep forest), `paper`, `shell` (pale mint
-wash), `line`, a full `mint` 50–900 ramp, and `sale` for markdowns. Type is
-Archivo (`font-display`) and Plus Jakarta Sans (`font-sans`), both loaded as
-variable fonts so the heavy caps cost no extra requests.
+In `tailwind.config.ts`: `ink` (text), `paper`, `shell` (image wells), `line`,
+`mute` (secondary text), `forest` (the footer), `accent` / `accent-soft`
+(Qavier mint — primary pills and promo badges) and `sale` for markdowns. Type
+is Source Serif 4 (`font-serif`), Inter (`font-sans`) and Archivo
+(`font-display`, set wide for small caps), all variable fonts.
 
-Shared primitives live in `app/globals.css`: `.label`, `.h-page`, `.h-section`,
-`.btn` (mint), `.btn-dark`, `.btn-ghost`, `.btn-outline-light`, `.chip`,
-`.badge`, `.field`, `.photo-frame`.
+Shared primitives live in `app/globals.css`: `.wrap`, `.label`, `.h-page`,
+`.h-section`, `.h-product`, `.btn` (mint pill), `.btn-dark`, `.btn-ghost`,
+`.btn-box`, `.chip`, `.badge`, `.field`, `.photo-frame`.
+
+### Demo catalogue imagery
+
+Demo products draw a flat illustration of the garment in its colourway until a
+photograph exists. Drop photos into `public/images/demo/` named
+`<product-handle>-<n>.jpg` (n = 1–4: colour 1 front, colour 1 back, colour 2
+front, colour 2 back) and they replace the illustrations automatically.
 
 ---
 
 ## Notes
 
 - Fully responsive and mobile-first; respects `prefers-reduced-motion`.
-- The intro animation plays once per browser session.
 - The header is solid and sticky on every page, so pages sit in normal flow
   underneath it — there is no top-padding offset to keep in sync.
-- ⚠️ **The newsletter forms have no backend.** The band above the footer and
-  the field on the holding page post nowhere. Point their `action` at your
+- ⚠️ **The newsletter forms have no backend.** The footer sign-up and the
+  field on the holding page post nowhere. Point their `action` at your
   email provider (Shopify customer form, Klaviyo, Mailchimp) before launch, or
   remove them — a field that silently swallows an address is worse than none.
 - Announcement-bar copy, the product-page reassurance list and the value-prop
   strip all read `lib/shipping.ts`, so the promise on the home page is the
   promise at the till.
-- The hero artwork is `public/images/hero.webp` — swap that file to change it.
-- The logo is `public/images/logo.png`, black on transparency; `<Logo invert />`
-  flips it white for dark backgrounds rather than keeping a second file in sync.
-  The intro animation clips the same file into its diamond and wordmark halves,
-  so the two can never drift apart.
+- The hero photograph is `public/images/homescreen.png`; the Men / Women panels
+  and the wide banner on the home page use the other campaign images in
+  `public/images/`.
+- The header and footer use the wordmark `public/images/logotext.svg`
+  (`<Wordmark />`); the footer and holding page use the stacked mark
+  `public/images/logo.png` (`<Logo invert />` flips it white).
+- The account icon goes to Shopify's hosted customer account once
+  `SHOPIFY_STORE_DOMAIN` is set, and to a simple order-help page before that.
 - The cart persists in `localStorage`; checkout hands off to Shopify's hosted
   checkout (requires the `SHOPIFY_*` env vars).
-- With no Shopify credentials, product functions return empty results — the
-  storefront renders, the grid is just empty.
+- With no Shopify credentials, product functions serve the demo catalogue on
+  previews and local builds, and empty results on Vercel production.
 - Google Analytics 4 (gtag.js) is rendered into `<head>` from the root layout,
   so every page carries the tag exactly once. Production builds only.

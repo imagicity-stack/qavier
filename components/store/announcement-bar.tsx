@@ -1,56 +1,55 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { FREE_SHIPPING_THRESHOLD, RETURN_WINDOW_DAYS } from '@/lib/shipping';
+import { FREE_SHIPPING_THRESHOLD } from '@/lib/shipping';
 
 /**
- * The mint strip above the header.
+ * The accent strip above the header, with a Close link.
  *
- * Messages are read from the shipping/returns source of truth rather than
- * typed here, so the bar can't promise a threshold the checkout doesn't
- * honour. It sits above the sticky header in normal flow, so it scrolls away
- * and gives the page its height back.
+ * The threshold is read from the shipping source of truth rather than typed
+ * here, so the bar can't promise what the checkout doesn't honour. Closing it
+ * holds for the rest of the browser session. It sits above the sticky header
+ * in normal flow, so it scrolls away and gives the page its height back.
  */
-const MESSAGES = [
-  `Free shipping on orders over ₹${FREE_SHIPPING_THRESHOLD.toLocaleString('en-IN')}`,
-  `${RETURN_WINDOW_DAYS}-day easy returns`,
-  'Designed and made in India',
-];
+const MESSAGE = `Free shipping on all orders over ₹${FREE_SHIPPING_THRESHOLD.toLocaleString('en-IN')}+`;
+const STORAGE_KEY = 'qavier-announcement-closed';
 
 export function AnnouncementBar() {
-  const reduce = useReducedMotion();
-  const [index, setIndex] = useState(0);
+  const [closed, setClosed] = useState(false);
 
   useEffect(() => {
-    // One message, held still, for anyone who asked for less motion.
-    if (reduce || MESSAGES.length < 2) return;
-    const id = window.setInterval(
-      () => setIndex((i) => (i + 1) % MESSAGES.length),
-      4200,
-    );
-    return () => window.clearInterval(id);
-  }, [reduce]);
+    try {
+      if (sessionStorage.getItem(STORAGE_KEY)) setClosed(true);
+    } catch {
+      /* storage unavailable — show the bar */
+    }
+  }, []);
+
+  if (closed) return null;
+
+  const close = () => {
+    setClosed(true);
+    try {
+      sessionStorage.setItem(STORAGE_KEY, '1');
+    } catch {
+      /* storage unavailable — closes for this page view only */
+    }
+  };
 
   return (
     // No z-index on purpose. The header below is a z-50 stacking context, so
     // anything it contains — the mobile drawer and its backdrop — is trapped
-    // beneath whatever z-index this bar claims. Leaving it in normal flow lets
-    // the drawer cover it, which is what a full-height drawer should do.
-    <div className="bg-mint-500 text-ink">
-      <div className="mx-auto flex h-9 max-w-[90rem] items-center justify-center overflow-hidden px-5 sm:px-8">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.p
-            key={index}
-            className="text-center font-display text-[0.65rem] font-bold uppercase tracking-wider2"
-            initial={reduce ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {MESSAGES[index]}
-          </motion.p>
-        </AnimatePresence>
+    // beneath whatever z-index this bar claims.
+    <div className="bg-accent text-ink">
+      <div className="flex min-h-[2.4rem] items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-10">
+        <p className="text-[0.8rem] font-medium leading-snug">{MESSAGE}</p>
+        <button
+          type="button"
+          onClick={close}
+          className="shrink-0 text-[0.8rem] font-medium transition-opacity hover:opacity-60"
+        >
+          Close
+        </button>
       </div>
     </div>
   );

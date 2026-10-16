@@ -2,10 +2,18 @@
  * Qavier ⇄ Shopify Storefront API client.
  *
  * All catalogue data comes straight from Shopify. Until the SHOPIFY_* env vars
- * are set, the product functions return empty results (no demo/placeholder
- * catalogue), so the storefront is production-ready the moment you connect a
- * real store. See the README "Connecting Shopify".
+ * are set, the product functions serve the demo catalogue (`lib/demo`) on
+ * previews and local builds, and empty results on a Vercel production
+ * deployment — so real shoppers only ever see real Shopify data. See the
+ * README "Connecting Shopify".
  */
+import {
+  demoCollection,
+  demoCollections,
+  demoEnabled,
+  demoProduct,
+  demoProducts,
+} from '../demo';
 import {
   ADD_TO_CART_MUTATION,
   CREATE_CART_MUTATION,
@@ -47,6 +55,9 @@ const REVALIDATE_SECONDS = (() => {
 /** True when the Storefront API credentials are present. */
 export const isShopifyConfigured = Boolean(DOMAIN && TOKEN);
 
+/** True when the demo catalogue stands in for Shopify (see `lib/demo`). */
+export const isDemoCatalogue = demoEnabled(isShopifyConfigured);
+
 let warned = false;
 function warnNotConfigured() {
   if (warned || process.env.NODE_ENV === 'production') return;
@@ -54,7 +65,7 @@ function warnNotConfigured() {
   // eslint-disable-next-line no-console
   console.warn(
     '[qavier] Shopify is not configured — set SHOPIFY_STORE_DOMAIN and ' +
-      'SHOPIFY_STOREFRONT_ACCESS_TOKEN. Product data will be empty until then.',
+      'SHOPIFY_STOREFRONT_ACCESS_TOKEN. Serving the demo catalogue until then.',
   );
 }
 
@@ -201,7 +212,7 @@ export async function getProducts(options?: {
 
   if (!isShopifyConfigured) {
     warnNotConfigured();
-    return [];
+    return isDemoCatalogue ? demoProducts(options) : [];
   }
 
   try {
@@ -226,7 +237,7 @@ export async function getProducts(options?: {
 export async function getProduct(handle: string): Promise<Product | undefined> {
   if (!isShopifyConfigured) {
     warnNotConfigured();
-    return undefined;
+    return isDemoCatalogue ? demoProduct(handle) : undefined;
   }
 
   try {
@@ -258,7 +269,7 @@ export async function getCollection(
 ): Promise<Collection | undefined> {
   if (!isShopifyConfigured) {
     warnNotConfigured();
-    return undefined;
+    return isDemoCatalogue ? demoCollection(handle) : undefined;
   }
 
   const { first = 100, sortKey, reverse } = options ?? {};
@@ -297,10 +308,10 @@ export async function getCollection(
  * puts it in the menu with no code change. Alphabetical because the Storefront
  * API doesn't expose the admin's manual collection order.
  */
-export async function getCollections(first = 40): Promise<CollectionSummary[]> {
+export async function getCollections(first = 60): Promise<CollectionSummary[]> {
   if (!isShopifyConfigured) {
     warnNotConfigured();
-    return [];
+    return isDemoCatalogue ? demoCollections().slice(0, first) : [];
   }
 
   try {
