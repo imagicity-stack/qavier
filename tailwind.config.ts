@@ -46,7 +46,7 @@ const config: Config = {
         serif: ['var(--font-serif)', 'ui-serif', 'Georgia', 'serif'],
       },
       letterSpacing: {
-        luxe: '0.28em',
+        brand: '0.28em',
         wider2: '0.12em',
       },
       maxWidth: {

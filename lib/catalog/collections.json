@@ -79,7 +79,7 @@
     {
       "handle": "men",
       "title": "Men",
-      "description": "Polos, tees, layers and everyday essentials for men.",
+      "description": "Polos, tees, layers and everyday staples for men.",
       "sortOrder": "BEST_SELLING",
       "match": "all",
       "rules": [{ "column": "TAG", "relation": "EQUALS", "condition": "men" }]

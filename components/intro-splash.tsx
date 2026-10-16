@@ -117,7 +117,7 @@ export function IntroSplash() {
             </div>
 
             <motion.p
-              className="mt-8 font-display text-[0.6rem] font-bold uppercase tracking-luxe text-accent sm:text-[0.65rem]"
+              className="mt-8 font-display text-[0.6rem] font-bold uppercase tracking-brand text-accent sm:text-[0.65rem]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.45, duration: 0.8 }}

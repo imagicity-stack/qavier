@@ -7,8 +7,7 @@ import {
 } from './shipping';
 
 /**
- * The store's legal pages, written once and rendered in both skins — the
- * flagship at /legal/<slug> and Pops at /pops/legal/<slug>.
+ * The store's legal pages, written once and rendered at /legal/<slug>.
  *
  * ⚠️  These are working drafts, not legal advice. Everything in BUSINESS below
  *     is a placeholder that renders literally on the page, so it is obvious
@@ -386,9 +385,4 @@ export const LEGAL_DOCS: LegalDoc[] = [
 
 export function getLegalDoc(slug: string): LegalDoc | undefined {
   return LEGAL_DOCS.find((d) => d.slug === slug);
-}
-
-/** Footer links for the flagship (`/legal/...`) or Pops (`/pops/legal/...`). */
-export function legalLinks(base: '' | '/pops' = '') {
-  return LEGAL_DOCS.map((d) => ({ label: d.nav, href: `${base}/legal/${d.slug}` }));
 }

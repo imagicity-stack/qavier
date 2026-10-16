@@ -2,7 +2,7 @@
   "name": "qavier",
   "version": "1.0.0",
   "private": true,
-  "description": "Qavier \u2014 a contemporary fashion house. The main Qavier store, plus the Qavier Pops capsule.",
+  "description": "Qavier \u2014 a contemporary fashion house. One storefront, built on Shopify.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
