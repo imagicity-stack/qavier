@@ -1,37 +1,53 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCart } from '@/components/shared/cart-context';
 import { ShopImage } from '@/components/shared/shop-image';
-import { Logo } from '@/components/logo';
-import { LEGAL_DOCS } from '@/lib/legal';
+import { Wordmark } from '@/components/logo';
+import { ProductCard } from '@/components/store/product-card';
 import type { NavItem } from '@/lib/nav';
+import type { Product } from '@/lib/shopify/types';
 import { cn } from '@/lib/utils';
 
 /**
- * The store header: logo, mega-menu, search, bag.
+ * The store header.
  *
- * Solid and sticky rather than transparent over the hero — a shop's header is
- * a tool, and it should look like one on every page, including the home page.
- * That also means pages sit in normal flow underneath it with no top-padding
- * to keep in sync.
+ * Desktop: departments on the left, the wordmark centred, and the utilities
+ * on the right — currency, search, account, bag. Hovering a department opens
+ * its mega-menu: link columns on the left half, four featured products on the
+ * right.
  *
- * `items` is built from the store's own Shopify collections in the layout, so
- * this component holds no category list of its own.
+ * Mobile: menu and search on the left, wordmark centred, account and bag on
+ * the right. The menu is a drawer from the left that drills into each
+ * department.
+ *
+ * `items` and `featured` are built from the store's collections in the
+ * layout, so this component holds no category list of its own.
  */
-export function SiteNav({ items }: { items: NavItem[] }) {
+export function SiteNav({
+  items,
+  featured,
+  trending,
+  accountHref,
+}: {
+  items: NavItem[];
+  /** Products for each department's panel, keyed by collection handle. */
+  featured: Record<string, Product[]>;
+  /** Shown in the search panel before anything is typed. */
+  trending: Product[];
+  accountHref: string;
+}) {
   const { totalQuantity, openCart } = useCart();
   const pathname = usePathname();
-  const router = useRouter();
 
-  /** Which top-level item's mega-panel is open (desktop). */
+  /** Which department's mega-panel is open (desktop). */
   const [openLabel, setOpenLabel] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [term, setTerm] = useState('');
+  const closeTimer = useRef<number>();
 
   const open = items.find((i) => i.label === openLabel && i.groups?.length);
 
@@ -60,83 +76,100 @@ export function SiteNav({ items }: { items: NavItem[] }) {
     setOpenLabel(null);
   }, [pathname]);
 
-  function submitSearch(e: React.FormEvent) {
-    e.preventDefault();
-    const q = term.trim();
-    setSearchOpen(false);
-    router.push(q ? `/shop?q=${encodeURIComponent(q)}` : '/shop');
-  }
+  // A short grace period on leave, so a diagonal mouse path from the bar to
+  // the panel doesn't flicker it shut.
+  const hover = (label: string | null) => {
+    window.clearTimeout(closeTimer.current);
+    setOpenLabel(label);
+  };
+  const leave = () => {
+    window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => setOpenLabel(null), 120);
+  };
 
-  const isActive = (href: string) =>
-    href === '/' ? pathname === '/' : pathname.startsWith(href);
+  // Exact match: every department is its own collection page, and a prefix
+  // match would light "Collections" on all of them.
+  const isActive = (href: string) => pathname === href;
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-paper text-ink">
-      {/* One leave handler for the bar and its panel, so moving the pointer
-          down into the panel doesn't close it. */}
-      <div onMouseLeave={() => setOpenLabel(null)}>
-        <div className="mx-auto flex h-16 max-w-[90rem] items-center gap-4 px-5 sm:h-20 sm:px-8">
-          <button
-            type="button"
-            onClick={() => setMenuOpen(true)}
-            className="-ml-1 p-1 lg:hidden"
-            aria-label="Open menu"
-          >
-            <MenuIcon className="h-5 w-5" />
-          </button>
+      <div onMouseLeave={leave}>
+        <div className="relative flex h-16 items-center bg-paper px-4 sm:px-6 lg:h-[4.5rem] lg:px-10">
+          {/* Left — mobile: menu + search */}
+          <div className="flex items-center gap-1 lg:hidden">
+            <IconButton label="Open menu" onClick={() => setMenuOpen(true)}>
+              <MenuIcon />
+            </IconButton>
+            <IconButton
+              label="Search"
+              expanded={searchOpen}
+              onClick={() => setSearchOpen((v) => !v)}
+            >
+              <SearchIcon />
+            </IconButton>
+          </div>
 
-          <Link href="/" aria-label="Qavier — home" className="shrink-0">
-            <Logo priority className="h-9 sm:h-11" />
-          </Link>
-
-          {/* Desktop nav */}
-          <nav className="ml-6 hidden items-center gap-7 lg:flex" aria-label="Main">
-            {items.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onMouseEnter={() => setOpenLabel(item.groups?.length ? item.label : null)}
-                onFocus={() => setOpenLabel(item.groups?.length ? item.label : null)}
-                aria-expanded={item.groups?.length ? openLabel === item.label : undefined}
-                className={cn(
-                  'relative py-2 font-display text-[0.7rem] font-bold uppercase tracking-wider2 transition-colors',
-                  item.accent ? 'text-sale hover:text-sale/80' : 'hover:text-mint-600',
-                  isActive(item.href) && !item.accent && 'text-mint-600',
-                )}
-              >
-                {item.label}
-                <span
-                  aria-hidden
+          {/* Left — desktop: departments */}
+          <nav className="hidden items-center gap-5 lg:flex xl:gap-6" aria-label="Main">
+            {items.map((item) => {
+              const hasPanel = Boolean(item.groups?.length);
+              const lit = openLabel === item.label || isActive(item.href);
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onMouseEnter={() => hover(hasPanel ? item.label : null)}
+                  onFocus={() => hover(hasPanel ? item.label : null)}
+                  aria-expanded={hasPanel ? openLabel === item.label : undefined}
                   className={cn(
-                    'absolute inset-x-0 -bottom-px h-[2px] origin-left bg-mint-500 transition-transform duration-200',
-                    openLabel === item.label || isActive(item.href)
-                      ? 'scale-x-100'
-                      : 'scale-x-0',
+                    'py-2 text-[0.9rem] underline-offset-[6px] transition-colors',
+                    item.accent ? 'text-sale' : 'text-ink',
+                    lit ? 'underline decoration-1' : 'hover:underline hover:decoration-1',
                   )}
-                />
-              </Link>
-            ))}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
 
-          <div className="ml-auto flex items-center gap-3 sm:gap-4">
-            <button
-              type="button"
-              onClick={() => setSearchOpen((v) => !v)}
-              aria-label="Search"
-              aria-expanded={searchOpen}
-              className="p-1.5 transition-colors hover:text-mint-600"
+          {/* Centre — the wordmark */}
+          <Link
+            href="/"
+            aria-label="Qavier — home"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          >
+            <Wordmark priority className="h-[1.35rem] sm:h-6 lg:h-7" />
+          </Link>
+
+          {/* Right — utilities */}
+          <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
+            <span className="mr-3 hidden text-[0.85rem] xl:inline">INR ₹ | English</span>
+            <span className="hidden lg:block">
+              <IconButton
+                label="Search"
+                expanded={searchOpen}
+                onClick={() => setSearchOpen((v) => !v)}
+              >
+                <SearchIcon />
+              </IconButton>
+            </span>
+            <Link
+              href={accountHref}
+              aria-label="Account"
+              className="flex h-10 w-10 items-center justify-center transition-opacity hover:opacity-60"
             >
-              <SearchIcon className="h-[1.15rem] w-[1.15rem]" />
-            </button>
+              <AccountIcon />
+            </Link>
             <button
               type="button"
               onClick={openCart}
               aria-label={`Bag, ${totalQuantity} item${totalQuantity === 1 ? '' : 's'}`}
-              className="relative p-1.5 transition-colors hover:text-mint-600"
+              className="relative flex h-10 w-10 items-center justify-center transition-opacity hover:opacity-60"
             >
-              <BagIcon className="h-[1.15rem] w-[1.15rem]" />
+              <BagIcon />
               {totalQuantity > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-[1.1rem] min-w-[1.1rem] items-center justify-center rounded-full bg-mint-500 px-1 text-[0.6rem] font-bold tabular-nums text-ink">
+                <span className="absolute right-0.5 top-1 flex h-[1.05rem] min-w-[1.05rem] items-center justify-center rounded-full bg-ink px-1 text-[0.6rem] font-bold tabular-nums text-paper">
                   {totalQuantity}
                 </span>
               )}
@@ -148,249 +181,423 @@ export function SiteNav({ items }: { items: NavItem[] }) {
         <AnimatePresence>
           {open && (
             <motion.div
-              className="absolute inset-x-0 top-full hidden border-b border-line bg-paper shadow-[0_18px_40px_-28px_rgba(12,35,27,0.35)] lg:block"
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
+              key={open.label}
+              onMouseEnter={() => hover(open.label)}
+              className="absolute inset-x-0 top-full hidden max-h-[calc(100vh-7rem)] overflow-y-auto border-b border-line bg-paper shadow-[0_24px_40px_-32px_rgba(0,0,0,0.35)] lg:block"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
             >
-              <div className="mx-auto grid max-w-[90rem] gap-10 px-8 py-10 lg:grid-cols-[1fr_17rem]">
-                {/* One column per group, up to four — a fourth group wrapping
-                    onto its own row left a hole in the middle of the panel. */}
-                <div
-                  className={cn(
-                    'grid gap-8',
-                    open.groups!.length >= 4 && 'grid-cols-4',
-                    open.groups!.length === 3 && 'grid-cols-3',
-                    open.groups!.length <= 2 && 'grid-cols-2',
-                  )}
-                >
-                  {open.groups!.map((group) => (
-                    <div key={group.heading} className="min-w-0">
-                      <p className="label">{group.heading}</p>
-                      <ul className="mt-4 flex flex-col gap-2.5">
-                        {group.links.map((link) => (
-                          <li key={link.href + link.label}>
-                            <Link
-                              href={link.href}
-                              className="text-sm text-ink/70 transition-colors hover:text-mint-600"
-                            >
-                              {link.label}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-
-                {open.feature && (
-                  <Link href={open.feature.href} className="group block min-w-0">
-                    <div className="overflow-hidden rounded-2xl bg-shell">
-                      <ShopImage
-                        image={open.feature.image}
-                        sizes="280px"
-                        className="aspect-[4/3] w-full transition-transform duration-700 ease-soft group-hover:scale-[1.04]"
-                        label={open.feature.title}
-                      />
-                    </div>
-                    <p className="mt-3 font-display text-sm font-bold uppercase tracking-wider2">
-                      {open.feature.title}
-                    </p>
-                    <p className="mt-1 text-xs text-ink/50 transition-colors group-hover:text-mint-600">
-                      {open.feature.caption} →
-                    </p>
-                  </Link>
-                )}
-              </div>
+              <MegaPanel item={open} products={open.featured ? featured[open.featured] : undefined} />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Search row — drops under the bar */}
+      {/* Search panel — drops under the bar */}
       <AnimatePresence>
         {searchOpen && (
-          <motion.div
-            className="overflow-hidden border-t border-line bg-shell"
-            initial={{ height: 0 }}
-            animate={{ height: 'auto' }}
-            exit={{ height: 0 }}
-            transition={{ duration: 0.22, ease: 'easeOut' }}
-          >
-            <form
-              onSubmit={submitSearch}
-              className="mx-auto flex max-w-[90rem] items-center gap-3 px-5 py-4 sm:px-8"
-            >
-              <SearchIcon className="h-4 w-4 shrink-0 text-ink/40" />
-              <input
-                autoFocus
-                value={term}
-                onChange={(e) => setTerm(e.target.value)}
-                placeholder="Search for a piece, a colour, a collection"
-                aria-label="Search the store"
-                className="w-full bg-transparent text-sm text-ink placeholder:text-ink/40 focus:outline-none"
-              />
-              <button type="submit" className="label hover:text-mint-600">
-                Search
-              </button>
-            </form>
-          </motion.div>
+          <SearchPanel trending={trending} onClose={() => setSearchOpen(false)} />
         )}
       </AnimatePresence>
 
       {/* Mobile drawer — slides in from the left */}
       <AnimatePresence>
         {menuOpen && (
-          <div className="lg:hidden">
-            <motion.div
-              className="fixed inset-0 z-[60] bg-ink/40"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMenuOpen(false)}
-            />
-            <motion.aside
-              role="dialog"
-              aria-modal="true"
-              aria-label="Menu"
-              className="fixed left-0 top-0 z-[70] flex h-[100dvh] w-[86%] max-w-sm flex-col border-r border-line bg-paper text-ink"
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'tween', duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div className="flex h-16 shrink-0 items-center justify-between border-b border-line px-5">
-                <Logo className="h-9" />
-                <button
-                  type="button"
-                  onClick={() => setMenuOpen(false)}
-                  aria-label="Close menu"
-                  className="p-1 text-ink/50 transition-colors hover:text-ink"
-                >
-                  <CloseIcon className="h-5 w-5" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-10">
-                <nav className="flex flex-col">
-                  {items.map((item) => (
-                    <MobileItem key={item.label} item={item} />
-                  ))}
-                </nav>
-
-                <div className="mt-8">
-                  <p className="label">Help</p>
-                  <div className="mt-4 flex flex-col gap-3">
-                    {LEGAL_DOCS.map((doc) => (
-                      <Link
-                        key={doc.slug}
-                        href={`/legal/${doc.slug}`}
-                        className="text-sm text-ink/60 transition-colors hover:text-ink"
-                      >
-                        {doc.nav}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.aside>
-          </div>
+          <MobileMenu
+            items={items}
+            featured={featured}
+            accountHref={accountHref}
+            onClose={() => setMenuOpen(false)}
+          />
         )}
       </AnimatePresence>
     </header>
   );
 }
 
-/** A drawer row: a plain link, or a collapsible group of links. */
-function MobileItem({ item }: { item: NavItem }) {
-  const [expanded, setExpanded] = useState(false);
-  const hasGroups = Boolean(item.groups?.length);
+// ——— Desktop mega-panel ————————————————————————————————————————————
 
-  if (!hasGroups) {
-    return (
-      <Link
-        href={item.href}
-        className={cn(
-          'border-b border-line py-4 font-display text-lg font-extrabold uppercase tracking-tight',
-          item.accent && 'text-sale',
-        )}
-      >
-        {item.label}
-      </Link>
-    );
-  }
+function MegaPanel({ item, products }: { item: NavItem; products?: Product[] }) {
+  const cards = products?.slice(0, 4) ?? [];
+  const tiles = cards.length ? [] : item.tiles ?? [];
 
   return (
-    <div className="border-b border-line">
-      <button
-        type="button"
-        onClick={() => setExpanded((v) => !v)}
-        aria-expanded={expanded}
-        className="flex w-full items-center justify-between py-4 text-left font-display text-lg font-extrabold uppercase tracking-tight"
-      >
-        {item.label}
-        <ChevronIcon
-          className={cn(
-            'h-4 w-4 shrink-0 text-ink/40 transition-transform duration-200',
-            expanded && 'rotate-180',
-          )}
-        />
-      </button>
-
-      <AnimatePresence initial={false}>
-        {expanded && (
-          <motion.div
-            className="overflow-hidden"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="flex flex-col gap-5 pb-5">
-              {item.groups!.map((group) => (
-                <div key={group.heading}>
-                  <p className="label">{group.heading}</p>
-                  <ul className="mt-3 flex flex-col gap-2.5">
-                    {group.links.map((link) => (
-                      <li key={link.href + link.label}>
-                        <Link href={link.href} className="text-sm text-ink/70">
-                          {link.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+    <div className="grid gap-10 px-10 pb-12 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
+      <div className="grid grid-cols-2 gap-x-10 gap-y-8 xl:grid-cols-[repeat(2,minmax(0,18rem))]">
+        {item.groups!.map((group) => (
+          <div key={group.heading} className="min-w-0">
+            <p className="label">{group.heading}</p>
+            <ul className="mt-5 flex flex-col gap-[0.95rem]">
+              {group.links.map((link) => (
+                <li key={link.href + link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-[0.9rem] text-ink underline-offset-4 hover:underline"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
               ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {cards.length > 0 && (
+        <div className="grid grid-cols-4 gap-2.5">
+          {cards.map((product) => (
+            <ProductCard key={product.id} product={product} compact sizes="16vw" />
+          ))}
+        </div>
+      )}
+
+      {tiles.length > 0 && (
+        <div className="grid grid-cols-2 gap-2.5">
+          {tiles.map((tile) => (
+            <Link key={tile.href} href={tile.href} className="group block">
+              <div className="relative aspect-[4/3] overflow-hidden bg-shell">
+                <ShopImage
+                  image={tile.image}
+                  sizes="30vw"
+                  className="absolute inset-0 h-full w-full transition-transform duration-700 ease-soft group-hover:scale-[1.03]"
+                  label={tile.title}
+                />
+              </div>
+              <p className="label mt-3 inline-block border-b border-ink pb-1">{tile.title}</p>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function MenuIcon({ className }: { className?: string }) {
+// ——— Search ————————————————————————————————————————————————————————
+
+const POPULAR = ['Polos', 'T-Shirts', 'Hoodies', 'Golf', 'Shorts', 'Caps'];
+
+function SearchPanel({ trending, onClose }: { trending: Product[]; onClose: () => void }) {
+  const router = useRouter();
+  const [term, setTerm] = useState('');
+
+  const go = (q: string) => {
+    onClose();
+    router.push(q ? `/shop?q=${encodeURIComponent(q)}` : '/shop');
+  };
+
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+    <>
+      <motion.div
+        className="fixed inset-0 z-[-1] bg-ink/30"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+      />
+      <motion.div
+        className="absolute inset-x-0 top-full max-h-[calc(100dvh-6rem)] overflow-y-auto border-b border-line bg-paper"
+        initial={{ opacity: 0, y: -6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+      >
+        <div className="px-4 pb-10 pt-6 sm:px-6 lg:px-10">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              go(term.trim());
+            }}
+            className="flex items-center gap-3 border-b border-ink pb-3"
+          >
+            <SearchIcon />
+            <input
+              autoFocus
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              placeholder="What are you looking for?"
+              aria-label="Search the store"
+              className="w-full bg-transparent font-serif text-xl text-ink placeholder:text-mute focus:outline-none sm:text-2xl"
+            />
+            <button type="button" onClick={onClose} className="shrink-0 text-[0.85rem] hover:underline">
+              Close
+            </button>
+          </form>
+
+          <div className="mt-6 grid gap-8 lg:grid-cols-[16rem_1fr]">
+            <div>
+              <p className="label">Popular searches</p>
+              <ul className="mt-4 flex flex-wrap gap-2 lg:flex-col lg:gap-3">
+                {POPULAR.map((q) => (
+                  <li key={q}>
+                    <button
+                      type="button"
+                      onClick={() => go(q)}
+                      className="rounded-full border border-line px-3.5 py-1.5 text-[0.85rem] hover:border-ink lg:rounded-none lg:border-0 lg:p-0 lg:hover:underline"
+                    >
+                      {q}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {trending.length > 0 && (
+              <div>
+                <p className="label">Trending now</p>
+                <div className="mt-4 grid grid-cols-2 gap-x-2.5 gap-y-6 sm:grid-cols-4">
+                  {trending.slice(0, 4).map((p) => (
+                    <ProductCard key={p.id} product={p} compact sizes="(max-width: 640px) 50vw, 20vw" />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </>
+  );
+}
+
+// ——— Mobile drawer ——————————————————————————————————————————————————
+
+function MobileMenu({
+  items,
+  featured,
+  accountHref,
+  onClose,
+}: {
+  items: NavItem[];
+  featured: Record<string, Product[]>;
+  accountHref: string;
+  onClose: () => void;
+}) {
+  const [panel, setPanel] = useState<NavItem | null>(null);
+
+  return (
+    <div className="lg:hidden">
+      <motion.div
+        className="fixed inset-0 z-[60] bg-ink/40"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+      />
+      <motion.aside
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu"
+        className="fixed left-0 top-0 z-[70] flex h-[100dvh] w-[88%] max-w-sm flex-col overflow-hidden bg-paper text-ink"
+        initial={{ x: '-100%' }}
+        animate={{ x: 0 }}
+        exit={{ x: '-100%' }}
+        transition={{ type: 'tween', duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-line px-4">
+          <Wordmark className="h-[1.3rem]" />
+          <IconButton label="Close menu" onClick={onClose}>
+            <CloseIcon />
+          </IconButton>
+        </div>
+
+        <div className="relative flex-1 overflow-hidden">
+          {/* Level one — departments */}
+          <div className="absolute inset-0 overflow-y-auto overscroll-contain px-4 pb-10">
+            <nav className="flex flex-col">
+              {items.map((item) =>
+                item.groups?.length ? (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => setPanel(item)}
+                    className="flex items-center justify-between border-b border-line py-4 text-left text-base"
+                  >
+                    {item.label}
+                    <ChevronIcon className="h-4 w-4" />
+                  </button>
+                ) : (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={cn(
+                      'border-b border-line py-4 text-base',
+                      item.accent && 'text-sale',
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                ),
+              )}
+            </nav>
+
+            <div className="mt-8 flex flex-col gap-4 text-[0.9rem]">
+              <Link href={accountHref} className="flex items-center gap-3">
+                <AccountIcon /> My Account
+              </Link>
+              <Link href="/legal/contact" className="flex items-center gap-3">
+                <HelpIcon /> Contact Us
+              </Link>
+              <span className="flex items-center gap-3 text-mute">
+                <GlobeIcon /> INR ₹ | English
+              </span>
+            </div>
+          </div>
+
+          {/* Level two — one department */}
+          <AnimatePresence>
+            {panel && (
+              <motion.div
+                className="absolute inset-0 overflow-y-auto overscroll-contain bg-paper px-4 pb-10"
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'tween', duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setPanel(null)}
+                  className="flex w-full items-center gap-2 border-b border-line py-4 text-base"
+                >
+                  <ChevronIcon className="h-4 w-4 rotate-180" />
+                  {panel.label}
+                </button>
+
+                {panel.groups!.map((group) => (
+                  <div key={group.heading} className="mt-6">
+                    <p className="label">{group.heading}</p>
+                    <ul className="mt-3 flex flex-col">
+                      {group.links.map((link) => (
+                        <li key={link.href + link.label}>
+                          <Link href={link.href} className="block py-2.5 text-[0.95rem]">
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+
+                {panel.featured && featured[panel.featured]?.length ? (
+                  <div className="mt-8">
+                    <p className="label">Featured</p>
+                    <div className="scrollbar-none -mx-4 mt-4 flex gap-2.5 overflow-x-auto px-4">
+                      {featured[panel.featured].slice(0, 4).map((p) => (
+                        <div key={p.id} className="w-[44%] shrink-0">
+                          <ProductCard product={p} compact sizes="45vw" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.aside>
+    </div>
+  );
+}
+
+// ——— Icons ——————————————————————————————————————————————————————————
+
+function IconButton({
+  label,
+  onClick,
+  expanded,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  expanded?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      aria-expanded={expanded}
+      className="flex h-10 w-10 items-center justify-center transition-opacity hover:opacity-60"
+    >
+      {children}
+    </button>
+  );
+}
+
+const ICON = 'h-[1.35rem] w-[1.35rem]';
+
+function MenuIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={ICON} aria-hidden>
+      <path d="M3 6.5h18M3 12h18M3 17.5h18" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={ICON} aria-hidden>
+      <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={cn(ICON, 'shrink-0')} aria-hidden>
+      <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" strokeWidth="1.4" />
+      <path d="m15.5 15.5 5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function AccountIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={ICON} aria-hidden>
+      <circle cx="12" cy="7.5" r="4" stroke="currentColor" strokeWidth="1.4" />
       <path
-        d="M3 7h18M3 12h18M3 17h18"
+        d="M4.5 21v-1.5A5.5 5.5 0 0 1 10 14h4a5.5 5.5 0 0 1 5.5 5.5V21"
         stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
       />
     </svg>
   );
 }
 
-function CloseIcon({ className }: { className?: string }) {
+function BagIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+    <svg viewBox="0 0 24 24" fill="none" className={ICON} aria-hidden>
+      <path d="M4.5 8h15v13h-15V8Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M8.5 8V6.5a3.5 3.5 0 0 1 7 0V8" stroke="currentColor" strokeWidth="1.4" />
+    </svg>
+  );
+}
+
+function HelpIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={ICON} aria-hidden>
+      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.4" />
       <path
-        d="m6 6 12 12M18 6 6 18"
+        d="M9.75 9.5a2.25 2.25 0 1 1 3.4 1.94c-.7.42-1.15.95-1.15 1.76v.3"
         stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.4"
         strokeLinecap="round"
+      />
+      <circle cx="12" cy="16.6" r="0.9" fill="currentColor" />
+    </svg>
+  );
+}
+
+function GlobeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={ICON} aria-hidden>
+      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.4" />
+      <path
+        d="M3.5 12h17M12 3.5c2.4 2.4 3.5 5.2 3.5 8.5s-1.1 6.1-3.5 8.5c-2.4-2.4-3.5-5.2-3.5-8.5S9.6 5.9 12 3.5Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
       />
     </svg>
   );
@@ -399,36 +606,7 @@ function CloseIcon({ className }: { className?: string }) {
 function ChevronIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <path
-        d="m6 9 6 6 6-6"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.6" />
-      <path d="m16 16 4.5 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function BagIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <path
-        d="M5 8h14l-1 12H6L5 8Z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-      />
-      <path d="M9 8V6a3 3 0 0 1 6 0v2" stroke="currentColor" strokeWidth="1.6" />
+      <path d="m9 6 6 6-6 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

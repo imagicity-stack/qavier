@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Logo } from '@/components/logo';
+import { Wordmark } from '@/components/logo';
 import { LEGAL_DOCS } from '@/lib/legal';
 
 /**
@@ -14,13 +14,13 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
       <header className="border-b border-line">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-5 sm:px-8">
           <Link href="/" aria-label="Qavier — home">
-            <Logo className="h-9" />
+            <Wordmark className="h-6" />
           </Link>
           <Link
             href="/"
-            className="text-[0.65rem] uppercase tracking-wider2 text-ink/45 transition-colors hover:text-ink"
+            className="text-[0.85rem] underline underline-offset-4 hover:opacity-60"
           >
-            ← Back to store
+            Back to store
           </Link>
         </div>
       </header>

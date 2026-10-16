@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { PlaceholderFrame } from '@/components/shared/shop-image';
+import { ShopImage } from '@/components/shared/shop-image';
 import { Reveal } from '@/components/shared/reveal';
-import { SizeChartTable } from '@/components/shared/size-chart';
 
 export const metadata: Metadata = {
   title: 'About',
@@ -28,61 +27,55 @@ const PILLARS = [
 export default function AboutPage() {
   return (
     <>
-      <section className="mx-auto max-w-3xl px-5 pb-16 pt-14 text-center sm:px-8 sm:pt-20">
+      <section className="mx-auto max-w-3xl px-5 pb-14 pt-12 text-center sm:px-8 sm:pt-16">
         <Reveal>
-          <p className="label">About</p>
-          <h1 className="h-page mt-4 text-balance">
-            A quiet house, making fewer and better things.
-          </h1>
-          <p className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-ink/60">
-            Qavier began with one conviction: that a wardrobe should be built
-            slowly, from pieces worth keeping. Everything is designed in-house and
-            made in small runs.
+          <h1 className="h-page text-balance">A quiet house, making fewer and better things.</h1>
+          <p className="mx-auto mt-5 max-w-xl text-[0.95rem] leading-relaxed text-mute">
+            Qavier began with one conviction: that a wardrobe should be built slowly, from
+            pieces worth keeping. Everything is designed in-house and made in small runs.
           </p>
         </Reveal>
       </section>
 
-      <section className="mx-auto max-w-[90rem] px-5 sm:px-8">
+      <section className="px-4 sm:px-6 lg:px-10">
         <Reveal>
-          <PlaceholderFrame className="aspect-[16/9] w-full" label="The atelier" />
+          <ShopImage
+            image={{
+              url: '/images/desktop_qavier.png',
+              altText: 'Qavier campaign',
+              width: 1586,
+              height: 992,
+            }}
+            sizes="100vw"
+            priority
+            className="aspect-[4/5] w-full sm:aspect-[16/8]"
+            position="40% center"
+          />
         </Reveal>
       </section>
 
-      <section className="mx-auto max-w-[90rem] px-5 py-20 sm:px-8 sm:py-28">
-        <div className="grid gap-12 sm:grid-cols-3 sm:gap-10">
+      <section id="story" className="scroll-mt-28 px-4 py-16 sm:px-6 sm:py-24 lg:px-10">
+        <div className="grid gap-10 sm:grid-cols-3 sm:gap-10">
           {PILLARS.map((p, i) => (
             <Reveal key={p.title} delay={i * 0.08}>
-              <h2 className="label">{p.title}</h2>
-              <p className="mt-4 text-sm leading-relaxed text-ink/60">{p.body}</p>
+              <h2 className="font-serif text-[1.5rem]">{p.title}</h2>
+              <p className="mt-3 text-[0.95rem] leading-relaxed text-mute">{p.body}</p>
             </Reveal>
           ))}
         </div>
       </section>
 
-      <section id="size-guide" className="scroll-mt-28 border-y border-line bg-shell">
-        <div className="mx-auto max-w-2xl px-5 py-20 sm:px-8 sm:py-24">
-          <Reveal>
-            <p className="label">Size guide</p>
-            <h2 className="h-section mt-3">
-              Garment measurements
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-ink/55">
-              Measured flat, across the garment — not the body. Our fits run
-              oversized by design.
-            </p>
-            <SizeChartTable className="mt-8" />
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-2xl px-5 py-20 text-center sm:px-8 sm:py-24">
+      <section className="border-t border-line px-5 py-16 text-center sm:py-20">
         <Reveal>
-          <p className="text-sm leading-relaxed text-ink/60">
-            Questions about an order, a size or a return?
-          </p>
-          <Link href="/legal/contact" className="btn-ghost mt-7">
-            Contact us
-          </Link>
+          <p className="font-serif text-[1.5rem]">Questions about an order, a size or a return?</p>
+          <div className="mt-6 flex flex-wrap justify-center gap-2.5">
+            <Link href="/legal/contact" className="btn-dark">
+              Contact Us
+            </Link>
+            <Link href="/pages/faq" className="btn-ghost">
+              Read the FAQs
+            </Link>
+          </div>
         </Reveal>
       </section>
     </>

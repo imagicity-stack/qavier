@@ -1,73 +1,133 @@
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
-import { LEGAL_DOCS } from '@/lib/legal';
 import { collectionHref } from '@/lib/nav';
 import type { CollectionSummary } from '@/lib/shopify/types';
 
-const ABOUT_LINKS = [
-  { href: '/about', label: 'The house' },
-  { href: '/about#size-guide', label: 'Size guide' },
-  { href: '/legal/contact', label: 'Contact us' },
-  { href: '/collections', label: 'All collections' },
+/**
+ * The footer, in deep forest: the sign-up line and social links on the left,
+ * four link columns on the right, and the locale line along the bottom.
+ *
+ * Shop links point at collections by handle and are dropped when the
+ * collection doesn't exist, the same rule the header menu follows — the
+ * footer never links to an empty page.
+ *
+ * ⚠️ The sign-up form has no backend yet — it posts nowhere. Point its
+ * `action` at your email provider (Shopify customer form, Klaviyo, Mailchimp)
+ * before launch, or remove it.
+ */
+const SHOP: { label: string; handle: string }[] = [
+  { label: 'New Arrivals', handle: 'new-arrivals' },
+  { label: 'Best Sellers', handle: 'best-sellers' },
+  { label: 'Men', handle: 'men' },
+  { label: 'Women', handle: 'women' },
+  { label: 'Kids', handle: 'kids' },
+  { label: 'Polos', handle: 'mens-polos' },
+  { label: 'Tees', handle: 'mens-t-shirts' },
+  { label: 'Pants', handle: 'mens-pants' },
+  { label: 'Outerwear', handle: 'mens-outerwear' },
+  { label: 'Accessories', handle: 'accessories' },
+  { label: 'Gifts', handle: 'gifts' },
 ];
 
-/**
- * The footer: brand, collections, help, about, then the legal line.
- *
- * The Shop column is the store's real Shopify collections rather than a typed
- * list, so it can't drift out of step with the menu above it.
- */
-export function SiteFooter({ collections = [] }: { collections?: CollectionSummary[] }) {
-  const shopLinks = [
-    { href: '/shop', label: 'All pieces' },
-    ...collections.slice(0, 5).map((c) => ({
-      href: collectionHref(c.handle),
-      label: c.title,
+/** Only accounts that exist. Add the others here as they open. */
+const SOCIALS = [{ label: 'Instagram', href: 'https://instagram.com/qavier.in', icon: InstagramIcon }];
+
+export function SiteFooter({
+  collections = [],
+  accountHref,
+}: {
+  collections?: CollectionSummary[];
+  accountHref: string;
+}) {
+  const known = new Set(collections.map((c) => c.handle));
+  const shop = [
+    ...SHOP.filter((l) => known.has(l.handle)).map((l) => ({
+      label: l.label,
+      href: collectionHref(l.handle),
     })),
+    { label: 'Shop All', href: '/shop' },
+  ];
+
+  const support = [
+    { label: 'My Account', href: accountHref },
+    { label: 'Contact Us', href: '/legal/contact' },
+    { label: 'Shipping & Delivery', href: '/legal/shipping' },
+    { label: 'Returns & Exchanges', href: '/legal/returns' },
+    { label: 'FAQs', href: '/pages/faq' },
+    { label: 'Size Guide', href: '/pages/size-guide' },
+  ];
+
+  const about = [
+    { label: 'New to Qavier', href: '/about' },
+    { label: 'Our Story', href: '/about#story' },
+    ...(known.has('golf') ? [{ label: 'The Golf Shop', href: collectionHref('golf') }] : []),
+  ];
+
+  const discover = [
+    { label: 'Privacy Policy', href: '/legal/privacy' },
+    { label: 'Terms Of Use', href: '/legal/terms' },
+    { label: 'All Collections', href: '/collections' },
   ];
 
   return (
-    <footer className="border-t border-line bg-paper">
-      <div className="mx-auto max-w-[90rem] px-5 py-14 sm:px-8 sm:py-16">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-12">
+    <footer className="bg-forest text-paper">
+      <div className="px-4 pb-8 pt-10 sm:px-6 lg:px-10 lg:pt-8">
+        <div className="flex justify-center">
+          <Logo invert className="h-12 opacity-90" />
+        </div>
+
+        <div className="mt-10 grid gap-12 lg:mt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
+          {/* Sign-up and socials */}
           <div>
-            <Logo className="h-11" />
-            <p className="mt-5 max-w-[20rem] text-sm leading-relaxed text-ink/55">
-              Considered pieces, made in small runs. Designed and made in India.
+            <p className="max-w-[26rem] font-serif text-[1.55rem] leading-[1.05] sm:text-[1.7rem]">
+              Join the list and be the first to hear about new drops, events and sales.
             </p>
-            <div className="mt-6 flex items-center gap-2.5">
-              <Social
-                href="https://instagram.com/qavier.in"
-                label="Qavier on Instagram"
+            <form action="#" className="mt-7 flex max-w-[21rem] rounded-full bg-paper p-0">
+              <label htmlFor="footer-email" className="sr-only">
+                Email address
+              </label>
+              <input
+                id="footer-email"
+                type="email"
+                required
+                placeholder="Email Address"
+                className="min-w-0 flex-1 rounded-l-full bg-transparent px-5 py-2.5 text-[0.8rem] text-ink placeholder:text-mute focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="shrink-0 rounded-full bg-accent px-5 py-2.5 text-[0.85rem] font-bold text-ink transition-colors hover:bg-accent-soft"
               >
-                <InstagramIcon className="h-4 w-4" />
-              </Social>
-              {/* Contact page rather than a mailto: the support address is
-                  still a placeholder in lib/legal.ts. */}
-              <Social href="/legal/contact" label="Contact Qavier">
-                <MailIcon className="h-4 w-4" />
-              </Social>
+                Submit
+              </button>
+            </form>
+            <div className="mt-8 flex items-center gap-5">
+              {SOCIALS.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label={`Qavier on ${label}`}
+                  className="transition-opacity hover:opacity-70"
+                >
+                  <Icon className="h-6 w-6" />
+                </a>
+              ))}
             </div>
           </div>
 
-          <FooterColumn heading="Shop" links={shopLinks} />
-          <FooterColumn
-            heading="Help"
-            links={LEGAL_DOCS.map((doc) => ({
-              href: `/legal/${doc.slug}`,
-              label: doc.nav,
-            }))}
-          />
-          <FooterColumn heading="The house" links={ABOUT_LINKS} />
+          {/* Link columns */}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
+            <FooterColumn heading="Shop" links={shop} />
+            <FooterColumn heading="Support" links={support} />
+            <FooterColumn heading="About" links={about} />
+            <FooterColumn heading="Discover" links={discover} />
+          </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-4 border-t border-line pt-7 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-ink/45">
-            © {new Date().getFullYear()} Qavier. All rights reserved.
-          </p>
-          <p className="text-xs text-ink/45">
-            Secure checkout by Shopify · Designed and made in India
-          </p>
+        <div className="mt-16 flex flex-col gap-3 text-[0.85rem] sm:flex-row sm:items-center sm:justify-between lg:mt-24">
+          <span>INR ₹ | English</span>
+          <span>© {new Date().getFullYear()} Qavier. All rights reserved.</span>
         </div>
       </div>
     </footer>
@@ -82,14 +142,14 @@ function FooterColumn({
   links: { href: string; label: string }[];
 }) {
   return (
-    <nav>
-      <p className="label">{heading}</p>
-      <ul className="mt-5 flex flex-col gap-3">
+    <nav aria-label={heading} className="min-w-0">
+      <p className="font-serif text-[1.15rem]">{heading}</p>
+      <ul className="mt-5 flex flex-col gap-[1.15rem]">
         {links.map((link) => (
           <li key={link.href + link.label}>
             <Link
               href={link.href}
-              className="text-sm text-ink/60 transition-colors hover:text-mint-600"
+              className="text-[0.85rem] font-medium underline-offset-4 hover:underline"
             >
               {link.label}
             </Link>
@@ -100,77 +160,12 @@ function FooterColumn({
   );
 }
 
-const SOCIAL_CLASS =
-  'flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink/60 transition-colors hover:border-mint-500 hover:bg-mint-500 hover:text-ink';
-
-function Social({
-  href,
-  label,
-  children,
-}: {
-  href: string;
-  label: string;
-  children: React.ReactNode;
-}) {
-  // Internal routes go through Link so they're client-side navigations.
-  if (!href.startsWith('http')) {
-    return (
-      <Link href={href} aria-label={label} className={SOCIAL_CLASS}>
-        {children}
-      </Link>
-    );
-  }
-
-  return (
-    <a
-      href={href}
-      aria-label={label}
-      target="_blank"
-      rel="noreferrer noopener"
-      className={SOCIAL_CLASS}
-    >
-      {children}
-    </a>
-  );
-}
-
 function InstagramIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <rect
-        x="3.5"
-        y="3.5"
-        width="17"
-        height="17"
-        rx="5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-      />
-      <circle cx="12" cy="12" r="3.8" stroke="currentColor" strokeWidth="1.6" />
-      <circle cx="17" cy="7" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
-function MailIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <rect
-        x="3"
-        y="5.5"
-        width="18"
-        height="13"
-        rx="2.5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-      />
-      <path
-        d="m4.5 8 7.5 5 7.5-5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="3.8" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="17" cy="7" r="1.1" fill="currentColor" />
     </svg>
   );
 }

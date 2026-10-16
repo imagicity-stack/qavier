@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Analytics } from '@/components/shared/analytics';
 import { SITE_URL } from '@/lib/config';
-import { display, sans } from './fonts';
+import { display, sans, serif } from './fonts';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // Matches the mint announcement bar, which is the top of every page.
-  themeColor: '#16B378',
+  // Matches the black announcement bar, which is the top of every page.
+  themeColor: '#111111',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${display.variable} ${sans.variable}`}
+      className={`${display.variable} ${sans.variable} ${serif.variable}`}
       suppressHydrationWarning
     >
       <head>

@@ -1,135 +1,169 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
 import { ShopImage } from '@/components/shared/shop-image';
-import type { Product } from '@/lib/shopify/types';
+import type { Image, Product } from '@/lib/shopify/types';
 import { isColorOption, needsSwatchBorder, swatchColor } from '@/lib/swatch';
-import { discountPercent, formatPrice } from '@/lib/utils';
+import { cn, discountPercent, formatPrice } from '@/lib/utils';
 
 const MAX_SWATCHES = 5;
 
 /**
- * A grid card: photograph, flags, name, price, colourways.
+ * A grid card: photograph with a promo pill, serif name, price, colourways.
  *
- * The second photo fades in on hover where the product has one — the single
- * most useful thing a card can do, because it answers "what does the back
- * look like" without a click. Colour dots come from the product's own `Color`
- * option, so a shopper can see a piece comes in four colours before opening
- * it.
- *
- * The whole card is one link, so everything inside it is non-interactive by
- * design — no nested buttons.
+ * The swatches are live — picking one swaps the photo to that colourway where
+ * the product has a shot of it, and the card's link follows the choice onto
+ * the product page. The second photo fades in on hover, so the back of a
+ * piece is one mouse-over away.
  */
 export function ProductCard({
   product,
   priority,
   sizes = '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
+  compact = false,
 }: {
   product: Product;
   priority?: boolean;
   sizes?: string;
+  /** Smaller type for the mega-menu and the search panel. */
+  compact?: boolean;
 }) {
+  const colors =
+    product.options.find((o) => isColorOption(o.name))?.values.filter(Boolean) ?? [];
+  const [color, setColor] = useState<string | null>(null);
+
   const discount = discountPercent(
     product.priceRange.minVariantPrice,
     product.compareAtPriceRange?.minVariantPrice,
   );
   const soldOut = !product.availableForSale;
-  const primary = product.featuredImage;
-  // Only use a second photo if it is genuinely a different shot.
-  const secondary = product.images.find((img) => img.url && img.url !== primary.url);
 
-  const colors =
-    product.options.find((o) => isColorOption(o.name))?.values.filter(Boolean) ?? [];
+  const primary = (color && imageForColor(product, color)) || product.featuredImage;
+  // A second, different shot for the hover — the next frame after the primary.
+  const primaryIndex = product.images.findIndex((img) => img === primary);
+  const secondary = product.images[primaryIndex + 1] ?? undefined;
+
+  const href = `/products/${product.handle}${color ? `?color=${encodeURIComponent(color)}` : ''}`;
+  const flag = soldOut
+    ? { text: 'Sold out', className: 'bg-ink text-paper' }
+    : discount
+      ? { text: `${discount}% off`, className: 'bg-sale text-paper' }
+      : product.badge
+        ? {
+            text: product.badge,
+            className: /best/i.test(product.badge) ? 'bg-accent-soft text-ink' : 'bg-accent text-ink',
+          }
+        : null;
 
   return (
-    <Link href={`/products/${product.handle}`} className="group block">
-      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-shell">
+    <div className="group min-w-0">
+      <Link href={href} className="relative block aspect-[3/4] overflow-hidden bg-shell">
         <ShopImage
           image={primary}
           priority={priority}
           sizes={sizes}
-          className="absolute inset-0 h-full w-full transition-transform duration-[900ms] ease-soft group-hover:scale-[1.04]"
+          className="absolute inset-0 h-full w-full"
           label={product.title}
         />
-        {secondary && (
+        {secondary && differs(secondary, primary) && (
           <ShopImage
             image={secondary}
             sizes={sizes}
-            className="absolute inset-0 h-full w-full opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            className="absolute inset-0 h-full w-full opacity-0 transition-opacity duration-500 group-hover:opacity-100 max-lg:hidden"
             label={product.title}
           />
         )}
-
-        {/* Flags, stacked top-left */}
-        <div className="pointer-events-none absolute left-3 top-3 flex flex-col items-start gap-1.5">
-          {soldOut && <span className="badge bg-ink text-paper">Sold out</span>}
-          {!soldOut && discount && (
-            <span className="badge bg-sale text-paper">−{discount}%</span>
-          )}
-          {!soldOut && !discount && product.badge && (
-            <span className="badge bg-mint-500 text-ink">{product.badge}</span>
-          )}
-        </div>
-
-        {/* Hover affordance. Decorative — the card itself is the link. */}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-x-3 bottom-3 translate-y-2 rounded-full bg-paper/95 py-2.5 text-center font-display text-[0.65rem] font-bold uppercase tracking-wider2 text-ink opacity-0 backdrop-blur transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 max-sm:hidden"
-        >
-          {soldOut ? 'View piece' : 'Shop now'}
-        </span>
-      </div>
-
-      <div className="mt-3.5">
-        {product.productType && (
-          <p className="text-[0.65rem] uppercase tracking-wider2 text-ink/40">
-            {product.productType}
-          </p>
-        )}
-        <h3 className="mt-1 line-clamp-2 text-[0.9rem] font-medium leading-snug text-ink transition-colors group-hover:text-mint-600">
-          {product.title}
-        </h3>
-
-        <div className="mt-1.5 flex items-baseline gap-2">
+        {flag && (
           <span
-            className={
-              discount
-                ? 'text-sm font-semibold tabular-nums text-sale'
-                : 'text-sm font-semibold tabular-nums text-ink'
-            }
+            className={cn(
+              'badge pointer-events-none absolute',
+              compact ? 'left-2 top-3' : 'left-2.5 top-4 sm:left-3 sm:top-5',
+              flag.className,
+            )}
           >
-            {formatPrice(product.priceRange.minVariantPrice, { compact: true })}
+            {flag.text}
+          </span>
+        )}
+      </Link>
+
+      <div className={compact ? 'mt-3' : 'mt-3 sm:mt-4'}>
+        <Link href={href} className="block">
+          <h3
+            className={cn(
+              'h-product line-clamp-2 hover:underline',
+              compact ? 'text-[0.95rem]' : 'text-[0.95rem] sm:text-[1.05rem]',
+            )}
+          >
+            {product.title}
+          </h3>
+        </Link>
+
+        <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[0.85rem] tabular-nums">
+          <span className={discount ? 'text-sale' : 'text-ink'}>
+            {formatPrice(product.priceRange.minVariantPrice)}
           </span>
           {discount && product.compareAtPriceRange?.minVariantPrice && (
-            <span className="text-xs tabular-nums text-ink/40 line-through">
-              {formatPrice(product.compareAtPriceRange.minVariantPrice, { compact: true })}
-            </span>
+            <>
+              <span className="text-mute line-through">
+                {formatPrice(product.compareAtPriceRange.minVariantPrice)}
+              </span>
+              <span className="font-bold text-sale">Sale</span>
+            </>
           )}
         </div>
 
-        {colors.length > 1 && (
+        {colors.length > 0 && (
           <div className="mt-2.5 flex items-center gap-1.5">
-            {colors.slice(0, MAX_SWATCHES).map((value) => {
+            {colors.slice(0, MAX_SWATCHES).map((value, i) => {
               const hex = swatchColor(value);
+              const active = color ? color === value : i === 0;
               return (
-                <span
+                <button
                   key={value}
+                  type="button"
                   title={value}
-                  className={
-                    needsSwatchBorder(hex)
-                      ? 'h-3 w-3 rounded-full border border-line'
-                      : 'h-3 w-3 rounded-full'
-                  }
-                  style={{ backgroundColor: hex }}
-                />
+                  aria-label={`${product.title} in ${value}`}
+                  aria-pressed={active}
+                  onClick={() => setColor(value)}
+                  className={cn(
+                    'flex h-[1.4rem] w-[1.4rem] items-center justify-center rounded-full border transition-colors',
+                    active ? 'border-ink' : 'border-transparent hover:border-ink/40',
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'block h-[1rem] w-[1rem] rounded-full',
+                      needsSwatchBorder(hex) && 'border border-line',
+                    )}
+                    style={{ backgroundColor: hex }}
+                  />
+                </button>
               );
             })}
             {colors.length > MAX_SWATCHES && (
-              <span className="text-[0.65rem] tabular-nums text-ink/40">
+              <span className="ml-0.5 text-[0.8rem] tabular-nums text-ink">
                 +{colors.length - MAX_SWATCHES}
               </span>
             )}
           </div>
         )}
       </div>
-    </Link>
+    </div>
   );
+}
+
+/**
+ * The first photo of a colourway — matched on alt text, which is how both the
+ * demo catalogue and most Shopify stores label their shots ("… in Navy").
+ */
+export function imageForColor(product: Product, color: string): Image | undefined {
+  const needle = color.toLowerCase();
+  return product.images.find((img) => img.altText?.toLowerCase().includes(needle));
+}
+
+/** Whether two image slots show different things. */
+function differs(a: Image, b: Image) {
+  if (a.url || b.url) return a.url !== b.url;
+  return a.art?.view !== b.art?.view || a.art?.color !== b.art?.color;
 }

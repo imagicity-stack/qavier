@@ -26,14 +26,13 @@ export default function CartPage() {
 
   if (lines.length === 0) {
     return (
-      <section className="mx-auto flex max-w-2xl flex-col items-center gap-7 px-5 pb-24 pt-16 text-center sm:px-8 sm:pt-24">
-        <p className="label">Bag</p>
-        <h1 className="font-display text-3xl font-light text-ink">Your bag is empty</h1>
-        <p className="max-w-sm text-sm leading-relaxed text-ink/50">
-          Nothing here yet. Have a look at the collection.
+      <section className="mx-auto flex max-w-2xl flex-col items-center gap-6 px-5 pb-24 pt-16 text-center sm:px-8 sm:pt-24">
+        <h1 className="h-page">Your bag is empty</h1>
+        <p className="max-w-sm text-[0.95rem] leading-relaxed text-mute">
+          Nothing here yet. Have a look at what’s new.
         </p>
-        <Link href="/shop" className="btn">
-          Continue shopping
+        <Link href="/shop" className="btn-dark">
+          Continue Shopping
         </Link>
       </section>
     );
@@ -41,10 +40,9 @@ export default function CartPage() {
 
   return (
     <section className="mx-auto max-w-[70rem] px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
-      <header className="mb-10">
-        <p className="label">Bag</p>
-        <h1 className="mt-4 font-display text-3xl font-light text-ink sm:text-4xl">
-          {totalQuantity} {totalQuantity === 1 ? 'piece' : 'pieces'}
+      <header className="mb-10 text-center">
+        <h1 className="h-page">
+          Your Bag <span className="text-mute">({totalQuantity})</span>
         </h1>
       </header>
 
@@ -54,12 +52,12 @@ export default function CartPage() {
             <li key={line.variantId} className="flex gap-5 py-6">
               <Link
                 href={`/products/${line.productHandle}`}
-                className="relative h-32 w-24 shrink-0 overflow-hidden bg-shell"
+                className="relative aspect-[3/4] w-24 shrink-0 overflow-hidden bg-shell"
               >
                 <ShopImage
                   image={line.image}
                   sizes="96px"
-                  className="h-full w-full"
+                  className="absolute inset-0 h-full w-full"
                   label={line.productTitle}
                 />
               </Link>
@@ -69,11 +67,11 @@ export default function CartPage() {
                   <div className="min-w-0">
                     <Link
                       href={`/products/${line.productHandle}`}
-                      className="text-sm leading-snug text-ink transition-opacity hover:opacity-60"
+                      className="h-product text-[1.05rem] hover:underline"
                     >
                       {line.productTitle}
                     </Link>
-                    <p className="mt-1 text-xs text-ink/45">{line.variantTitle}</p>
+                    <p className="mt-1 text-[0.8rem] text-mute">{line.variantTitle}</p>
                   </div>
                   <span className="shrink-0 text-sm tabular-nums text-ink/70">
                     {formatPrice({
@@ -84,7 +82,7 @@ export default function CartPage() {
                 </div>
 
                 <div className="mt-auto flex items-center justify-between pt-4">
-                  <div className="flex items-center border border-line">
+                  <div className="flex items-center rounded-full border border-line">
                     <button
                       type="button"
                       onClick={() => updateQuantity(line.variantId, line.quantity - 1)}
@@ -119,24 +117,24 @@ export default function CartPage() {
         </ul>
 
         <aside className="lg:sticky lg:top-32 lg:h-fit">
-          <p className="label">Summary</p>
+          <h2 className="font-serif text-[1.4rem]">Order Summary</h2>
           <div className="mt-5 flex items-center justify-between border-t border-line pt-5">
-            <span className="text-sm text-ink/60">Subtotal</span>
-            <span className="text-base tabular-nums text-ink">
+            <span className="text-[0.95rem] font-bold">Subtotal</span>
+            <span className="text-[0.95rem] font-bold tabular-nums">
               {formatPrice({ amount: subtotal.toFixed(2), currencyCode: currency })}
             </span>
           </div>
-          <p className="mt-3 text-xs leading-relaxed text-ink/45">
+          <p className="mt-2 text-[0.8rem] leading-relaxed text-mute">
             Shipping and taxes calculated at checkout.
           </p>
-          <Link href="/checkout" className="btn mt-7 w-full">
+          <Link href="/checkout" className="btn-dark mt-6 w-full">
             Checkout
           </Link>
           <Link
             href="/shop"
-            className="mt-4 block text-center text-xs text-ink/50 underline-offset-4 transition-colors hover:text-ink hover:underline"
+            className="mt-4 block text-center text-[0.85rem] underline underline-offset-4 hover:opacity-60"
           >
-            Continue shopping
+            Continue Shopping
           </Link>
         </aside>
       </div>

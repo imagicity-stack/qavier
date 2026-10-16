@@ -68,7 +68,7 @@ export default function CheckoutPage() {
     return (
       <section className="mx-auto flex max-w-2xl flex-col items-center gap-7 px-5 pb-24 pt-16 text-center sm:px-8 sm:pt-24">
         <p className="label">Checkout</p>
-        <h1 className="font-display text-3xl font-light text-ink">Your bag is empty</h1>
+        <h1 className="font-serif text-3xl font-normal text-ink">Your bag is empty</h1>
         <p className="max-w-sm text-sm leading-relaxed text-ink/50">
           There is nothing to check out just yet.
         </p>
@@ -83,7 +83,7 @@ export default function CheckoutPage() {
     <section className="mx-auto max-w-[70rem] px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
       <header className="mb-10">
         <p className="label">Checkout</p>
-        <h1 className="mt-4 font-display text-3xl font-light text-ink sm:text-4xl">
+        <h1 className="mt-4 font-serif text-3xl font-normal text-ink sm:text-4xl">
           Your details
         </h1>
       </header>

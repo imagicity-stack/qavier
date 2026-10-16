@@ -1,20 +1,18 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { ProductCard } from '@/components/store/product-card';
 import type { Product } from '@/lib/shopify/types';
 import { cn } from '@/lib/utils';
 
 /**
- * A horizontal product carousel.
+ * A horizontal product carousel: swipe on touch, arrows on desktop.
  *
- * Swipe on touch, arrows on desktop. It is a real scroll container with CSS
- * snap rather than a transform-based slider, so it keeps native momentum,
- * keyboard scrolling and accessibility for free, and it cannot get out of
- * sync with its own index.
- *
- * The arrows disable themselves at each end instead of wrapping around — in a
- * product rail, silently jumping back to the first item reads as a bug.
+ * A real scroll container with CSS snap rather than a transform slider, so it
+ * keeps native momentum, keyboard scrolling and accessibility for free, and
+ * can't get out of sync with its own index. Arrows disable at each end
+ * instead of wrapping — silently jumping back to the start reads as a bug.
  */
 export function ProductRail({ products }: { products: Product[] }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -40,36 +38,31 @@ export function ProductRail({ products }: { products: Product[] }) {
       el.removeEventListener('scroll', sync);
       window.removeEventListener('resize', sync);
     };
-  }, [sync]);
+  }, [sync, products]);
 
   const nudge = (direction: 1 | -1) => {
     const el = ref.current;
     if (!el) return;
-    // Scroll by a touch under one viewport, so a card stays half-visible as
-    // an affordance that there is more to come.
-    el.scrollBy({ left: direction * el.clientWidth * 0.85, behavior: 'smooth' });
+    el.scrollBy({ left: direction * el.clientWidth * 0.75, behavior: 'smooth' });
   };
 
   if (!products.length) return null;
 
   return (
     <div className="relative">
-      {/* scroll-pl-* must match px-*: snap-start aligns a card to the
-          container's scroll origin, which ignores padding, so without it the
-          rail lands 20px in and the first card sits flush against the edge. */}
       <div
         ref={ref}
-        className="scrollbar-none -mx-5 flex snap-x snap-mandatory scroll-pl-5 gap-4 overflow-x-auto px-5 pb-2 sm:gap-6 sm:scroll-pl-8 sm:px-8 lg:mx-0 lg:scroll-pl-0 lg:px-0"
+        className="scrollbar-none flex snap-x snap-mandatory scroll-pl-4 gap-2.5 overflow-x-auto px-4 sm:scroll-pl-6 sm:px-6 lg:scroll-pl-10 lg:px-10"
       >
         {products.map((product, i) => (
           <div
             key={product.id}
-            className="w-[60%] shrink-0 snap-start sm:w-[38%] lg:w-[calc((100%-4.5rem)/4)]"
+            className="w-[46%] shrink-0 snap-start sm:w-[31%] lg:w-[calc((100%-0.625rem*3)/4)]"
           >
             <ProductCard
               product={product}
               priority={i < 2}
-              sizes="(max-width: 640px) 60vw, (max-width: 1024px) 38vw, 23vw"
+              sizes="(max-width: 640px) 46vw, (max-width: 1024px) 31vw, 24vw"
             />
           </div>
         ))}
@@ -78,6 +71,58 @@ export function ProductRail({ products }: { products: Product[] }) {
       <Arrow side="left" disabled={atStart} onClick={() => nudge(-1)} />
       <Arrow side="right" disabled={atEnd} onClick={() => nudge(1)} />
     </div>
+  );
+}
+
+/**
+ * A rail with a serif heading and tabs that switch between product sets —
+ * New Arrivals / Best Sellers on the home page.
+ */
+export function ProductTabs({
+  title,
+  tabs,
+}: {
+  title?: string;
+  tabs: { label: string; href: string; products: Product[] }[];
+}) {
+  const usable = tabs.filter((t) => t.products.length);
+  const [active, setActive] = useState(0);
+  const tab = usable[Math.min(active, usable.length - 1)];
+  if (!tab) return null;
+
+  return (
+    <section className="py-12 sm:py-16">
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 px-4 sm:px-6 lg:px-10">
+        <div>
+          {title && <h2 className="h-section">{title}</h2>}
+          {usable.length > 1 && (
+            <div className="mt-3 flex gap-6" role="tablist">
+              {usable.map((t, i) => (
+                <button
+                  key={t.label}
+                  type="button"
+                  role="tab"
+                  aria-selected={t === tab}
+                  onClick={() => setActive(i)}
+                  className={cn(
+                    'border-b-2 pb-1.5 text-[0.95rem] transition-colors',
+                    t === tab ? 'border-ink text-ink' : 'border-transparent text-mute hover:text-ink',
+                  )}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <Link href={tab.href} className="text-[0.9rem] underline underline-offset-4 hover:opacity-60">
+          Shop All
+        </Link>
+      </div>
+      <div className="mt-7">
+        <ProductRail key={tab.label} products={tab.products} />
+      </div>
+    </section>
   );
 }
 
@@ -97,18 +142,16 @@ function Arrow({
       disabled={disabled}
       aria-label={side === 'left' ? 'Previous products' : 'Next products'}
       className={cn(
-        'absolute top-[32%] z-10 hidden h-11 w-11 items-center justify-center rounded-full border border-line bg-paper/95 text-ink shadow-sm backdrop-blur transition-all duration-200 lg:flex',
-        side === 'left' ? '-left-5' : '-right-5',
-        disabled
-          ? 'pointer-events-none opacity-0'
-          : 'hover:border-mint-500 hover:bg-mint-500 hover:text-ink',
+        'absolute top-[36%] z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-paper text-ink shadow-[0_2px_10px_rgba(0,0,0,0.12)] transition-opacity duration-200 lg:flex',
+        side === 'left' ? 'left-5' : 'right-5',
+        disabled ? 'pointer-events-none opacity-0' : 'hover:bg-ink hover:text-paper',
       )}
     >
       <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden>
         <path
           d={side === 'left' ? 'm14 6-6 6 6 6' : 'm10 6 6 6-6 6'}
           stroke="currentColor"
-          strokeWidth="1.8"
+          strokeWidth="1.6"
           strokeLinecap="round"
           strokeLinejoin="round"
         />

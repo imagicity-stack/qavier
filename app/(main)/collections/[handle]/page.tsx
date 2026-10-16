@@ -1,14 +1,31 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCollection, getCollections } from '@/lib/shopify';
-import { ShopImage } from '@/components/shared/shop-image';
 import { ShopGrid } from '@/components/store/shop-grid';
-import { CollectionTiles } from '@/components/store/collection-tiles';
-import { SectionHead } from '@/components/store/section-head';
-import { Reveal } from '@/components/shared/reveal';
+import { CategoryRail, type CategoryTile } from '@/components/store/category-rail';
+import { buildNav, collectionHref, departmentFor } from '@/lib/nav';
+import type { CollectionSummary } from '@/lib/shopify/types';
 
 export const revalidate = 60;
+
+/** The rail for collections that sit outside a department (New Arrivals, Sale…). */
+const DEFAULT_RAIL = [
+  'new-arrivals',
+  'mens-polos',
+  'mens-t-shirts',
+  'mens-sweatshirts-hoodies',
+  'mens-outerwear',
+  'mens-pants',
+];
+
+const RAIL_LABELS: Record<string, string> = {
+  'new-arrivals': 'New Arrivals',
+  'mens-polos': 'Polos',
+  'mens-t-shirts': 'Tees',
+  'mens-sweatshirts-hoodies': 'Sweatshirts & Hoodies',
+  'mens-outerwear': 'Outerwear',
+  'mens-pants': 'Bottoms',
+};
 
 export async function generateMetadata({
   params,
@@ -20,106 +37,66 @@ export async function generateMetadata({
   return {
     title: collection.title,
     description:
-      collection.description.slice(0, 160) ||
-      `Shop the ${collection.title} collection at Qavier.`,
+      collection.description.slice(0, 160) || `Shop the ${collection.title} collection at Qavier.`,
   };
 }
 
-export default async function CollectionPage({
-  params,
-}: {
-  params: { handle: string };
-}) {
-  const [collection, allCollections] = await Promise.all([
+export default async function CollectionPage({ params }: { params: { handle: string } }) {
+  const [collection, collections] = await Promise.all([
     getCollection(params.handle, { sortKey: 'COLLECTION_DEFAULT' }),
     getCollections(),
   ]);
 
   if (!collection) notFound();
 
-  const others = allCollections.filter((c) => c.handle !== collection.handle);
-  const count = collection.products.length;
+  const tiles = railFor(collection.handle, collections);
 
   return (
     <>
-      {/* ——— Banner. A photograph when the collection has one, a mint band
-             when it doesn't — never an empty grey box. ——— */}
-      {collection.image ? (
-        <section className="relative isolate flex min-h-[38svh] items-end overflow-hidden bg-ink sm:min-h-[46svh]">
-          <ShopImage
-            image={collection.image}
-            priority
-            sizes="100vw"
-            className="absolute inset-0 h-full w-full"
-            label={collection.title}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/35 to-ink/10" />
-          <div className="relative mx-auto w-full max-w-[90rem] px-5 pb-10 pt-20 sm:px-8 sm:pb-14">
-            <p className="font-display text-[0.65rem] font-bold uppercase tracking-wider2 text-mint-300">
-              Collection
-            </p>
-            <h1 className="mt-3 font-display text-3xl font-extrabold uppercase leading-[1.03] tracking-[-0.015em] text-paper sm:text-4xl lg:text-5xl">
-              {collection.title}
-            </h1>
-            {collection.description && (
-              <p className="mt-4 max-w-xl text-sm leading-relaxed text-paper/75">
-                {collection.description}
-              </p>
-            )}
-          </div>
-        </section>
-      ) : (
-        <section className="border-b border-line bg-shell">
-          <div className="mx-auto max-w-[90rem] px-5 py-12 sm:px-8 sm:py-16">
-            <p className="label">Collection</p>
-            <h1 className="h-page mt-3">{collection.title}</h1>
-            {collection.description && (
-              <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink/55">
-                {collection.description}
-              </p>
-            )}
-          </div>
-        </section>
+      <header className="px-4 pb-8 pt-9 text-center sm:px-6 sm:pt-11">
+        <h1 className="h-page">{collection.title}</h1>
+      </header>
+
+      {tiles.length > 1 && (
+        <div className="pb-9 lg:px-10 xl:px-[12%]">
+          <CategoryRail tiles={tiles} activeHref={collectionHref(collection.handle)} />
+        </div>
       )}
 
-      {/* ——— The grid ——— */}
-      <section className="mx-auto max-w-[90rem] px-5 py-10 sm:px-8 sm:py-14">
-        <p className="mb-6 text-sm text-ink/45">
-          {count} {count === 1 ? 'piece' : 'pieces'}
-        </p>
-
-        {count > 0 ? (
-          <ShopGrid products={collection.products} />
-        ) : (
-          <div className="py-16 text-center">
-            <p className="text-sm text-ink/50">
-              Nothing in this collection yet.
-            </p>
-            <Link href="/shop" className="btn mt-8">
-              Shop all pieces
-            </Link>
-          </div>
-        )}
-      </section>
-
-      {/* ——— Keep browsing ——— */}
-      {others.length > 0 && (
-        <section className="border-t border-line bg-shell">
-          <div className="mx-auto max-w-[90rem] px-5 py-14 sm:px-8 sm:py-20">
-            <Reveal>
-              <SectionHead
-                eyebrow="Keep looking"
-                title="Other collections"
-                href="/collections"
-                linkLabel="All collections"
-              />
-            </Reveal>
-            <div className="mt-8 sm:mt-10">
-              <CollectionTiles collections={others.slice(0, 4)} />
-            </div>
-          </div>
-        </section>
-      )}
+      <ShopGrid products={collection.products} />
     </>
   );
+}
+
+/**
+ * The tiles above the grid: the department this collection belongs to —
+ * its root first, then the department's first column — or a general set of
+ * categories for a collection that stands alone. The current collection is
+ * always in the row, so it can be boxed.
+ */
+function railFor(handle: string, collections: CollectionSummary[]): CategoryTile[] {
+  const byHandle = new Map(collections.map((c) => [c.handle, c]));
+  const department = departmentFor(handle, buildNav(collections));
+
+  let entries: { title: string; handle: string }[];
+  if (department?.groups?.length) {
+    entries = department.groups[0].links.flatMap((link) => {
+      const h = link.href.startsWith('/collections/') ? link.href.slice(13) : null;
+      if (!h) return [];
+      const title = h === department.href.slice(13) ? `All ${department.label}` : link.label;
+      return [{ title, handle: h }];
+    });
+  } else {
+    entries = DEFAULT_RAIL.map((h) => ({ title: RAIL_LABELS[h], handle: h }));
+  }
+
+  if (!entries.some((e) => e.handle === handle)) {
+    const self = byHandle.get(handle);
+    if (self) entries.unshift({ title: self.title, handle });
+  }
+
+  return entries.flatMap(({ title, handle: h }) => {
+    const c = byHandle.get(h);
+    return c ? [{ title, href: collectionHref(h), image: c.image }] : [];
+  });
 }
