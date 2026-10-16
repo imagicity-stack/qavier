@@ -177,10 +177,16 @@ npm run collections -- --apply # creates the missing ones and publishes them
 
 The Admin token comes from a custom app (**Settings → Apps and sales channels →
 Develop apps**) with the `write_products`, `read_publications` and
-`write_publications` scopes. The script skips handles that already exist and
-never edits or deletes a collection, so it is safe to re-run. Add
-`--publication headless` to publish only to channels whose name contains that
-text, or `--only men,mens-polos` to create a few.
+`write_publications` scopes. The script never edits or deletes a collection:
+a handle that already exists is left as it is (and, with `--apply`, published
+to the chosen channels — so a run that failed to publish can just be
+repeated). Add `--publication headless` to publish only to channels whose name
+contains that text, or `--only men,mens-polos` to create a few. It talks to
+Admin API `2024-07` unless `SHOPIFY_ADMIN_API_VERSION` says otherwise.
+
+A collection only appears in the menu, footer and tiles once at least one
+product matches it — creating all 36 up front leaves the site exactly as it
+was until products are tagged.
 
 **Then tag and type your products** — that is what places them:
 
@@ -192,7 +198,7 @@ text, or `--only men,mens-polos` to create a few.
 | Best Sellers | tag `bestseller` |
 | Gifts | tag `gift` (Gifts Under ₹1,500 also checks the price) |
 | Golf · Big & Tall | tag `golf` · `big-and-tall` |
-| Sale | a compare-at price above the price |
+| Sale | a compare-at price (clear it when the sale ends) |
 
 Category rules match on part of the type, so `Oversized T-Shirts` lands in
 T-Shirts and `Bottomwear` in Bottoms. A department's mega-menu shows the first

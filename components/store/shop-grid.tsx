@@ -46,7 +46,7 @@ export function ShopGrid({
   initialCategory?: string;
 }) {
   const [types, setTypes] = useState<Set<string>>(
-    () => new Set(initialCategory === 'all' ? [] : [initialCategory.toLowerCase()]),
+    () => new Set(initialCategory === 'all' ? [] : [initialCategory.trim().toLowerCase()]),
   );
   const [sizes, setSizes] = useState<Set<string>>(new Set());
   const [colors, setColors] = useState<Set<string>>(new Set());
@@ -74,7 +74,7 @@ export function ShopGrid({
 
   const shown = useMemo(() => {
     const filtered = products.filter((p) => {
-      if (types.size && !types.has((p.productType ?? '').toLowerCase())) return false;
+      if (types.size && !types.has((p.productType ?? '').trim().toLowerCase())) return false;
       if (sizes.size && !valuesOf(p, isSizeOption).some((s) => sizes.has(s))) return false;
       if (colors.size && !valuesOf(p, isColorOption).some((c) => colors.has(c.toLowerCase())))
         return false;

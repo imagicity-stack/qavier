@@ -708,6 +708,7 @@ const COLLECTIONS: Collection[] = COLLECTION_DEFS.map((def, index) => {
     descriptionHtml: def.description ? `<p>${def.description}</p>` : '',
     image: CAMPAIGN[def.handle] ?? products[0]?.featuredImage ?? null,
     products,
+    hasProducts: products.length > 0,
   };
 });
 
@@ -715,15 +716,25 @@ const COLLECTIONS: Collection[] = COLLECTION_DEFS.map((def, index) => {
 //  The same surface as lib/shopify, over the arrays above
 // ————————————————————————————————————————————————————————————————
 
+/**
+ * The slice of Shopify's search syntax the store sends: free words (AND),
+ * plus `tag:x` and `product_type:"x y"` filters, all case-insensitive.
+ */
 const matchesQuery = (p: Product, query: string) => {
   const hay = `${p.title} ${p.productType ?? ''} ${p.tags.join(' ')} ${p.options
     .flatMap((o) => o.values)
     .join(' ')}`.toLowerCase();
-  return query
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean)
-    .every((word) => hay.includes(word));
+  const terms = query.match(/\w+:"[^"]*"|\w+:\S+|"[^"]*"|\S+/g) ?? [];
+  return terms.every((term) => {
+    const field = /^(\w+):"?(.*?)"?$/.exec(term);
+    if (field && (field[1] === 'tag' || field[1] === 'product_type')) {
+      const value = field[2].toLowerCase();
+      return field[1] === 'tag'
+        ? p.tags.some((t) => t.toLowerCase() === value)
+        : (p.productType ?? '').trim().toLowerCase() === value;
+    }
+    return hay.includes(term.replace(/"/g, '').toLowerCase());
+  });
 };
 
 const has = (p: Product, tag: string) => p.tags.includes(tag);
@@ -766,4 +777,8 @@ export function demoCollection(handle: string): Collection | undefined {
 
 export function demoCollections(): CollectionSummary[] {
   return COLLECTIONS.map(({ products: _products, descriptionHtml: _html, ...summary }) => summary);
+}
+
+export function demoProductTypes(): string[] {
+  return Array.from(new Set(PRODUCTS.flatMap((p) => (p.productType ? [p.productType] : []))));
 }

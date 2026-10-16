@@ -21,16 +21,20 @@
  *   SHOPIFY_ADMIN_ACCESS_TOKEN  Admin API token (shpat_…) from a custom app with
  *                               write_products, read_publications and
  *                               write_publications scopes
- *   SHOPIFY_API_VERSION         optional, default 2024-07
+ *   SHOPIFY_ADMIN_API_VERSION   optional, default 2024-07
  *
- * Safe to re-run: a handle that already exists is reported and left alone —
- * this script never edits or deletes a collection.
+ * Safe to re-run: a handle that already exists is never edited or deleted.
+ * With --apply it is (re)published to the chosen channels, so a run that
+ * failed to publish can simply be repeated.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+/** An error that should stop the whole run, not just one collection. */
+class FatalError extends Error {}
 
 // ——— Config ————————————————————————————————————————————————————————
 
@@ -45,7 +49,10 @@ const PUBLICATION_FILTERS = valuesOf('--publication').map((s) => s.toLowerCase()
 
 const DOMAIN = (process.env.SHOPIFY_STORE_DOMAIN ?? '').replace(/^https?:\/\//, '').replace(/\/$/, '');
 const TOKEN = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN ?? '';
-const VERSION = process.env.SHOPIFY_API_VERSION || '2024-07';
+// The Admin API version is pinned separately from the storefront's
+// SHOPIFY_API_VERSION: the lookup below uses collectionByHandle, which newer
+// Admin versions replace.
+const VERSION = process.env.SHOPIFY_ADMIN_API_VERSION || '2024-07';
 
 const catalog = JSON.parse(fs.readFileSync(path.join(ROOT, 'lib/catalog/collections.json'), 'utf8'));
 const defs = catalog.collections.filter((d) => !ONLY.length || ONLY.includes(d.handle));
@@ -66,62 +73,84 @@ const ENDPOINT = `https://${DOMAIN}/admin/api/${VERSION}/graphql.json`;
 
 // ——— Run ——————————————————————————————————————————————————————————
 
-console.log(`${APPLY ? 'Creating' : 'Dry run —'} ${defs.length} collections on ${DOMAIN} (API ${VERSION})\n`);
+try {
+  await run();
+} catch (err) {
+  fail(err instanceof Error ? err.message : String(err));
+}
 
-const publications = PUBLISH ? await choosePublications() : [];
-if (PUBLISH) {
+async function run() {
+  console.log(`${APPLY ? 'Creating' : 'Dry run —'} ${defs.length} collections on ${DOMAIN} (Admin API ${VERSION})\n`);
+
+  const publications = PUBLISH ? await choosePublications() : [];
+  if (PUBLISH) console.log(`Publishing to: ${publications.map((p) => p.name).join(', ')}\n`);
+
+  const results = { created: [], exists: [], planned: [], failed: [] };
+
+  for (const def of defs) {
+    const name = def.handle.padEnd(28);
+    try {
+      const existing = await findByHandle(def.handle);
+
+      if (existing) {
+        results.exists.push(def.handle);
+        if (APPLY && publications.length) {
+          await publish(existing.id, publications);
+          console.log(`  = ${name} already exists — published to the channels above`);
+        } else {
+          console.log(`  = ${name} already exists — left as is`);
+        }
+        continue;
+      }
+
+      if (!APPLY) {
+        results.planned.push(def.handle);
+        console.log(`  + ${name} ${describe(def)}`);
+        continue;
+      }
+
+      const created = await createCollection(def);
+      if (publications.length) await publish(created.id, publications);
+
+      if (created.handle !== def.handle) {
+        // Shopify de-duplicates handles silently (e.g. "men-1"); the
+        // storefront looks collections up by the exact handle.
+        results.failed.push(def.handle);
+        console.log(
+          `  ✗ ${name} created as "${created.handle}" — rename its handle to "${def.handle}" in Shopify`,
+        );
+        continue;
+      }
+
+      results.created.push(def.handle);
+      console.log(`  ✓ ${name} created${publications.length ? ' and published' : ''}`);
+    } catch (err) {
+      if (err instanceof FatalError) throw err;
+      results.failed.push(def.handle);
+      console.log(`  ✗ ${name} ${err.message}`);
+    }
+  }
+
   console.log(
-    publications.length
-      ? `Publishing to: ${publications.map((p) => p.name).join(', ')}\n`
-      : 'No matching sales channels — collections will be created unpublished.\n',
+    `\n${results.created.length} created · ${results.exists.length} already existed` +
+      (APPLY ? '' : ` · ${results.planned.length} would be created`) +
+      (results.failed.length ? ` · ${results.failed.length} failed (${results.failed.join(', ')})` : ''),
   );
+  if (!APPLY && results.planned.length) console.log('Run again with --apply to create them.');
+  process.exitCode = results.failed.length ? 1 : 0;
 }
-
-const results = { created: [], exists: [], planned: [], failed: [] };
-
-for (const def of defs) {
-  const existing = await findByHandle(def.handle);
-  if (existing) {
-    results.exists.push(def.handle);
-    console.log(`  = ${def.handle.padEnd(28)} already exists — left as is`);
-    continue;
-  }
-
-  if (!APPLY) {
-    results.planned.push(def.handle);
-    console.log(`  + ${def.handle.padEnd(28)} ${describe(def)}`);
-    continue;
-  }
-
-  try {
-    const id = await createCollection(def);
-    if (publications.length) await publish(id, publications);
-    results.created.push(def.handle);
-    console.log(`  ✓ ${def.handle.padEnd(28)} created${publications.length ? ' and published' : ''}`);
-  } catch (err) {
-    results.failed.push(def.handle);
-    console.log(`  ✗ ${def.handle.padEnd(28)} ${err.message}`);
-  }
-}
-
-console.log(
-  `\n${results.created.length} created · ${results.exists.length} already existed` +
-    (APPLY ? '' : ` · ${results.planned.length} would be created`) +
-    (results.failed.length ? ` · ${results.failed.length} failed` : ''),
-);
-if (!APPLY && results.planned.length) console.log('Run again with --apply to create them.');
-process.exitCode = results.failed.length ? 1 : 0;
 
 // ——— Shopify calls ————————————————————————————————————————————————————
 
+/** Exact lookup by handle — no search index, so no lag and no fuzzy matches. */
 async function findByHandle(handle) {
   const data = await admin(
-    `query findCollection($query: String!) {
-      collections(first: 5, query: $query) { nodes { id handle } }
+    `query findCollection($handle: String!) {
+      collectionByHandle(handle: $handle) { id handle }
     }`,
-    { query: `handle:${handle}` },
+    { handle },
   );
-  return data.collections.nodes.find((c) => c.handle === handle) ?? null;
+  return data.collectionByHandle;
 }
 
 async function createCollection(def) {
@@ -148,14 +177,10 @@ async function createCollection(def) {
   const { collection, userErrors } = data.collectionCreate;
   if (userErrors?.length) throw new Error(userErrors.map((e) => e.message).join('; '));
   if (!collection) throw new Error('Shopify returned no collection');
-  if (collection.handle !== def.handle) {
-    // Shopify de-duplicates handles silently (e.g. "men-1"); the storefront
-    // looks collections up by the exact handle, so say so loudly.
-    console.log(`    ! Shopify saved this as "${collection.handle}" — rename it to "${def.handle}"`);
-  }
-  return collection.id;
+  return collection;
 }
 
+/** Publishing is idempotent — a channel that already has it is unchanged. */
 async function publish(id, pubs) {
   const data = await admin(
     `mutation publishCollection($id: ID!, $input: [PublicationInput!]!) {
@@ -166,50 +191,81 @@ async function publish(id, pubs) {
     { id, input: pubs.map((p) => ({ publicationId: p.id })) },
   );
   const errors = data.publishablePublish.userErrors;
-  if (errors?.length) throw new Error(`created, but publishing failed: ${errors.map((e) => e.message).join('; ')}`);
+  if (errors?.length) throw new Error(`publishing failed: ${errors.map((e) => e.message).join('; ')}`);
 }
 
 async function choosePublications() {
   const data = await admin(`query publications { publications(first: 50) { nodes { id name } } }`);
   const all = data.publications.nodes;
-  if (!PUBLICATION_FILTERS.length) return all;
-  return all.filter((p) => PUBLICATION_FILTERS.some((f) => p.name.toLowerCase().includes(f)));
+  if (!PUBLICATION_FILTERS.length) {
+    if (!all.length) throw new FatalError('This store has no sales channels to publish to.');
+    return all;
+  }
+  const chosen = all.filter((p) => PUBLICATION_FILTERS.some((f) => p.name.toLowerCase().includes(f)));
+  if (!chosen.length) {
+    throw new FatalError(
+      `No sales channel matches --publication ${PUBLICATION_FILTERS.join(', ')}.\n` +
+        `Channels in this store: ${all.map((p) => p.name).join(', ') || '(none)'}`,
+    );
+  }
+  return chosen;
 }
 
-/** POST to the Admin API, retrying when Shopify throttles the request. */
+/**
+ * POST to the Admin API. Throttling (429 or a THROTTLED error) and Shopify
+ * server errors (5xx) are retried with backoff, honouring Retry-After.
+ * Permission and authentication problems stop the whole run.
+ */
 async function admin(query, variables = {}) {
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    const res = await fetch(ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': TOKEN },
-      body: JSON.stringify({ query, variables }),
-    });
+  const ATTEMPTS = 5;
+  let lastProblem = '';
 
-    if (res.status === 429) {
-      await sleep(1000 * 2 ** attempt);
+  for (let attempt = 1; attempt <= ATTEMPTS; attempt += 1) {
+    let res;
+    try {
+      res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': TOKEN },
+        body: JSON.stringify({ query, variables }),
+      });
+    } catch (err) {
+      lastProblem = `network error: ${err.message}`;
+      if (attempt < ATTEMPTS) await backoff(attempt);
       continue;
     }
-    if (!res.ok) {
-      const text = await res.text();
-      fail(`Shopify Admin API HTTP ${res.status}: ${text.slice(0, 300)}`);
+
+    if (res.status === 429 || res.status >= 500) {
+      lastProblem = `HTTP ${res.status}`;
+      if (attempt < ATTEMPTS) await backoff(attempt, res.headers.get('retry-after'));
+      continue;
     }
+    if (res.status === 401 || res.status === 403) {
+      throw new FatalError(
+        `Shopify refused the token (HTTP ${res.status}): ${(await res.text()).slice(0, 200)}\n` +
+          'Check SHOPIFY_ADMIN_ACCESS_TOKEN and the app’s scopes.',
+      );
+    }
+    if (!res.ok) throw new FatalError(`Shopify Admin API HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
 
     const body = await res.json();
-    const throttled = body.errors?.some((e) => e.extensions?.code === 'THROTTLED');
-    if (throttled) {
-      await sleep(1000 * 2 ** attempt);
+    if (body.errors?.some((e) => e.extensions?.code === 'THROTTLED')) {
+      lastProblem = 'throttled';
+      if (attempt < ATTEMPTS) await backoff(attempt);
       continue;
     }
     if (body.errors?.length) {
       const msg = body.errors.map((e) => e.message).join('; ');
       if (/access denied|scope/i.test(msg)) {
-        fail(`${msg}\nCheck the Admin token has write_products, read_publications and write_publications.`);
+        throw new FatalError(
+          `${msg}\nCheck the Admin token has write_products, read_publications and write_publications.`,
+        );
       }
       throw new Error(msg);
     }
     return body.data;
   }
-  throw new Error('Shopify kept throttling the request — try again in a minute.');
+
+  throw new Error(`Shopify kept failing (${lastProblem}) — try again in a minute.`);
 }
 
 // ——— Helpers ————————————————————————————————————————————————————————
@@ -224,22 +280,36 @@ function describe(def) {
   return `"${def.title}" — ${def.rules.map(rule).join(join)}`;
 }
 
+/** Values for a repeatable `--flag value` / `--flag=value`; a bare flag is an error. */
 function valuesOf(flag) {
   const out = [];
   argv.forEach((a, i) => {
-    if (a === flag && argv[i + 1] && !argv[i + 1].startsWith('--')) out.push(argv[i + 1]);
-    else if (a.startsWith(`${flag}=`)) out.push(a.slice(flag.length + 1));
+    if (a === flag) {
+      const next = argv[i + 1];
+      if (!next || next.startsWith('--')) fail(`${flag} needs a value, e.g. ${flag} ${flag === '--only' ? 'men,sale' : 'headless'}`);
+      out.push(next);
+    } else if (a.startsWith(`${flag}=`)) {
+      const value = a.slice(flag.length + 1);
+      if (!value) fail(`${flag}= needs a value`);
+      out.push(value);
+    }
   });
   return out;
 }
 
-/** Minimal KEY=VALUE reader; never overrides variables already set. */
+/**
+ * Minimal .env reader: `KEY=value`, optional `export `, quoted values, and
+ * `# comments` after unquoted values. Never overrides variables already set.
+ */
 function loadEnvFile(file) {
   if (!fs.existsSync(file)) return;
   for (const line of fs.readFileSync(file, 'utf8').split(/\r?\n/)) {
-    const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/.exec(line);
-    if (!m || line.trim().startsWith('#')) continue;
-    const value = m[2].replace(/^(['"])(.*)\1$/, '$2');
+    if (line.trim().startsWith('#')) continue;
+    const m = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/.exec(line);
+    if (!m) continue;
+    const raw = m[2];
+    const quoted = /^(['"])(.*)\1$/.exec(raw);
+    const value = quoted ? quoted[2] : raw.replace(/\s+#.*$/, '');
     if (process.env[m[1]] === undefined) process.env[m[1]] = value;
   }
 }
@@ -248,8 +318,10 @@ function escapeHtml(s) {
   return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 }
 
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
+function backoff(attempt, retryAfter) {
+  const seconds = Number(retryAfter);
+  const ms = Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : 1000 * 2 ** (attempt - 1);
+  return new Promise((r) => setTimeout(r, Math.min(ms, 30_000)));
 }
 
 function fail(message) {

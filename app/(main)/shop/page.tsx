@@ -20,13 +20,17 @@ export default async function ShopPage({
   const query = typeof searchParams.q === 'string' ? searchParams.q : undefined;
   const category = typeof searchParams.category === 'string' ? searchParams.category : 'all';
 
-  const products = await getProducts({ query, sortKey: 'CREATED_AT', reverse: true, first: 100 });
+  // ?category= narrows to one product type (the menu's Shop column links
+  // here). It's sent to Shopify as part of the search, so the grid holds every
+  // product of that type rather than the matching few among the newest 100.
+  const typeFilter =
+    category !== 'all' ? `product_type:"${category.replace(/["\\]/g, '').trim()}"` : '';
+  const search = [query, typeFilter].filter(Boolean).join(' ') || undefined;
+  const products = await getProducts({ query: search, sortKey: 'CREATED_AT', reverse: true, first: 100 });
 
-  // ?category= filters to one product type (the menu's Shop column links
-  // here); the heading takes the type's own spelling from the catalogue.
   const typeTitle =
     category !== 'all'
-      ? products.find((p) => p.productType?.trim().toLowerCase() === category.toLowerCase())
+      ? products.find((p) => p.productType?.trim().toLowerCase() === category.trim().toLowerCase())
           ?.productType
       : undefined;
 

@@ -50,13 +50,14 @@ const FABRIC: Image = {
 };
 
 export default async function HomePage() {
-  const [newest, bestSelling, collections] = await Promise.all([
+  const [newest, bestSelling, allCollections] = await Promise.all([
     getProducts({ sortKey: 'CREATED_AT', reverse: true, first: 12 }),
     getProducts({ sortKey: 'BEST_SELLING', first: 12 }),
     getCollections(),
   ]);
 
-  const byHandle = new Map(collections.map((c) => [c.handle, c]));
+  // Empty collections count as missing — no tile or link to an empty page.
+  const byHandle = new Map(allCollections.filter((c) => c.hasProducts).map((c) => [c.handle, c]));
   const hrefFor = (handle: string, fallback = '/shop') =>
     byHandle.has(handle) ? collectionHref(handle) : fallback;
 

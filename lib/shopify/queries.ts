@@ -237,6 +237,17 @@ export const GET_COLLECTION_QUERY = /* GraphQL */ `
 // the home page rails. Deliberately light: no product cards, just enough to
 // build a tile. `products(first: 1)` is there only to borrow a photo when the
 // collection has no image of its own set in Shopify.
+// Every product type in the store — the Shop menu's fallback columns.
+export const GET_PRODUCT_TYPES_QUERY = /* GraphQL */ `
+  query getProductTypes($first: Int!) {
+    productTypes(first: $first) {
+      edges {
+        node
+      }
+    }
+  }
+`;
+
 export const GET_COLLECTIONS_QUERY = /* GraphQL */ `
   query getCollections($first: Int!) {
     collections(first: $first, sortKey: TITLE) {

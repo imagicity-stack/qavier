@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CollectionsPage() {
-  const collections = await getCollections();
+  const collections = (await getCollections()).filter((c) => c.hasProducts);
 
   return (
     <div className="pb-16">

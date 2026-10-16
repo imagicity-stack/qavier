@@ -36,6 +36,8 @@ export interface NavTile {
 export interface NavItem {
   label: string;
   href: string;
+  /** The department's own collection handle, when it has one. */
+  root?: string;
   /** Mega-menu columns. Absent for a plain link. */
   groups?: NavGroup[];
   /**
@@ -54,8 +56,11 @@ export const NEWEST = '__newest__';
 
 export const collectionHref = (handle: string) => `/collections/${handle}`;
 
-/** The shop page filtered to one product type. */
-export const typeHref = (type: string) => `/shop?category=${encodeURIComponent(type.toLowerCase())}`;
+/**
+ * The shop page filtered to one product type. The type keeps Shopify's own
+ * spelling, so the search the page sends matches it exactly.
+ */
+export const typeHref = (type: string) => `/shop?category=${encodeURIComponent(type.trim())}`;
 
 /** A menu entry before it is checked against the store. */
 interface MenuLink {
@@ -205,6 +210,23 @@ const PAGE_ART: Record<string, Image> = {
   },
 };
 
+/**
+ * Handles listed by more than one department — Accessories, Best Sellers,
+ * Golf. They can fill a department's columns but never stand in for the
+ * department itself: a Women menu holding only the shared Accessories column
+ * would open on Accessories.
+ */
+const SHARED_HANDLES = (() => {
+  const seen = new Map<string, number>();
+  for (const item of MENU) {
+    const handles = new Set(
+      (item.groups ?? []).flatMap((g) => g.links.map((l) => l.to)).filter((to) => to !== item.to),
+    );
+    handles.forEach((h) => seen.set(h, (seen.get(h) ?? 0) + 1));
+  }
+  return new Set(Array.from(seen).filter(([, n]) => n > 1).map(([h]) => h));
+})();
+
 /** Every collection handle the menu refers to. */
 export const MENU_HANDLES = new Set(
   MENU.flatMap((item) => [
@@ -218,8 +240,9 @@ export const MENU_HANDLES = new Set(
 /**
  * The header's departments, filtered down to what the store can show.
  *
- * `productTypes` are the types present in the catalogue, used for the Shop
- * department when the store has no gender departments.
+ * Pass only collections that hold products — an empty smart collection is
+ * treated as missing. `productTypes` are the types in the catalogue, used for
+ * the Shop department when the store has no gender departments.
  */
 export function buildNav(collections: CollectionSummary[], productTypes: string[] = []): NavItem[] {
   const byHandle = new Map(collections.map((c) => [c.handle, c]));
@@ -247,12 +270,18 @@ export function buildNav(collections: CollectionSummary[], productTypes: string[
       return [{ title: t.label, href, image: byHandle.get(t.to)?.image ?? PAGE_ART[t.to] ?? null }];
     });
 
-    const href = resolve(entry.to) ?? groups[0]?.links[0]?.href;
+    // A department opens on its own collection, or failing that on the first
+    // link of its own first column that isn't shared with another department.
+    const own = (entry.groups?.[0]?.links ?? []).find(
+      (l) => !SHARED_HANDLES.has(l.to) && resolve(l.to),
+    );
+    const href = resolve(entry.to) ?? (own ? resolve(own.to) : null);
     if (!href) continue;
 
     items.push({
       label: entry.label,
       href,
+      root: !entry.to.startsWith('/') && byHandle.has(entry.to) ? entry.to : undefined,
       groups: groups.length ? groups : undefined,
       featured: entry.featured && byHandle.has(entry.featured) ? entry.featured : undefined,
       tiles: tiles.length ? tiles : undefined,
@@ -274,9 +303,14 @@ export function buildNav(collections: CollectionSummary[], productTypes: string[
   // so the catalogue is always one hover away.
   const hasDepartment = GENDER_DEPARTMENTS.some((h) => byHandle.has(h));
   if (!hasDepartment) {
-    const types = Array.from(new Set(productTypes.map((t) => t.trim()).filter(Boolean))).sort(
-      (a, b) => a.localeCompare(b),
-    );
+    // Product types are free text, so "T-Shirts" and "T-shirts" both turn up;
+    // keep the first spelling of each.
+    const byKey = new Map<string, string>();
+    for (const raw of productTypes) {
+      const t = raw.trim();
+      if (t && !byKey.has(t.toLowerCase())) byKey.set(t.toLowerCase(), t);
+    }
+    const types = Array.from(byKey.values()).sort((a, b) => a.localeCompare(b));
     items.unshift({
       label: 'Shop',
       href: '/shop',
@@ -304,13 +338,27 @@ export function buildNav(collections: CollectionSummary[], productTypes: string[
 }
 
 /**
- * The department a collection belongs to — the menu item that is the
- * collection itself, or the first one listing it in its first column.
+ * The menu column a collection belongs to, with its department.
+ *
+ * Preference, most specific first: the column the collection heads (its
+ * "Shop All" — Accessories for /collections/accessories); the department
+ * the collection *is* (its first column); then the first column that lists
+ * it anywhere.
  */
-export function departmentFor(handle: string, nav: NavItem[]): NavItem | undefined {
+export function departmentFor(
+  handle: string,
+  nav: NavItem[],
+): { department: NavItem; group: NavGroup } | undefined {
   const href = collectionHref(handle);
-  return (
-    nav.find((item) => item.href === href && item.groups) ??
-    nav.find((item) => item.groups?.[0]?.links.some((l) => l.href === href))
-  );
+  for (const department of nav) {
+    const group = department.groups?.find((g) => g.links[0]?.href === href);
+    if (group) return { department, group };
+  }
+  const self = nav.find((item) => item.root === handle && item.groups?.length);
+  if (self) return { department: self, group: self.groups![0] };
+  for (const department of nav) {
+    const group = department.groups?.find((g) => g.links.some((l) => l.href === href));
+    if (group) return { department, group };
+  }
+  return undefined;
 }

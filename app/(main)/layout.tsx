@@ -7,7 +7,7 @@ import { SiteFooter } from '@/components/store/site-footer';
 import { ComingSoon } from '@/components/coming-soon';
 import { COMING_SOON, ACCOUNT_URL } from '@/lib/config';
 import { buildNav, NEWEST } from '@/lib/nav';
-import { getCollection, getCollections, getProducts } from '@/lib/shopify';
+import { getCollection, getCollections, getProducts, getProductTypes } from '@/lib/shopify';
 import type { Product } from '@/lib/shopify/types';
 
 // The menu is built from Shopify collections, so the shell revalidates on the
@@ -30,17 +30,18 @@ export default async function StoreLayout({ children }: { children: React.ReactN
 
   // Fetched once for the whole shell: the header menu and the footer's Shop
   // column read the same list, so they can never disagree.
-  const [collections, trending] = await Promise.all([
+  const [allCollections, trending] = await Promise.all([
     getCollections(),
     getProducts({ sortKey: 'BEST_SELLING', first: 4 }),
   ]);
+  // An empty smart collection (rules no product matches yet) is treated as
+  // missing, so the menu and footer never link to an empty page.
+  const collections = allCollections.filter((c) => c.hasProducts);
 
   // Product types only matter when the store has no Men / Women / Kids
   // departments and the menu falls back to a Shop department built from them.
   const hasDepartments = collections.some((c) => ['men', 'women', 'kids'].includes(c.handle));
-  const productTypes = hasDepartments
-    ? []
-    : (await getProducts({ first: 100 })).flatMap((p) => (p.productType ? [p.productType] : []));
+  const productTypes = hasDepartments ? [] : await getProductTypes();
   const nav = buildNav(collections, productTypes);
 
   // The four products on the right of each department's mega-menu.
