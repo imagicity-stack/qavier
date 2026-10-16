@@ -2,13 +2,14 @@
   "name": "qavier",
   "version": "1.0.0",
   "private": true,
-  "description": "Qavier — a contemporary fashion house. The main Qavier store, plus the Qavier Pops capsule.",
+  "description": "Qavier \u2014 a contemporary fashion house. The main Qavier store, plus the Qavier Pops capsule.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "collections": "node scripts/create-collections.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

@@ -1,0 +1,358 @@
+{
+  "productTypes": [
+    "Polos",
+    "T-Shirts",
+    "Shirts",
+    "Sweatshirts & Hoodies",
+    "Sweaters & Knits",
+    "Outerwear",
+    "Bottoms",
+    "Swimwear",
+    "Matching Sets",
+    "Hats & Caps",
+    "Bags & Wallets",
+    "Socks",
+    "Belts"
+  ],
+  "tags": ["men", "women", "kids", "new", "bestseller", "gift", "golf", "big-and-tall"],
+  "collections": [
+    {
+      "handle": "new-arrivals",
+      "title": "New Arrivals",
+      "description": "The latest pieces, just in.",
+      "sortOrder": "CREATED_DESC",
+      "match": "all",
+      "rules": [{ "column": "TAG", "relation": "EQUALS", "condition": "new" }]
+    },
+    {
+      "handle": "best-sellers",
+      "title": "Best Sellers",
+      "description": "The pieces our customers come back for.",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [{ "column": "TAG", "relation": "EQUALS", "condition": "bestseller" }]
+    },
+    {
+      "handle": "sale",
+      "title": "Sale",
+      "description": "Selected styles, marked down for a limited time.",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [{ "column": "VARIANT_COMPARE_AT_PRICE", "relation": "GREATER_THAN", "condition": "0" }]
+    },
+    {
+      "handle": "gifts",
+      "title": "Gifts",
+      "description": "Easy wins for everyone on the list.",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [{ "column": "TAG", "relation": "EQUALS", "condition": "gift" }]
+    },
+    {
+      "handle": "gifts-under-1500",
+      "title": "Gifts Under ₹1,500",
+      "description": "Thoughtful, and easy on the budget.",
+      "sortOrder": "PRICE_ASC",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "gift" },
+        { "column": "VARIANT_PRICE", "relation": "LESS_THAN", "condition": "1500" }
+      ]
+    },
+    {
+      "handle": "golf",
+      "title": "Golf",
+      "description": "Performance fabrics with a clean, classic finish — built for the course.",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [{ "column": "TAG", "relation": "EQUALS", "condition": "golf" }]
+    },
+    {
+      "handle": "big-and-tall",
+      "title": "Big & Tall",
+      "description": "Our core styles, cut longer and roomier.",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [{ "column": "TAG", "relation": "EQUALS", "condition": "big-and-tall" }]
+    },
+
+    {
+      "handle": "men",
+      "title": "Men",
+      "description": "Polos, tees, layers and everyday essentials for men.",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [{ "column": "TAG", "relation": "EQUALS", "condition": "men" }]
+    },
+    {
+      "handle": "mens-polos",
+      "title": "Men’s Polos",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "men" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Polo" }
+      ]
+    },
+    {
+      "handle": "mens-t-shirts",
+      "title": "Men’s T-Shirts",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "men" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "T-Shirt" }
+      ]
+    },
+    {
+      "handle": "mens-shirts",
+      "title": "Men’s Shirts",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "men" },
+        { "column": "TYPE", "relation": "EQUALS", "condition": "Shirts" }
+      ]
+    },
+    {
+      "handle": "mens-sweatshirts-hoodies",
+      "title": "Men’s Sweatshirts & Hoodies",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "men" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Hoodie" }
+      ]
+    },
+    {
+      "handle": "mens-sweaters-knits",
+      "title": "Men’s Sweaters & Knits",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "men" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Sweater" }
+      ]
+    },
+    {
+      "handle": "mens-outerwear",
+      "title": "Men’s Outerwear",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "men" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Outerwear" }
+      ]
+    },
+    {
+      "handle": "mens-bottoms",
+      "title": "Men’s Bottoms",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "men" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Bottom" }
+      ]
+    },
+    {
+      "handle": "mens-swimwear",
+      "title": "Men’s Swimwear",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "men" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Swim" }
+      ]
+    },
+    {
+      "handle": "mens-matching-sets",
+      "title": "Men’s Matching Sets",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "men" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Matching Set" }
+      ]
+    },
+
+    {
+      "handle": "women",
+      "title": "Women",
+      "description": "Polos, tees, sweats and bottoms for women.",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [{ "column": "TAG", "relation": "EQUALS", "condition": "women" }]
+    },
+    {
+      "handle": "womens-polos",
+      "title": "Women’s Polos",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "women" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Polo" }
+      ]
+    },
+    {
+      "handle": "womens-t-shirts",
+      "title": "Women’s T-Shirts",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "women" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "T-Shirt" }
+      ]
+    },
+    {
+      "handle": "womens-sweatshirts-hoodies",
+      "title": "Women’s Sweatshirts & Hoodies",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "women" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Hoodie" }
+      ]
+    },
+    {
+      "handle": "womens-bottoms",
+      "title": "Women’s Bottoms",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "women" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Bottom" }
+      ]
+    },
+    {
+      "handle": "womens-outerwear",
+      "title": "Women’s Outerwear",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "women" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Outerwear" }
+      ]
+    },
+
+    {
+      "handle": "kids",
+      "title": "Kids",
+      "description": "Grown-up favourites, cut for kids.",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [{ "column": "TAG", "relation": "EQUALS", "condition": "kids" }]
+    },
+    {
+      "handle": "kids-polos",
+      "title": "Kids’ Polos",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "kids" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Polo" }
+      ]
+    },
+    {
+      "handle": "kids-t-shirts",
+      "title": "Kids’ T-Shirts",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "kids" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "T-Shirt" }
+      ]
+    },
+    {
+      "handle": "kids-sweatshirts-hoodies",
+      "title": "Kids’ Sweatshirts & Hoodies",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "kids" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Hoodie" }
+      ]
+    },
+    {
+      "handle": "kids-bottoms",
+      "title": "Kids’ Bottoms",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "kids" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Bottom" }
+      ]
+    },
+    {
+      "handle": "kids-swimwear",
+      "title": "Kids’ Swimwear",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "kids" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Swim" }
+      ]
+    },
+    {
+      "handle": "kids-matching-sets",
+      "title": "Kids’ Matching Sets",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "kids" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Matching Set" }
+      ]
+    },
+    {
+      "handle": "kids-outerwear",
+      "title": "Kids’ Outerwear",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [
+        { "column": "TAG", "relation": "EQUALS", "condition": "kids" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Outerwear" }
+      ]
+    },
+
+    {
+      "handle": "accessories",
+      "title": "Accessories",
+      "description": "Hats, bags, socks and belts to finish the look.",
+      "sortOrder": "BEST_SELLING",
+      "match": "any",
+      "rules": [
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Hat" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Bag" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Sock" },
+        { "column": "TYPE", "relation": "CONTAINS", "condition": "Belt" }
+      ]
+    },
+    {
+      "handle": "hats-caps",
+      "title": "Hats & Caps",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [{ "column": "TYPE", "relation": "CONTAINS", "condition": "Hat" }]
+    },
+    {
+      "handle": "bags-wallets",
+      "title": "Bags & Wallets",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [{ "column": "TYPE", "relation": "CONTAINS", "condition": "Bag" }]
+    },
+    {
+      "handle": "socks",
+      "title": "Socks",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [{ "column": "TYPE", "relation": "CONTAINS", "condition": "Sock" }]
+    },
+    {
+      "handle": "belts",
+      "title": "Belts",
+      "sortOrder": "BEST_SELLING",
+      "match": "all",
+      "rules": [{ "column": "TYPE", "relation": "CONTAINS", "condition": "Belt" }]
+    }
+  ]
+}

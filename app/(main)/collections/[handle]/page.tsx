@@ -15,7 +15,7 @@ const DEFAULT_RAIL = [
   'mens-t-shirts',
   'mens-sweatshirts-hoodies',
   'mens-outerwear',
-  'mens-pants',
+  'mens-bottoms',
 ];
 
 const RAIL_LABELS: Record<string, string> = {
@@ -24,7 +24,7 @@ const RAIL_LABELS: Record<string, string> = {
   'mens-t-shirts': 'Tees',
   'mens-sweatshirts-hoodies': 'Sweatshirts & Hoodies',
   'mens-outerwear': 'Outerwear',
-  'mens-pants': 'Bottoms',
+  'mens-bottoms': 'Bottoms',
 };
 
 export async function generateMetadata({

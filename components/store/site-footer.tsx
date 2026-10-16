@@ -23,7 +23,7 @@ const SHOP: { label: string; handle: string }[] = [
   { label: 'Kids', handle: 'kids' },
   { label: 'Polos', handle: 'mens-polos' },
   { label: 'Tees', handle: 'mens-t-shirts' },
-  { label: 'Pants', handle: 'mens-pants' },
+  { label: 'Bottoms', handle: 'mens-bottoms' },
   { label: 'Outerwear', handle: 'mens-outerwear' },
   { label: 'Accessories', handle: 'accessories' },
   { label: 'Gifts', handle: 'gifts' },

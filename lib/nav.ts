@@ -1,17 +1,19 @@
 /**
  * The site's navigation.
  *
- * The menu is a fixed department tree — New Arrivals, Men, Women, Kids, Golf,
- * Accessories, Sale — each department a mega-menu of columns and two feature
- * tiles. Every link points at a Shopify collection by handle, so the menu is
- * the map of which collections the store should have (see the README's
- * "Collections → the menu" table).
+ * The menu is a fixed department tree — Men, Women, Kids, New Arrivals, Gifts,
+ * Sale, Discover — each department a mega-menu of link columns with four
+ * featured products beside them. Every link points at a collection from the
+ * catalogue (`lib/catalog/collections.json`) by handle;
+ * `scripts/create-collections.mjs` creates them all in Shopify.
  *
- * The tree is filtered against the collections that actually exist: a link
- * whose collection hasn't been created yet is dropped, a column with no links
- * left is dropped, and a department with nothing left is dropped. The menu
- * never offers an empty page. Any collection the tree doesn't mention is
- * still reachable, under a "Collections" department of its own.
+ * The tree is checked against the collections that actually exist: a link
+ * whose collection hasn't been created is dropped, an empty column is dropped,
+ * and an empty department is dropped — the menu never offers an empty page.
+ * Collections the tree doesn't mention still appear, in Discover's
+ * Collections column. And a store with no Men / Women / Kids collections at
+ * all gets a Shop department built from its product types instead, so there
+ * is always a way into the catalogue.
  */
 import type { CollectionSummary, Image } from './shopify/types';
 
@@ -36,15 +38,24 @@ export interface NavItem {
   href: string;
   /** Mega-menu columns. Absent for a plain link. */
   groups?: NavGroup[];
-  /** Collection whose first products fill the right of the panel. */
+  /**
+   * What fills the right half of the panel: a collection handle, or
+   * `NEWEST` for the newest products in the store.
+   */
   featured?: string;
-  /** Image tiles pinned to the right of the panel, when it has no products. */
+  /** Image tiles for the right of the panel, when it has no products. */
   tiles?: NavTile[];
   /** Set on Sale, so it can be drawn in the markdown colour. */
   accent?: boolean;
 }
 
+/** `featured` value meaning "the newest products in the store". */
+export const NEWEST = '__newest__';
+
 export const collectionHref = (handle: string) => `/collections/${handle}`;
+
+/** The shop page filtered to one product type. */
+export const typeHref = (type: string) => `/shop?category=${encodeURIComponent(type.toLowerCase())}`;
 
 /** A menu entry before it is checked against the store. */
 interface MenuLink {
@@ -63,11 +74,17 @@ interface MenuItem {
   accent?: boolean;
 }
 
+const ACCESSORIES: MenuLink[] = [
+  { label: 'Shop All', to: 'accessories' },
+  { label: 'Hats & Caps', to: 'hats-caps' },
+  { label: 'Bags & Wallets', to: 'bags-wallets' },
+  { label: 'Socks', to: 'socks' },
+  { label: 'Belts', to: 'belts' },
+];
+
 /**
- * The department tree. Handles here are the collection handles to create in
- * Shopify; the demo catalogue (`lib/demo`) defines every one of them.
- * `featured` names the collection whose first four products fill the right
- * half of the department's mega-menu.
+ * The department tree. Every handle here is defined in
+ * `lib/catalog/collections.json`.
  */
 export const MENU: MenuItem[] = [
   {
@@ -82,24 +99,18 @@ export const MENU: MenuItem[] = [
           { label: 'Polos', to: 'mens-polos' },
           { label: 'T-Shirts', to: 'mens-t-shirts' },
           { label: 'Sweatshirts & Hoodies', to: 'mens-sweatshirts-hoodies' },
-          { label: 'Pants & Joggers', to: 'mens-pants' },
-          { label: 'Shorts', to: 'mens-shorts' },
+          { label: 'Bottoms', to: 'mens-bottoms' },
+          { label: 'Big & Tall', to: 'big-and-tall' },
           { label: 'Swimwear', to: 'mens-swimwear' },
+          { label: 'Matching Sets', to: 'mens-matching-sets' },
+          { label: 'Sweaters & Knits', to: 'mens-sweaters-knits' },
           { label: 'Outerwear', to: 'mens-outerwear' },
+          { label: 'Shirts', to: 'mens-shirts' },
           { label: 'Golf', to: 'golf' },
           { label: 'Best Sellers', to: 'best-sellers' },
         ],
       },
-      {
-        heading: 'Accessories',
-        links: [
-          { label: 'Shop All', to: 'accessories' },
-          { label: 'Hats & Caps', to: 'hats' },
-          { label: 'Bags', to: 'bags' },
-          { label: 'Socks', to: 'socks' },
-          { label: 'Belts', to: 'belts' },
-        ],
-      },
+      { heading: 'Accessories', links: ACCESSORIES },
     ],
   },
   {
@@ -114,17 +125,11 @@ export const MENU: MenuItem[] = [
           { label: 'Polos', to: 'womens-polos' },
           { label: 'T-Shirts', to: 'womens-t-shirts' },
           { label: 'Sweatshirts & Hoodies', to: 'womens-sweatshirts-hoodies' },
-          { label: 'Skirts & Pants', to: 'womens-bottoms' },
+          { label: 'Bottoms', to: 'womens-bottoms' },
+          { label: 'Outerwear', to: 'womens-outerwear' },
         ],
       },
-      {
-        heading: 'Accessories',
-        links: [
-          { label: 'Shop All', to: 'accessories' },
-          { label: 'Hats & Caps', to: 'hats' },
-          { label: 'Bags', to: 'bags' },
-        ],
-      },
+      { heading: 'Accessories', links: ACCESSORIES },
     ],
   },
   {
@@ -139,8 +144,10 @@ export const MENU: MenuItem[] = [
           { label: 'Polos', to: 'kids-polos' },
           { label: 'T-Shirts', to: 'kids-t-shirts' },
           { label: 'Sweatshirts & Hoodies', to: 'kids-sweatshirts-hoodies' },
-          { label: 'Pants & Joggers', to: 'kids-pants' },
-          { label: 'Matching Sets', to: 'matching-sets' },
+          { label: 'Swimwear', to: 'kids-swimwear' },
+          { label: 'Bottoms', to: 'kids-bottoms' },
+          { label: 'Matching Sets', to: 'kids-matching-sets' },
+          { label: 'Outerwear', to: 'kids-outerwear' },
         ],
       },
     ],
@@ -174,6 +181,7 @@ export const MENU: MenuItem[] = [
           { label: 'The Golf Shop', to: 'golf' },
           { label: 'Size Guide', to: '/pages/size-guide' },
           { label: 'FAQs', to: '/pages/faq' },
+          { label: 'All Collections', to: '/collections' },
         ],
       },
     ],
@@ -183,6 +191,9 @@ export const MENU: MenuItem[] = [
     ],
   },
 ];
+
+/** The departments whose absence triggers the product-type Shop menu. */
+const GENDER_DEPARTMENTS = ['men', 'women', 'kids'];
 
 /** Art for menu tiles that point at a page rather than a collection. */
 const PAGE_ART: Record<string, Image> = {
@@ -195,7 +206,7 @@ const PAGE_ART: Record<string, Image> = {
 };
 
 /** Every collection handle the menu refers to. */
-const MENU_HANDLES = new Set(
+export const MENU_HANDLES = new Set(
   MENU.flatMap((item) => [
     item.to,
     ...(item.groups ?? []).flatMap((g) => g.links.map((l) => l.to)),
@@ -204,27 +215,13 @@ const MENU_HANDLES = new Set(
   ]).filter((to) => !to.startsWith('/')),
 );
 
-const SALE_HINTS = ['sale', 'outlet', 'clearance', 'markdown', 'last-chance'];
-
-/** The first collection whose handle or title matches any hint, or undefined. */
-export function findCollection(
-  collections: CollectionSummary[],
-  hints: string[],
-): CollectionSummary | undefined {
-  // Handle matches are more deliberate than title matches, so try those first.
-  for (const hint of hints) {
-    const byHandle = collections.find((c) => c.handle.toLowerCase().includes(hint));
-    if (byHandle) return byHandle;
-  }
-  return collections.find((c) =>
-    hints.some((h) => `${c.handle} ${c.title}`.toLowerCase().includes(h)),
-  );
-}
-
 /**
  * The header's departments, filtered down to what the store can show.
+ *
+ * `productTypes` are the types present in the catalogue, used for the Shop
+ * department when the store has no gender departments.
  */
-export function buildNav(collections: CollectionSummary[]): NavItem[] {
+export function buildNav(collections: CollectionSummary[], productTypes: string[] = []): NavItem[] {
   const byHandle = new Map(collections.map((c) => [c.handle, c]));
 
   /** A menu link's href, or null when its collection doesn't exist. */
@@ -263,52 +260,52 @@ export function buildNav(collections: CollectionSummary[]): NavItem[] {
     });
   }
 
-  // Collections the tree doesn't know about stay reachable from the menu.
-  const extras = collections.filter(
-    (c) =>
-      !MENU_HANDLES.has(c.handle) &&
-      !SALE_HINTS.some((h) => c.handle.toLowerCase().includes(h)),
-  );
-  if (extras.length) {
-    const entry: NavItem = {
-      label: 'Collections',
-      href: '/collections',
+  // Collections the tree doesn't know about, in Discover's second column.
+  const extras = collections.filter((c) => !MENU_HANDLES.has(c.handle));
+  const discover = items.find((i) => i.label === 'Discover');
+  if (extras.length && discover?.groups) {
+    discover.groups.push({
+      heading: 'Collections',
+      links: extras.map((c) => ({ label: c.title, href: collectionHref(c.handle) })),
+    });
+  }
+
+  // No gender departments at all: a Shop department from the product types,
+  // so the catalogue is always one hover away.
+  const hasDepartment = GENDER_DEPARTMENTS.some((h) => byHandle.has(h));
+  if (!hasDepartment) {
+    const types = Array.from(new Set(productTypes.map((t) => t.trim()).filter(Boolean))).sort(
+      (a, b) => a.localeCompare(b),
+    );
+    items.unshift({
+      label: 'Shop',
+      href: '/shop',
+      featured: NEWEST,
       groups: [
         {
-          heading: 'Collections',
-          links: extras.map((c) => ({ label: c.title, href: collectionHref(c.handle) })),
+          heading: 'Clothing',
+          links: [
+            { label: 'Shop All', href: '/shop' },
+            ...types.map((t) => ({ label: t, href: typeHref(t) })),
+          ],
         },
       ],
-    };
-    // Before Sale, which always closes the bar.
-    const saleIndex = items.findIndex((i) => i.accent);
-    items.splice(saleIndex === -1 ? items.length : saleIndex, 0, entry);
+    });
+  }
+
+  // New Arrivals is a fixture of the bar; without the collection it is the
+  // whole catalogue, newest first — which is what /shop already shows.
+  if (!items.some((i) => i.label === 'New Arrivals')) {
+    const at = items.findIndex((i) => i.label === 'Gifts' || i.accent || i.label === 'Discover');
+    items.splice(at === -1 ? items.length : at, 0, { label: 'New Arrivals', href: '/shop' });
   }
 
   return items;
 }
 
 /**
- * Breadcrumb trail for a collection: Home › Department › Collection.
- *
- * The department is the first menu item that lists the collection in one of
- * its columns, so "mens-polos" reads Home › Men › Polos.
- */
-export function collectionTrail(handle: string, title: string): NavLink[] {
-  const trail: NavLink[] = [{ label: 'Home', href: '/' }];
-  const parent = MENU.find(
-    (item) =>
-      item.to !== handle &&
-      item.groups?.some((g) => g.links.some((l) => l.to === handle)),
-  );
-  if (parent) trail.push({ label: parent.label, href: collectionHref(parent.to) });
-  trail.push({ label: title, href: collectionHref(handle) });
-  return trail;
-}
-
-/**
  * The department a collection belongs to — the menu item that is the
- * collection itself, or the first one listing it in a column.
+ * collection itself, or the first one listing it in its first column.
  */
 export function departmentFor(handle: string, nav: NavItem[]): NavItem | undefined {
   const href = collectionHref(handle);
