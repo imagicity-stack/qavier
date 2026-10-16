@@ -6,8 +6,8 @@ import { SiteNav } from '@/components/store/site-nav';
 import { SiteFooter } from '@/components/store/site-footer';
 import { ComingSoon } from '@/components/coming-soon';
 import { COMING_SOON, ACCOUNT_URL } from '@/lib/config';
-import { buildNav } from '@/lib/nav';
-import { getCollection, getCollections, getProducts } from '@/lib/shopify';
+import { buildNav, NEWEST } from '@/lib/nav';
+import { getCollection, getCollections, getProducts, getProductTypes } from '@/lib/shopify';
 import type { Product } from '@/lib/shopify/types';
 
 // The menu is built from Shopify collections, so the shell revalidates on the
@@ -30,16 +30,43 @@ export default async function StoreLayout({ children }: { children: React.ReactN
 
   // Fetched once for the whole shell: the header menu and the footer's Shop
   // column read the same list, so they can never disagree.
-  const [collections, trending] = await Promise.all([
+  const [allCollections, trending] = await Promise.all([
     getCollections(),
     getProducts({ sortKey: 'BEST_SELLING', first: 4 }),
   ]);
-  const nav = buildNav(collections);
+  // An empty smart collection (rules no product matches yet) is treated as
+  // missing, so the menu and footer never link to an empty page.
+  const collections = allCollections.filter((c) => c.hasProducts);
+
+  // Product types only matter when the store has no Men / Women / Kids
+  // departments and the menu falls back to a Shop department built from them.
+  const hasDepartments = collections.some((c) => ['men', 'women', 'kids'].includes(c.handle));
+  let productTypes: string[] = [];
+  if (!hasDepartments) {
+    productTypes = await getProductTypes();
+    // If Shopify's type list can't be read, the newest products still say
+    // which types exist — a thinner menu beats a Shop column of one link.
+    if (!productTypes.length) {
+      const sample = await getProducts({ sortKey: 'CREATED_AT', reverse: true, first: 100 });
+      productTypes = sample.flatMap((p) => (p.productType ? [p.productType] : []));
+    }
+  }
+  const nav = buildNav(collections, productTypes);
+  // The Shop department's type links, for the footer when it has no
+  // collections of its own to list.
+  const typeLinks =
+    nav
+      .find((i) => i.label === 'Shop' && i.href === '/shop')
+      ?.groups?.[0]?.links.filter((l) => l.href !== '/shop') ?? [];
 
   // The four products on the right of each department's mega-menu.
   const handles = Array.from(new Set(nav.flatMap((item) => (item.featured ? [item.featured] : []))));
   const featuredEntries = await Promise.all(
     handles.map(async (handle) => {
+      if (handle === NEWEST) {
+        const newest = await getProducts({ sortKey: 'CREATED_AT', reverse: true, first: 4 });
+        return [handle, newest] as const;
+      }
       const collection = await getCollection(handle, { first: 4, sortKey: 'BEST_SELLING' });
       return [handle, collection?.products.slice(0, 4) ?? []] as const;
     }),
@@ -52,7 +79,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         <AnnouncementBar />
         <SiteNav items={nav} featured={featured} trending={trending} accountHref={ACCOUNT_URL} />
         <main className="flex-1">{children}</main>
-        <SiteFooter collections={collections} accountHref={ACCOUNT_URL} />
+        <SiteFooter collections={collections} typeLinks={typeLinks} accountHref={ACCOUNT_URL} />
         <CartDrawer />
       </div>
     </CartProvider>

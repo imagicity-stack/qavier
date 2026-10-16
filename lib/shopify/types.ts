@@ -112,6 +112,12 @@ export interface CollectionSummary {
    * uploaded banner art.
    */
   image: Image | null;
+  /**
+   * Whether the collection holds at least one product. Smart collections can
+   * exist before any product matches their rules; the menu, footer and tiles
+   * treat an empty one as missing so they never link to an empty page.
+   */
+  hasProducts: boolean;
 }
 
 export interface Collection extends CollectionSummary {

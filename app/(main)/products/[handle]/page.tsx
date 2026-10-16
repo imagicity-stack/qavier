@@ -41,6 +41,15 @@ export default async function ProductPage({
 
   const initialColor = typeof searchParams.color === 'string' ? searchParams.color : undefined;
 
+  const hasDescription = Boolean(product.descriptionHtml.trim() || product.description.trim());
+  // The house chart measures tops; bottoms and accessories point to the guide.
+  const sizes = product.options.find((o) => o.name.trim().toLowerCase() === 'size')?.values ?? [];
+  const isTop =
+    sizes.length > 1 &&
+    !/bottom|pant|jogger|trouser|short|skirt|swim|hat|cap|bag|wallet|sock|belt/i.test(
+      product.productType ?? '',
+    );
+
   // Same type first, then everything else — "more like this" before "more".
   const related = (await getProducts({ first: 24, sortKey: 'BEST_SELLING' }))
     .filter((p) => p.handle !== product.handle)
@@ -67,16 +76,18 @@ export default async function ProductPage({
       <section className="pb-16 lg:pl-10">
         <ProductView product={product} initialColor={initialColor}>
           <div className="mt-8 border-t border-line">
-            <Fold title="Description" open>
-              {product.descriptionHtml ? (
-                <div
-                  className="[&_li]:mt-1.5 [&_p+p]:mt-3 [&_ul]:list-disc [&_ul]:pl-5"
-                  dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
-                />
-              ) : (
-                <p>{product.description}</p>
-              )}
-            </Fold>
+            {hasDescription && (
+              <Fold title="Description" open>
+                {product.descriptionHtml.trim() ? (
+                  <div
+                    className="[&_li]:mt-1.5 [&_p+p]:mt-3 [&_ul]:list-disc [&_ul]:pl-5"
+                    dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+                  />
+                ) : (
+                  <p>{product.description}</p>
+                )}
+              </Fold>
+            )}
 
             <Fold title="Details & Care">
               <ul className="list-disc space-y-1.5 pl-5">
@@ -89,8 +100,20 @@ export default async function ProductPage({
             </Fold>
 
             <Fold title="Size & Fit">
-              <p>Regular fit. If you’re between sizes, size up for a relaxed look.</p>
-              <SizeChartTable className="mt-4" />
+              {isTop ? (
+                <>
+                  <p>Regular fit. If you’re between sizes, size up for a relaxed look.</p>
+                  <SizeChartTable className="mt-4" />
+                </>
+              ) : (
+                <p>
+                  Measurements for every style are in our{' '}
+                  <Link href="/pages/size-guide" className="underline underline-offset-4">
+                    size guide
+                  </Link>
+                  .
+                </p>
+              )}
             </Fold>
 
             <Fold title="Shipping & Returns">

@@ -8,11 +8,14 @@ import { cn } from '@/lib/utils';
  * backgrounds rather than keeping a second file in sync.
  *
  * Size it with `className`, e.g. `className="h-10 w-auto"`. The proportions of
- * the source file are baked into the constants below.
+ * the source file are baked into the constants below, which the intro
+ * animation also uses to address the two halves separately.
  */
 export const LOGO_SRC = '/images/logo.png';
 export const LOGO_WIDTH = 228;
 export const LOGO_HEIGHT = 213;
+/** Where the diamond mark ends and the wordmark begins, as a fraction. */
+export const LOGO_SPLIT = 0.775;
 
 export function Logo({
   className,

@@ -15,7 +15,7 @@ const DEFAULT_RAIL = [
   'mens-t-shirts',
   'mens-sweatshirts-hoodies',
   'mens-outerwear',
-  'mens-pants',
+  'mens-bottoms',
 ];
 
 const RAIL_LABELS: Record<string, string> = {
@@ -24,7 +24,7 @@ const RAIL_LABELS: Record<string, string> = {
   'mens-t-shirts': 'Tees',
   'mens-sweatshirts-hoodies': 'Sweatshirts & Hoodies',
   'mens-outerwear': 'Outerwear',
-  'mens-pants': 'Bottoms',
+  'mens-bottoms': 'Bottoms',
 };
 
 export async function generateMetadata({
@@ -69,21 +69,32 @@ export default async function CollectionPage({ params }: { params: { handle: str
 }
 
 /**
- * The tiles above the grid: the department this collection belongs to —
- * its root first, then the department's first column — or a general set of
- * categories for a collection that stands alone. The current collection is
- * always in the row, so it can be boxed.
+ * The tiles above the grid: the menu column this collection belongs to
+ * (Men's Clothing for /collections/mens-polos, Accessories for
+ * /collections/hats-caps), or a general set of categories for a collection
+ * that stands alone. Only collections with products get a tile, and the
+ * current collection is always in the row so it can be boxed.
  */
 function railFor(handle: string, collections: CollectionSummary[]): CategoryTile[] {
-  const byHandle = new Map(collections.map((c) => [c.handle, c]));
-  const department = departmentFor(handle, buildNav(collections));
+  const live = collections.filter((c) => c.hasProducts);
+  const byHandle = new Map(live.map((c) => [c.handle, c]));
+  // The page's own collection counts as live for finding its department, so
+  // an empty Kids' Swimwear still gets the Kids row rather than a generic one.
+  const match = departmentFor(
+    handle,
+    buildNav(collections.filter((c) => c.hasProducts || c.handle === handle)),
+  );
 
   let entries: { title: string; handle: string }[];
-  if (department?.groups?.length) {
-    entries = department.groups[0].links.flatMap((link) => {
-      const h = link.href.startsWith('/collections/') ? link.href.slice(13) : null;
-      if (!h) return [];
-      const title = h === department.href.slice(13) ? `All ${department.label}` : link.label;
+  if (match) {
+    const { department, group } = match;
+    entries = group.links.flatMap((link) => {
+      if (!link.href.startsWith('/collections/')) return [];
+      const h = link.href.slice('/collections/'.length);
+      const title =
+        link.label === 'Shop All'
+          ? `All ${h === department.root ? department.label : group.heading}`
+          : link.label;
       return [{ title, handle: h }];
     });
   } else {
@@ -91,12 +102,12 @@ function railFor(handle: string, collections: CollectionSummary[]): CategoryTile
   }
 
   if (!entries.some((e) => e.handle === handle)) {
-    const self = byHandle.get(handle);
+    const self = collections.find((c) => c.handle === handle);
     if (self) entries.unshift({ title: self.title, handle });
   }
 
   return entries.flatMap(({ title, handle: h }) => {
-    const c = byHandle.get(h);
+    const c = byHandle.get(h) ?? (h === handle ? collections.find((x) => x.handle === h) : undefined);
     return c ? [{ title, href: collectionHref(h), image: c.image }] : [];
   });
 }

@@ -108,7 +108,8 @@ export function ProductCard({
               <span className="text-mute line-through">
                 {formatPrice(product.compareAtPriceRange.minVariantPrice)}
               </span>
-              <span className="font-bold text-sale">Sale</span>
+              {/* The red price already says it; the word only fits on wide cards. */}
+              {!compact && <span className="font-bold text-sale max-sm:hidden">Sale</span>}
             </>
           )}
         </div>

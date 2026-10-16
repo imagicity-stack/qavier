@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { getCollection, getCollections, getProducts } from '@/lib/shopify';
+import { IntroSplash } from '@/components/intro-splash';
 import { Hero } from '@/components/store/hero';
 import { CategoryRail, type CategoryTile } from '@/components/store/category-rail';
 import { ProductTabs } from '@/components/store/product-rail';
-import { SplitBanners, WideBanner } from '@/components/store/editorial';
+import { SplitBanners, WideBanner, type Editorial } from '@/components/store/editorial';
 import { ValueProps } from '@/components/store/value-props';
-import { collectionHref } from '@/lib/nav';
-import type { CollectionSummary, Image } from '@/lib/shopify/types';
+import { collectionHref, typeHref } from '@/lib/nav';
+import type { Image, Product } from '@/lib/shopify/types';
 
 // Catalogue pages are regenerated at most this often, so Shopify price and
 // stock edits reach the storefront without a redeploy. The /api/revalidate
@@ -20,45 +21,121 @@ const CATEGORIES: { title: string; handle: string }[] = [
   { title: 'Tees', handle: 'mens-t-shirts' },
   { title: 'Sweatshirts & Hoodies', handle: 'mens-sweatshirts-hoodies' },
   { title: 'Outerwear', handle: 'mens-outerwear' },
-  { title: 'Bottoms', handle: 'mens-pants' },
-  { title: 'Shorts', handle: 'mens-shorts' },
+  { title: 'Bottoms', handle: 'mens-bottoms' },
+  { title: 'Shirts', handle: 'mens-shirts' },
   { title: 'Accessories', handle: 'accessories' },
   { title: 'Kids', handle: 'kids' },
 ];
 
-const campaign = (url: string, altText: string): Image => ({
-  url,
-  altText,
+/** The rails after the editorial panels — the first two that exist. */
+const RAILS: { title: string; handle: string }[] = [
+  { title: 'The Golf Shop', handle: 'golf' },
+  { title: 'For the Kids', handle: 'kids' },
+  { title: 'On Sale', handle: 'sale' },
+  { title: 'Accessories', handle: 'accessories' },
+];
+
+const QAVIER_CAMPAIGN: Image = {
+  url: '/images/desktop_qavier.png',
+  altText: 'Qavier campaign',
   width: 1586,
   height: 992,
-});
+};
+
+const LINEN_CAMPAIGN: Image = {
+  url: '/images/homescreen.png',
+  altText: 'Qavier campaign',
+  width: 1672,
+  height: 941,
+};
+
+const FABRIC: Image = {
+  url: '/images/hero.webp',
+  altText: 'Qavier fabric',
+  width: 2000,
+  height: 1131,
+};
 
 export default async function HomePage() {
-  const [newest, bestSelling, collections, golf, kids] = await Promise.all([
+  const [newest, bestSelling, allCollections] = await Promise.all([
     getProducts({ sortKey: 'CREATED_AT', reverse: true, first: 12 }),
     getProducts({ sortKey: 'BEST_SELLING', first: 12 }),
     getCollections(),
-    getCollection('golf', { first: 12, sortKey: 'BEST_SELLING' }),
-    getCollection('kids', { first: 12, sortKey: 'BEST_SELLING' }),
   ]);
 
-  const byHandle = new Map(collections.map((c) => [c.handle, c]));
+  // Empty collections count as missing — no tile or link to an empty page.
+  const byHandle = new Map(allCollections.filter((c) => c.hasProducts).map((c) => [c.handle, c]));
   const hrefFor = (handle: string, fallback = '/shop') =>
     byHandle.has(handle) ? collectionHref(handle) : fallback;
 
-  const tiles: CategoryTile[] = CATEGORIES.flatMap(({ title, handle }) => {
-    const c: CollectionSummary | undefined = byHandle.get(handle);
-    // The New Arrivals collection carries campaign art; a tile wants a
-    // product, so take the first piece's photo instead.
-    const image = handle === 'new-arrivals' ? newest[0]?.featuredImage ?? null : c?.image ?? null;
-    return c ? [{ title, href: collectionHref(handle), image }] : [];
-  });
+  const railSources = RAILS.filter((r) => byHandle.has(r.handle)).slice(0, 2);
+  const rails = await Promise.all(
+    railSources.map(async (r) => ({
+      ...r,
+      products: (await getCollection(r.handle, { first: 12, sortKey: 'BEST_SELLING' }))?.products ?? [],
+    })),
+  );
+
+  const tiles = categoryTiles(byHandle, newest);
+
+  // Men / Women panels when the store has those departments; otherwise the
+  // two halves of the campaign lead to New Arrivals and Best Sellers.
+  const panels: Editorial[] =
+    byHandle.has('men') || byHandle.has('women')
+      ? [
+          {
+            title: 'Shop Men',
+            body: 'Polos, tees and the layers that go over them.',
+            cta: 'Shop Men',
+            href: hrefFor('men'),
+            image: QAVIER_CAMPAIGN,
+            position: '0% center',
+          },
+          {
+            title: 'Shop Women',
+            body: 'Polos, tees and easy sweats.',
+            cta: 'Shop Women',
+            href: hrefFor('women'),
+            image: LINEN_CAMPAIGN,
+            position: '25% center',
+          },
+        ]
+      : [
+          {
+            title: 'New Arrivals',
+            body: 'The latest pieces, just in.',
+            cta: 'Shop New',
+            href: hrefFor('new-arrivals'),
+            image: QAVIER_CAMPAIGN,
+            position: '0% center',
+          },
+          // Without a Best Sellers collection there is nowhere honest to send
+          // "Shop Best Sellers", so the second panel opens the whole shop.
+          byHandle.has('best-sellers')
+            ? {
+                title: 'Best Sellers',
+                body: 'The pieces our customers come back for.',
+                cta: 'Shop Best Sellers',
+                href: collectionHref('best-sellers'),
+                image: LINEN_CAMPAIGN,
+                position: '25% center',
+              }
+            : {
+                title: 'Shop All',
+                body: 'Everything in the store, newest first.',
+                cta: 'Shop All',
+                href: '/shop',
+                image: LINEN_CAMPAIGN,
+                position: '25% center',
+              },
+        ];
 
   return (
     <>
+      <IntroSplash />
       <Hero href={hrefFor('new-arrivals')} />
 
-      {tiles.length > 0 && (
+      {tiles.length > 1 && (
         <section className="pt-12 sm:pt-16 lg:px-10">
           <h2 className="h-section mb-8 text-center">Shop by Category</h2>
           <CategoryRail tiles={tiles} />
@@ -73,51 +150,30 @@ export default async function HomePage() {
         ]}
       />
 
-      {(byHandle.has('men') || byHandle.has('women')) && (
-        <SplitBanners
-          items={[
-            {
-              title: 'Shop Men',
-              body: 'Polos, tees and the layers that go over them.',
-              cta: 'Shop Men',
-              href: hrefFor('men'),
-              image: campaign('/images/desktop_qavier.png', 'Qavier menswear campaign'),
-              position: '28% center',
-            },
-            {
-              title: 'Shop Women',
-              body: 'Cropped polos, baby tees and easy sweats.',
-              cta: 'Shop Women',
-              href: hrefFor('women'),
-              image: campaign('/images/desktop_essentials.png', 'Qavier womenswear campaign'),
-              position: '50% center',
-            },
-          ]}
-        />
-      )}
+      {newest.length > 0 && <SplitBanners items={panels} />}
 
-      {golf && golf.products.length > 0 && (
+      {rails[0] && rails[0].products.length > 0 && (
         <ProductTabs
-          title="The Golf Shop"
-          tabs={[{ label: 'Golf', href: collectionHref('golf'), products: golf.products }]}
+          title={rails[0].title}
+          tabs={[{ label: rails[0].title, href: collectionHref(rails[0].handle), products: rails[0].products }]}
         />
       )}
 
       <WideBanner
         item={{
-          title: 'Colour, Turned Up',
-          body: 'Bright layers for long weekends.',
-          cta: 'Shop the Edit',
-          href: hrefFor('new-arrivals'),
-          image: campaign('/images/desktop_pops.png', 'Qavier colour campaign'),
-          position: '35% center',
+          title: 'Made in Small Runs',
+          body: 'Designed in-house, cut and finished in India.',
+          cta: 'Our Story',
+          href: '/about',
+          image: FABRIC,
+          position: 'center',
         }}
       />
 
-      {kids && kids.products.length > 0 && (
+      {rails[1] && rails[1].products.length > 0 && (
         <ProductTabs
-          title="For the Kids"
-          tabs={[{ label: 'Kids', href: collectionHref('kids'), products: kids.products }]}
+          title={rails[1].title}
+          tabs={[{ label: rails[1].title, href: collectionHref(rails[1].handle), products: rails[1].products }]}
         />
       )}
 
@@ -125,8 +181,7 @@ export default async function HomePage() {
         <section className="mx-auto max-w-xl px-5 py-24 text-center">
           <h2 className="h-section">The first pieces land soon</h2>
           <p className="mt-4 text-sm leading-relaxed text-mute">
-            Connect the store to Shopify and the collection fills itself — the grid, the menu
-            and the collection pages all read from it.
+            New pieces appear here as soon as they are published in Shopify.
           </p>
           <Link href="/about" className="btn mt-8">
             About Qavier
@@ -139,4 +194,34 @@ export default async function HomePage() {
       </div>
     </>
   );
+}
+
+/**
+ * The "Shop by Category" tiles: the catalogue's category collections where
+ * they exist; failing that, one tile per product type in the store, so the
+ * row works before any collection has been created.
+ */
+function categoryTiles(
+  byHandle: Map<string, { image: Image | null }>,
+  products: Product[],
+): CategoryTile[] {
+  const fromCollections = CATEGORIES.flatMap(({ title, handle }) => {
+    const c = byHandle.get(handle);
+    if (!c) return [];
+    // New Arrivals carries campaign art; a tile wants a product.
+    const image = handle === 'new-arrivals' ? products[0]?.featuredImage ?? c.image : c.image;
+    return [{ title, href: collectionHref(handle), image }];
+  });
+  if (fromCollections.length >= 3) return fromCollections;
+
+  const byType = new Map<string, Product>();
+  for (const p of products) {
+    const type = p.productType?.trim();
+    if (type && !byType.has(type.toLowerCase())) byType.set(type.toLowerCase(), p);
+  }
+  return Array.from(byType.values()).map((p) => ({
+    title: p.productType!.trim(),
+    href: typeHref(p.productType!.trim()),
+    image: p.featuredImage,
+  }));
 }

@@ -23,6 +23,12 @@ body {
   outline-offset: 2px;
 }
 
+/* The intro's pre-paint script marks returning visitors (and reduced-motion
+   ones) before the overlay is drawn; this keeps it from flashing. */
+html[data-intro-seen] .intro-splash {
+  display: none;
+}
+
 /* Respect users who prefer reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   *,

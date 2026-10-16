@@ -14,6 +14,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { COLLECTION_DEFS, inCollection } from '../catalog';
 import { swatchColor } from '../swatch';
 import type {
   Collection,
@@ -46,8 +47,8 @@ interface DemoSpec {
   colors: string[];
   price: number;
   compareAt?: number;
-  /** new · best · golf */
-  flags?: ('new' | 'best' | 'golf')[];
+  /** Merchandising tags: new · bestseller · golf · gift · big-and-tall. */
+  flags?: ('new' | 'bestseller' | 'golf' | 'gift' | 'big-and-tall')[];
   sizes?: string[];
   tagline: string;
   material: string;
@@ -70,7 +71,7 @@ const SPECS: DemoSpec[] = [
     audience: 'men',
     colors: ['Black', 'White', 'Navy', 'Sage'],
     price: 2490,
-    flags: ['best'],
+    flags: ['bestseller', 'gift', 'big-and-tall'],
     tagline: 'The polo everything else is built around — soft pique, clean collar.',
     material: '100% Pima cotton pique',
     soldOut: ['XS'],
@@ -119,7 +120,7 @@ const SPECS: DemoSpec[] = [
     audience: 'men',
     colors: ['Black', 'White', 'Heather Grey', 'Olive'],
     price: 1490,
-    flags: ['best'],
+    flags: ['bestseller', 'big-and-tall'],
     tagline: 'Dense 240gsm jersey that holds its shape wash after wash.',
     material: '100% combed cotton, 240gsm',
   },
@@ -155,7 +156,7 @@ const SPECS: DemoSpec[] = [
     audience: 'men',
     colors: ['Black', 'Heather Grey', 'Navy'],
     price: 3290,
-    flags: ['best'],
+    flags: ['bestseller', 'gift', 'big-and-tall'],
     tagline: 'Midweight loopback terry with a double-layer hood.',
     material: '100% cotton loopback terry',
     soldOut: ['XXL'],
@@ -211,19 +212,19 @@ const SPECS: DemoSpec[] = [
   {
     handle: 'fleece-jogger',
     title: 'Fleece Jogger',
-    type: 'Pants',
+    type: 'Bottoms',
     kind: 'pants',
     audience: 'men',
     colors: ['Black', 'Heather Grey'],
     price: 2790,
-    flags: ['best'],
+    flags: ['bestseller', 'big-and-tall'],
     tagline: 'Tapered leg, ribbed cuff, deep side pockets.',
     material: '80% cotton, 20% polyester fleece',
   },
   {
     handle: 'four-way-stretch-trouser',
     title: 'Four-Way Stretch Trouser',
-    type: 'Pants',
+    type: 'Bottoms',
     kind: 'pants',
     audience: 'men',
     colors: ['Stone', 'Navy', 'Black'],
@@ -236,7 +237,7 @@ const SPECS: DemoSpec[] = [
   {
     handle: 'french-terry-short',
     title: 'French Terry Short',
-    type: 'Shorts',
+    type: 'Bottoms',
     kind: 'shorts',
     audience: 'men',
     colors: ['Black', 'Heather Grey', 'Navy'],
@@ -278,7 +279,7 @@ const SPECS: DemoSpec[] = [
     audience: 'women',
     colors: ['Navy', 'Cream'],
     price: 2390,
-    flags: ['best'],
+    flags: ['bestseller'],
     tagline: 'A close-fitting rib knit with a long-point collar.',
     material: '95% cotton, 5% elastane rib',
   },
@@ -331,7 +332,7 @@ const SPECS: DemoSpec[] = [
   {
     handle: 'pleated-tennis-skirt',
     title: 'Pleated Tennis Skirt',
-    type: 'Skirts',
+    type: 'Bottoms',
     kind: 'skirt',
     audience: 'women',
     colors: ['White', 'Navy'],
@@ -343,7 +344,7 @@ const SPECS: DemoSpec[] = [
   {
     handle: 'wide-leg-sweatpant',
     title: 'Wide-Leg Sweatpant',
-    type: 'Pants',
+    type: 'Bottoms',
     kind: 'pants',
     audience: 'women',
     colors: ['Heather Grey', 'Black'],
@@ -361,7 +362,7 @@ const SPECS: DemoSpec[] = [
     audience: 'kids',
     colors: ['White', 'Navy', 'Sky Blue'],
     price: 1490,
-    flags: ['best'],
+    flags: ['bestseller'],
     tagline: 'The grown-up polo, cut for smaller shoulders.',
     material: '100% cotton pique',
   },
@@ -391,7 +392,7 @@ const SPECS: DemoSpec[] = [
   {
     handle: 'kids-fleece-jogger',
     title: 'Kids Fleece Jogger',
-    type: 'Pants',
+    type: 'Bottoms',
     kind: 'pants',
     audience: 'kids',
     colors: ['Black', 'Heather Grey'],
@@ -417,12 +418,12 @@ const SPECS: DemoSpec[] = [
   {
     handle: 'six-panel-cap',
     title: 'Six-Panel Cap',
-    type: 'Hats',
+    type: 'Hats & Caps',
     kind: 'cap',
     audience: 'unisex',
     colors: ['Black', 'Navy', 'Stone'],
     price: 990,
-    flags: ['best', 'golf'],
+    flags: ['bestseller', 'golf', 'gift'],
     sizes: ONE,
     tagline: 'Washed cotton twill with an adjustable strap.',
     material: '100% cotton twill',
@@ -430,12 +431,12 @@ const SPECS: DemoSpec[] = [
   {
     handle: 'washed-bucket-hat',
     title: 'Washed Bucket Hat',
-    type: 'Hats',
+    type: 'Hats & Caps',
     kind: 'bucket',
     audience: 'unisex',
     colors: ['Sand', 'Black'],
     price: 1190,
-    flags: ['new'],
+    flags: ['new', 'gift'],
     sizes: ONE,
     tagline: 'A soft, packable brim for sunny days.',
     material: '100% cotton canvas',
@@ -449,18 +450,20 @@ const SPECS: DemoSpec[] = [
     colors: ['White', 'Black'],
     price: 690,
     sizes: ONE,
+    flags: ['gift'],
     tagline: 'Cushioned sole, ribbed leg, three to a pack.',
     material: '80% cotton, 18% polyamide, 2% elastane',
   },
   {
     handle: 'heavy-canvas-tote',
     title: 'Heavy Canvas Tote',
-    type: 'Bags',
+    type: 'Bags & Wallets',
     kind: 'tote',
     audience: 'unisex',
     colors: ['Ecru', 'Black'],
     price: 1290,
     sizes: ONE,
+    flags: ['gift'],
     tagline: 'Holds a laptop, a change of clothes and then some.',
     material: '16oz cotton canvas',
   },
@@ -473,8 +476,80 @@ const SPECS: DemoSpec[] = [
     colors: ['Black', 'Brown'],
     price: 1490,
     sizes: ['S', 'M', 'L', 'XL'],
+    flags: ['gift'],
     tagline: 'Full-grain leather with a brushed metal buckle.',
     material: 'Full-grain leather',
+  },
+
+  // ——— Filling out the catalogue ———
+  {
+    handle: 'oxford-button-down-shirt',
+    title: 'Oxford Button-Down Shirt',
+    type: 'Shirts',
+    kind: 'jacket',
+    audience: 'men',
+    colors: ['White', 'Sky Blue'],
+    price: 2790,
+    flags: ['new'],
+    tagline: 'Soft oxford cloth with a button-down collar.',
+    material: '100% cotton oxford',
+  },
+  {
+    handle: 'cable-knit-crewneck',
+    title: 'Cable Knit Crewneck',
+    type: 'Sweaters & Knits',
+    kind: 'crewneck',
+    audience: 'men',
+    colors: ['Cream', 'Navy'],
+    price: 3990,
+    tagline: 'A chunky cable knit for cooler evenings.',
+    material: '100% cotton knit',
+  },
+  {
+    handle: 'terry-tee-and-short-set',
+    title: 'Terry Tee & Short Set',
+    type: 'Matching Sets',
+    kind: 'tee',
+    audience: 'men',
+    colors: ['Sand', 'Black'],
+    price: 3290,
+    flags: ['new'],
+    tagline: 'A matching tee and short in loopback terry.',
+    material: '100% cotton terry',
+  },
+  {
+    handle: 'cropped-track-jacket',
+    title: 'Cropped Track Jacket',
+    type: 'Outerwear',
+    kind: 'jacket',
+    audience: 'women',
+    colors: ['Black', 'Navy'],
+    price: 3690,
+    flags: ['new'],
+    tagline: 'A cropped, zip-front track jacket.',
+    material: '100% recycled polyester',
+  },
+  {
+    handle: 'kids-puffer-jacket',
+    title: 'Kids Puffer Jacket',
+    type: 'Outerwear',
+    kind: 'jacket',
+    audience: 'kids',
+    colors: ['Navy', 'Olive'],
+    price: 2990,
+    tagline: 'Light, warm and easy to zip.',
+    material: '100% recycled polyester',
+  },
+  {
+    handle: 'kids-swim-short',
+    title: 'Kids Swim Short',
+    type: 'Swimwear',
+    kind: 'shorts',
+    audience: 'kids',
+    colors: ['Coral', 'Sky Blue'],
+    price: 1190,
+    tagline: 'Quick-dry with a mesh lining.',
+    material: '100% recycled polyester',
   },
 ];
 
@@ -544,13 +619,13 @@ function buildProduct(spec: DemoSpec, index: number): Product {
 
   const tags = [
     spec.audience,
-    ...(spec.flags ?? []).map((f) => (f === 'best' ? 'best-seller' : f)),
+    ...(spec.flags ?? []),
     ...(compareAt ? ['sale'] : []),
   ];
 
   const badge = spec.flags?.includes('new')
     ? 'New'
-    : spec.flags?.includes('best')
+    : spec.flags?.includes('bestseller')
       ? 'Best Seller'
       : undefined;
 
@@ -608,167 +683,64 @@ const PRODUCTS: Product[] = SPECS.map(buildProduct);
 //  Collections — rules over the products above
 // ————————————————————————————————————————————————————————————————
 
-interface DemoCollectionSpec {
-  handle: string;
-  title: string;
-  description: string;
-  rule: (p: Product) => boolean;
-  /** Campaign photograph for a department banner. */
-  image?: string;
-}
+/** A campaign photograph for collections that open with one. */
+const CAMPAIGN: Record<string, Image> = {
+  'new-arrivals': {
+    url: '/images/desktop_qavier.png',
+    altText: 'New Arrivals',
+    width: 1586,
+    height: 992,
+  },
+};
 
-const has = (p: Product, tag: string) => p.tags.includes(tag);
-const isType = (p: Product, ...types: string[]) => types.includes(p.productType ?? '');
-const ACCESSORY_TYPES = ['Hats', 'Socks', 'Bags', 'Belts'];
-
-const COLLECTION_SPECS: DemoCollectionSpec[] = [
-  {
-    handle: 'new-arrivals',
-    title: 'New Arrivals',
-    description: 'The latest pieces, just in.',
-    rule: (p) => has(p, 'new'),
-    image: '/images/desktop_qavier.png',
-  },
-  {
-    handle: 'best-sellers',
-    title: 'Best Sellers',
-    description: 'The pieces our customers come back for.',
-    rule: (p) => has(p, 'best-seller'),
-  },
-  {
-    handle: 'sale',
-    title: 'Sale',
-    description: 'Selected styles, marked down for a limited time.',
-    rule: (p) => has(p, 'sale'),
-  },
-  {
-    handle: 'men',
-    title: 'Men',
-    description: 'Polos, tees, layers and everyday essentials for men.',
-    rule: (p) => has(p, 'men'),
-    image: '/images/homescreen.png',
-  },
-  {
-    handle: 'women',
-    title: 'Women',
-    description: 'Polos, tees, sweats and skirts for women.',
-    rule: (p) => has(p, 'women'),
-    image: '/images/desktop_essentials.png',
-  },
-  {
-    handle: 'kids',
-    title: 'Kids',
-    description: 'Grown-up favourites, cut for kids.',
-    rule: (p) => has(p, 'kids'),
-  },
-  {
-    handle: 'golf',
-    title: 'Golf',
-    description: 'Performance fabrics with a clean, classic finish — built for the course.',
-    rule: (p) => has(p, 'golf'),
-    image: '/images/desktop_luxe.png',
-  },
-  {
-    handle: 'gifts',
-    title: 'Gifts',
-    description: 'Easy wins for everyone on the list.',
-    rule: (p) =>
-      isType(p, ...ACCESSORY_TYPES) || (has(p, 'best-seller') && !has(p, 'kids')),
-  },
-  {
-    handle: 'gifts-under-1500',
-    title: 'Gifts Under ₹1,500',
-    description: 'Thoughtful, and easy on the budget.',
-    rule: (p) => Number(p.priceRange.minVariantPrice.amount) <= 1500,
-  },
-  {
-    handle: 'accessories',
-    title: 'Accessories',
-    description: 'Hats, socks, bags and belts to finish the look.',
-    rule: (p) => isType(p, ...ACCESSORY_TYPES),
-  },
-  // Men
-  dept('mens-polos', 'Men’s Polos', 'men', 'Polos'),
-  dept('mens-t-shirts', 'Men’s T-Shirts', 'men', 'T-Shirts'),
-  dept('mens-sweatshirts-hoodies', 'Men’s Sweatshirts & Hoodies', 'men', 'Sweatshirts & Hoodies'),
-  dept('mens-outerwear', 'Men’s Outerwear', 'men', 'Outerwear'),
-  dept('mens-pants', 'Men’s Pants & Joggers', 'men', 'Pants'),
-  dept('mens-shorts', 'Men’s Shorts', 'men', 'Shorts'),
-  dept('mens-swimwear', 'Men’s Swimwear', 'men', 'Swimwear'),
-  // Women
-  dept('womens-polos', 'Women’s Polos', 'women', 'Polos'),
-  dept('womens-t-shirts', 'Women’s T-Shirts', 'women', 'T-Shirts'),
-  dept('womens-sweatshirts-hoodies', 'Women’s Sweatshirts & Hoodies', 'women', 'Sweatshirts & Hoodies'),
-  dept('womens-bottoms', 'Women’s Skirts & Pants', 'women', 'Skirts', 'Pants'),
-  // Kids
-  dept('kids-polos', 'Kids’ Polos', 'kids', 'Polos'),
-  dept('kids-t-shirts', 'Kids’ T-Shirts', 'kids', 'T-Shirts'),
-  dept('kids-sweatshirts-hoodies', 'Kids’ Sweatshirts & Hoodies', 'kids', 'Sweatshirts & Hoodies'),
-  dept('kids-pants', 'Kids’ Pants & Joggers', 'kids', 'Pants'),
-  dept('matching-sets', 'Matching Sets', 'kids', 'Matching Sets'),
-  // Accessories
-  typeOnly('hats', 'Hats', 'Hats'),
-  typeOnly('socks', 'Socks', 'Socks'),
-  typeOnly('bags', 'Bags', 'Bags'),
-  typeOnly('belts', 'Belts', 'Belts'),
-];
-
-function dept(
-  handle: string,
-  title: string,
-  audience: Audience,
-  ...types: string[]
-): DemoCollectionSpec {
-  return {
-    handle,
-    title,
-    description: '',
-    rule: (p) => has(p, audience) && isType(p, ...types),
-  };
-}
-
-function typeOnly(handle: string, title: string, type: string): DemoCollectionSpec {
-  return { handle, title, description: '', rule: (p) => isType(p, type) };
-}
-
-function campaignImage(src: string, alt: string): Image {
-  return { url: src, altText: alt, width: 1586, height: 992 };
-}
-
-function buildCollection(spec: DemoCollectionSpec, index: number): Collection {
-  const products = PRODUCTS.filter(spec.rule);
+/**
+ * Every collection in the catalogue, filled by the same rules Shopify uses —
+ * so the demo shows exactly what the real store will once its products carry
+ * the same tags and types.
+ */
+const COLLECTIONS: Collection[] = COLLECTION_DEFS.map((def, index) => {
+  const products = PRODUCTS.filter((p) => inCollection(p, def));
   return {
     id: `gid://qavier-demo/Collection/${index + 1}`,
-    handle: spec.handle,
-    title: spec.title,
-    description: spec.description,
-    descriptionHtml: spec.description ? `<p>${spec.description}</p>` : '',
-    image: spec.image
-      ? campaignImage(spec.image, spec.title)
-      : products[0]?.featuredImage ?? null,
+    handle: def.handle,
+    title: def.title,
+    description: def.description ?? '',
+    descriptionHtml: def.description ? `<p>${def.description}</p>` : '',
+    image: CAMPAIGN[def.handle] ?? products[0]?.featuredImage ?? null,
     products,
+    hasProducts: products.length > 0,
   };
-}
-
-const COLLECTIONS: Collection[] = COLLECTION_SPECS.map(buildCollection);
+});
 
 // ————————————————————————————————————————————————————————————————
 //  The same surface as lib/shopify, over the arrays above
 // ————————————————————————————————————————————————————————————————
 
+/**
+ * The slice of Shopify's search syntax the store sends: free words (AND),
+ * plus `tag:x` and `product_type:"x y"` filters, all case-insensitive.
+ */
 const matchesQuery = (p: Product, query: string) => {
   const hay = `${p.title} ${p.productType ?? ''} ${p.tags.join(' ')} ${p.options
     .flatMap((o) => o.values)
     .join(' ')}`.toLowerCase();
-  return query
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean)
-    .every((word) => hay.includes(word));
+  const terms = query.match(/\w+:"[^"]*"|\w+:\S+|"[^"]*"|\S+/g) ?? [];
+  return terms.every((term) => {
+    const field = /^(\w+):"?(.*?)"?$/.exec(term);
+    if (field && (field[1] === 'tag' || field[1] === 'product_type')) {
+      const value = field[2].toLowerCase();
+      return field[1] === 'tag'
+        ? p.tags.some((t) => t.toLowerCase() === value)
+        : (p.productType ?? '').trim().toLowerCase() === value;
+    }
+    return hay.includes(term.replace(/"/g, '').toLowerCase());
+  });
 };
 
+const has = (p: Product, tag: string) => p.tags.includes(tag);
+
 /** Best sellers first, then the rest in catalogue order. */
-const bestSellingRank = (p: Product) => (has(p, 'best-seller') ? 0 : 1);
+const bestSellingRank = (p: Product) => (has(p, 'bestseller') ? 0 : 1);
 
 export function demoProducts(options?: {
   query?: string;
@@ -805,4 +777,8 @@ export function demoCollection(handle: string): Collection | undefined {
 
 export function demoCollections(): CollectionSummary[] {
   return COLLECTIONS.map(({ products: _products, descriptionHtml: _html, ...summary }) => summary);
+}
+
+export function demoProductTypes(): string[] {
+  return Array.from(new Set(PRODUCTS.flatMap((p) => (p.productType ? [p.productType] : []))));
 }

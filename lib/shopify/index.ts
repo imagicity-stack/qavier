@@ -13,6 +13,7 @@ import {
   demoEnabled,
   demoProduct,
   demoProducts,
+  demoProductTypes,
 } from '../demo';
 import {
   ADD_TO_CART_MUTATION,
@@ -23,6 +24,7 @@ import {
   GET_COLLECTIONS_QUERY,
   GET_PRODUCTS_QUERY,
   GET_PRODUCT_BY_HANDLE_QUERY,
+  GET_PRODUCT_TYPES_QUERY,
   GET_PRODUCT_SITEMAP_QUERY,
   GET_VARIANT_PRICES_QUERY,
   REMOVE_FROM_CART_MUTATION,
@@ -282,6 +284,7 @@ export async function getCollection(
     });
     const c = data.collection;
     if (!c) return undefined;
+    const products = flatten<any>(c.products).map(reshapeProduct);
     return {
       id: c.id,
       handle: c.handle,
@@ -289,7 +292,8 @@ export async function getCollection(
       description: c.description ?? '',
       descriptionHtml: c.descriptionHtml ?? '',
       image: c.image ? normalizeImage(c.image, c.title) : null,
-      products: flatten<any>(c.products).map(reshapeProduct),
+      products,
+      hasProducts: products.length > 0,
     };
   } catch (err) {
     // A failed collection read renders a "nothing here" page rather than a
@@ -304,11 +308,12 @@ export async function getCollection(
  * Every collection in the store, alphabetically, without their products.
  *
  * This is the spine of the site's navigation: the mega-menu, the collections
- * index and the home-page tiles all read it, so adding a collection in Shopify
- * puts it in the menu with no code change. Alphabetical because the Storefront
- * API doesn't expose the admin's manual collection order.
+ * index and the home-page tiles all read it. Alphabetical because the
+ * Storefront API doesn't expose the admin's manual collection order. 250 is
+ * the API's page maximum — room for the 36-collection catalogue and plenty
+ * more besides.
  */
-export async function getCollections(first = 60): Promise<CollectionSummary[]> {
+export async function getCollections(first = 250): Promise<CollectionSummary[]> {
   if (!isShopifyConfigured) {
     warnNotConfigured();
     return isDemoCatalogue ? demoCollections().slice(0, first) : [];
@@ -322,19 +327,45 @@ export async function getCollections(first = 60): Promise<CollectionSummary[]> {
     });
 
     return flatten<any>(data.collections).map((c) => {
-      const borrowed = flatten<any>(c.products)[0]?.featuredImage;
-      const image = c.image ?? borrowed;
+      const first = flatten<any>(c.products)[0];
+      const image = c.image ?? first?.featuredImage;
       return {
         id: c.id,
         handle: c.handle,
         title: c.title,
         description: c.description ?? '',
         image: image ? normalizeImage(image, c.title) : null,
+        hasProducts: Boolean(first),
       };
     });
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('[qavier] getCollections failed:', err);
+    return [];
+  }
+}
+
+/**
+ * Every product type in the store, as Shopify spells them. Feeds the Shop
+ * department the menu builds when the store has no Men / Women / Kids
+ * collections.
+ */
+export async function getProductTypes(): Promise<string[]> {
+  if (!isShopifyConfigured) {
+    warnNotConfigured();
+    return isDemoCatalogue ? demoProductTypes() : [];
+  }
+
+  try {
+    const data = await shopifyFetch<{ productTypes: Edges<string> }>({
+      query: GET_PRODUCT_TYPES_QUERY,
+      variables: { first: 250 },
+      tags: ['products'],
+    });
+    return flatten<string>(data.productTypes).filter((t) => t && t.trim());
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[qavier] getProductTypes failed:', err);
     return [];
   }
 }

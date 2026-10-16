@@ -149,27 +149,64 @@ Shopify checkout they're handed off to.
 
 ### Collections → the menu
 
-The header menu, the footer's Shop column, the home page's category row and the
-tiles above each collection grid all point at collections **by handle**. Create
-these collections in Shopify (**Products → Collections**, using exactly these
-handles) and each one appears in the menu as soon as it exists:
+The menu, the footer's Shop column, the home page's category row and the tiles
+above each collection grid all point at collections **by handle**. The full
+list — 36 collections — lives in
+[`lib/catalog/collections.json`](lib/catalog/collections.json):
 
 | Department | Collection handles |
 |---|---|
-| **Men** | `men`, `mens-polos`, `mens-t-shirts`, `mens-sweatshirts-hoodies`, `mens-pants`, `mens-shorts`, `mens-swimwear`, `mens-outerwear` |
-| **Women** | `women`, `womens-polos`, `womens-t-shirts`, `womens-sweatshirts-hoodies`, `womens-bottoms` |
-| **Kids** | `kids`, `kids-polos`, `kids-t-shirts`, `kids-sweatshirts-hoodies`, `kids-pants`, `matching-sets` |
-| **Accessories** (in the Men/Women menus) | `accessories`, `hats`, `bags`, `socks`, `belts` |
-| **Featured** | `new-arrivals`, `best-sellers`, `golf`, `gifts`, `gifts-under-1500`, `sale` |
+| **Featured** | `new-arrivals`, `best-sellers`, `sale`, `gifts`, `gifts-under-1500`, `golf`, `big-and-tall` |
+| **Men** | `men`, `mens-polos`, `mens-t-shirts`, `mens-shirts`, `mens-sweatshirts-hoodies`, `mens-sweaters-knits`, `mens-outerwear`, `mens-bottoms`, `mens-swimwear`, `mens-matching-sets` |
+| **Women** | `women`, `womens-polos`, `womens-t-shirts`, `womens-sweatshirts-hoodies`, `womens-bottoms`, `womens-outerwear` |
+| **Kids** | `kids`, `kids-polos`, `kids-t-shirts`, `kids-sweatshirts-hoodies`, `kids-bottoms`, `kids-swimwear`, `kids-matching-sets`, `kids-outerwear` |
+| **Accessories** | `accessories`, `hats-caps`, `bags-wallets`, `socks`, `belts` |
 
-- A department's mega-menu shows its first four products on the right — Men
-  reads the `men` collection, and so on.
-- A collection whose handle isn't in the tree still appears, under an extra
-  **Collections** menu item, so nothing you create is unreachable.
-- Give a collection an **image** in Shopify for its tile. Without one it
-  borrows its first product's photo.
+Each one is a Shopify **smart collection**: it fills itself from product tags
+and product type, so there is nothing to add by hand. A link whose collection
+doesn't exist yet is simply hidden; a collection the menu doesn't name appears
+in Discover's *Collections* column.
 
-The tree itself lives in `MENU` in `lib/nav.ts`.
+**Create them all in one go:**
+
+```bash
+# needs SHOPIFY_STORE_DOMAIN and SHOPIFY_ADMIN_ACCESS_TOKEN (env or .env.local)
+npm run collections            # dry run — prints what it would create
+npm run collections -- --apply # creates the missing ones and publishes them
+```
+
+The Admin token comes from a custom app (**Settings → Apps and sales channels →
+Develop apps**) with the `write_products`, `read_publications` and
+`write_publications` scopes. The script never edits or deletes a collection:
+a handle that already exists is left as it is (and, with `--apply`, published
+to the chosen channels — so a run that failed to publish can just be
+repeated). Add `--publication headless` to publish only to channels whose name
+contains that text, or `--only men,mens-polos` to create a few. It talks to
+Admin API `2024-07` unless `SHOPIFY_ADMIN_API_VERSION` says otherwise.
+
+A collection only appears in the menu, footer and tiles once at least one
+product matches it — creating all 36 up front leaves the site exactly as it
+was until products are tagged.
+
+**Then tag and type your products** — that is what places them:
+
+| To appear in | Set |
+|---|---|
+| Men / Women / Kids | tag `men`, `women` or `kids` |
+| A category (Polos, T-Shirts, …) | Product **type**: `Polos`, `T-Shirts`, `Shirts`, `Sweatshirts & Hoodies`, `Sweaters & Knits`, `Outerwear`, `Bottoms`, `Swimwear`, `Matching Sets`, `Hats & Caps`, `Bags & Wallets`, `Socks`, `Belts` |
+| New Arrivals | tag `new` |
+| Best Sellers | tag `bestseller` |
+| Gifts | tag `gift` (Gifts Under ₹1,500 also checks the price) |
+| Golf · Big & Tall | tag `golf` · `big-and-tall` |
+| Sale | a compare-at price (clear it when the sale ends) |
+
+Category rules match on part of the type, so `Oversized T-Shirts` lands in
+T-Shirts and `Bottomwear` in Bottoms. A department's mega-menu shows the first
+four products of its collection (Men reads `men`, and so on).
+
+If the store has no Men / Women / Kids collections yet, the menu builds a
+**Shop** department from the product types it finds, linking to
+`/shop?category=<type>`, so the catalogue is always reachable.
 
 ### Category filter → the product **Type** field
 
@@ -288,6 +325,8 @@ front, colour 2 back) and they replace the illustrations automatically.
 
 ## Notes
 
+- The intro animation (`components/intro-splash.tsx`) plays once per browser
+  session on the home page, and is skipped for reduced motion.
 - Fully responsive and mobile-first; respects `prefers-reduced-motion`.
 - The header is solid and sticky on every page, so pages sit in normal flow
   underneath it — there is no top-padding offset to keep in sync.

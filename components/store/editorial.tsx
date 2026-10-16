@@ -30,7 +30,9 @@ export function SplitBanners({ items }: { items: Editorial[] }) {
 /** One campaign photograph across the full width of the page. */
 export function WideBanner({ item }: { item: Editorial }) {
   return (
-    <section className="px-4 sm:px-6 lg:px-10">
+    // The top margin matches the gap inside SplitBanners, for when the two
+    // sit back to back with no rail between them.
+    <section className="mt-2.5 px-4 sm:px-6 lg:px-10">
       <Panel item={item} className="aspect-[4/5] sm:aspect-[16/7]" wide />
     </section>
   );
@@ -49,7 +51,9 @@ function Panel({
     <Link href={item.href} className={cn('group relative block overflow-hidden bg-shell', className)}>
       <ShopImage
         image={item.image}
-        sizes={wide ? '100vw' : '(max-width: 640px) 100vw, 50vw'}
+        // Landscape photos cropped to a portrait frame need about twice the
+        // frame's width to stay sharp.
+        sizes="(max-width: 640px) 200vw, 100vw"
         position={item.position}
         className="absolute inset-0 h-full w-full transition-transform duration-[1200ms] ease-soft group-hover:scale-[1.02]"
         label={item.title}

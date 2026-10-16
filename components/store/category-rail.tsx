@@ -57,7 +57,7 @@ export function CategoryRail({
     <div>
       <div
         ref={ref}
-        className="scrollbar-none flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 sm:gap-5 sm:px-6 lg:px-0"
+        className="scrollbar-none flex snap-x snap-mandatory scroll-pl-4 gap-3 overflow-x-auto px-4 sm:scroll-pl-6 sm:gap-5 sm:px-6 lg:scroll-pl-0 lg:px-0"
       >
         {tiles.map((tile) => {
           const active = tile.href === activeHref;
@@ -84,7 +84,7 @@ export function CategoryRail({
                 />
               </div>
               <div className="mt-4 text-center">
-                <span className="label inline-block border-b-2 border-ink pb-1.5 text-[0.7rem] sm:text-[0.75rem]">
+                <span className="label inline-block whitespace-nowrap border-b-2 border-ink pb-1.5 text-[0.66rem] sm:text-[0.7rem]">
                   {tile.title}
                 </span>
               </div>

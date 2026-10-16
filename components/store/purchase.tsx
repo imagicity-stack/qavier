@@ -75,13 +75,18 @@ export function ProductView({
         ),
     );
 
-  // The gallery shows the chosen colourway's shots when there are any.
+  // The gallery shows the chosen colourway's shots, plus any shot that isn't
+  // of a particular colour (a detail, a flat lay), when there are any.
   const images = useMemo<Image[]>(() => {
-    if (!color) return product.images;
-    const needle = color.toLowerCase();
-    const own = product.images.filter((img) => img.altText?.toLowerCase().includes(needle));
-    return own.length ? own : product.images;
-  }, [color, product.images]);
+    if (!color || !colorOption) return product.images;
+    const mentions = (img: Image, value: string) =>
+      Boolean(img.altText?.toLowerCase().includes(value.toLowerCase()));
+    const own = product.images.filter((img) => mentions(img, color));
+    if (!own.length) return product.images;
+    return product.images.filter(
+      (img) => own.includes(img) || !colorOption.values.some((v) => mentions(img, v)),
+    );
+  }, [color, colorOption, product.images]);
 
   const handleAdd = () => {
     if (!ready) {
